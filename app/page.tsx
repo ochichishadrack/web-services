@@ -32,7 +32,7 @@ interface Service {
 function SkeletonCard(): JSX.Element {
   return (
     <div className="h-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl overflow-hidden animate-pulse">
-      <div className="w-full aspect-[4/3] bg-gray-200 dark:bg-gray-800" />
+      <div className="w-full aspect-4/3 bg-gray-200 dark:bg-gray-800" />
       <div className="p-4 space-y-3">
         <div className="h-4 rounded bg-gray-200 dark:bg-gray-800 w-3/4" />
         <div className="h-3 rounded bg-gray-200 dark:bg-gray-800 w-1/2" />
@@ -149,7 +149,7 @@ export default function HomePage(): JSX.Element {
                   className="group block h-full"
                 >
                   <div className="h-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl overflow-hidden transition hover:shadow-md">
-                    <div className="relative w-full aspect-[4/3] bg-gray-100 dark:bg-gray-800 overflow-hidden">
+                    <div className="relative w-full aspect-4/3 bg-gray-100 dark:bg-gray-800 overflow-hidden">
                       {hasVideo ? (
                         <video
                           src={coverMedia.video_url ?? undefined}
