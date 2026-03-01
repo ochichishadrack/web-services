@@ -81,10 +81,11 @@ export default function ServiceCheckoutPage(): JSX.Element {
 
   useEffect(() => {
     if (!authLoading && !customer) {
-      const currentUrl = window.location.pathname + window.location.search;
-      router.replace(
-        `/user/login?callbackUrl=${encodeURIComponent(currentUrl)}`,
-      );
+      if (typeof window !== "undefined") {
+        const currentUrl = window.location.pathname + window.location.search;
+
+        router.replace(`/login?callbackUrl=${encodeURIComponent(currentUrl)}`);
+      }
     }
   }, [authLoading, customer, router]);
 

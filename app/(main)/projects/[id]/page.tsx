@@ -407,7 +407,7 @@ export default function ServiceOrderDetailsPage(): JSX.Element | null {
                 type="button"
                 onClick={() =>
                   router.push(
-                    `/service-orders/pay/${order.id}?phase=${nextUnpaidPhase[0]}`,
+                    `/projects/pay/${order.id}?phase=${nextUnpaidPhase[0]}`,
                   )
                 }
                 className="mt-5 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm font-medium"
