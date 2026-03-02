@@ -157,6 +157,7 @@ export default function PaymentComponent({
         amount: amountKobo,
         email: customer.email,
         requirements: cleanedRequirements,
+        callback_url: `${window.location.origin}/payment/verify`,
       };
 
       formData.append('payload_json', JSON.stringify(payload));

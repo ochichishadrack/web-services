@@ -139,10 +139,36 @@ export default function ServiceOrders(): JSX.Element {
   /* ---------------- Render States ---------------- */
   if (authLoading || loading) {
     return (
-      <div className="p-6 grid gap-4 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <SkeletonCard key={i} />
-        ))}
+      <div className="min-h-screen bg-white dark:bg-gray-950 transition-colors">
+        <div className="p-6 max-w-7xl mx-auto space-y-6">
+          {/* Cards Grid */}
+          <div className="grid gap-5 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-5 shadow-sm animate-pulse space-y-4"
+              >
+                {/* Header */}
+                <div className="flex justify-between items-start">
+                  <div className="h-5 w-3/4 bg-gray-200 dark:bg-gray-800 rounded"></div>
+                  <div className="h-5 w-20 bg-gray-200 dark:bg-gray-800 rounded-full"></div>
+                </div>
+
+                {/* Package + Price */}
+                <div className="flex justify-between items-center">
+                  <div className="h-4 w-1/2 bg-gray-200 dark:bg-gray-800 rounded"></div>
+                  <div className="h-4 w-1/4 bg-gray-200 dark:bg-gray-800 rounded"></div>
+                </div>
+
+                {/* Dates */}
+                <div className="space-y-2">
+                  <div className="h-3 w-2/3 bg-gray-200 dark:bg-gray-800 rounded"></div>
+                  <div className="h-3 w-1/2 bg-gray-200 dark:bg-gray-800 rounded"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }

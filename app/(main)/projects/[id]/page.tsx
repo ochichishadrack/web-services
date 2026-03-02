@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState, JSX } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { axiosInstance } from "@/utils/axiosInstance";
 import TopNav from "@/components/ui/DynamicTopNav";
-
+import ServiceOrderDetailsSkeleton from "./ServiceOrderDetailsSkeleton";
 /* ---------------- TYPES ---------------- */
 
 type OrderStatus =
@@ -88,68 +88,13 @@ const statusStyles: Record<OrderStatus, string> = {
   phase_3_completed: "bg-violet-200 text-violet-900",
 };
 
-/* ---------------- SKELETONS ---------------- */
-
-function HeaderSkeleton(): JSX.Element {
+function InfoCard({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="bg-white border rounded-2xl p-6 shadow-sm animate-pulse space-y-3">
-      <div className="h-6 bg-gray-200 rounded w-2/3" />
-      <div className="h-4 bg-gray-200 rounded w-1/3" />
-
-      <div className="flex justify-between mt-4">
-        <div className="h-5 bg-gray-200 rounded w-28" />
-        <div className="h-5 bg-gray-200 rounded w-20" />
-      </div>
-
-      <div className="h-3 bg-gray-200 rounded w-32" />
-    </div>
-  );
-}
-
-function FeaturesSkeleton(): JSX.Element {
-  return (
-    <div className="bg-white border rounded-2xl p-6 shadow-sm animate-pulse">
-      <div className="h-5 bg-gray-200 rounded w-40 mb-4" />
-
-      <div className="grid sm:grid-cols-2 gap-3">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="h-4 bg-gray-200 rounded w-full" />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function PhasesSkeleton(): JSX.Element {
-  return (
-    <div className="bg-white border rounded-2xl p-6 shadow-sm animate-pulse">
-      <div className="h-5 bg-gray-200 rounded w-40 mb-4" />
-
-      <div className="space-y-3">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="border rounded-lg p-3 space-y-2">
-            <div className="h-4 bg-gray-200 rounded w-32" />
-            <div className="h-3 bg-gray-200 rounded w-24" />
-          </div>
-        ))}
-      </div>
-
-      <div className="h-10 bg-gray-200 rounded w-full mt-5" />
-    </div>
-  );
-}
-
-function DeliveriesSkeleton(): JSX.Element {
-  return (
-    <div className="bg-white border rounded-2xl p-6 shadow-sm animate-pulse">
-      <div className="h-5 bg-gray-200 rounded w-40 mb-4" />
-
-      {Array.from({ length: 2 }).map((_, i) => (
-        <div key={i} className="border rounded-lg p-4 space-y-2 mb-3">
-          <div className="h-4 bg-gray-200 rounded w-full" />
-          <div className="h-3 bg-gray-200 rounded w-32" />
-        </div>
-      ))}
+    <div className="border border-gray-200 dark:border-gray-800 rounded-xl p-4 bg-gray-50 dark:bg-gray-800/40 transition">
+      <p className="text-gray-500 dark:text-gray-400 text-xs">{label}</p>
+      <p className="font-semibold text-gray-900 dark:text-gray-100 mt-1">
+        {value}
+      </p>
     </div>
   );
 }
@@ -214,18 +159,8 @@ export default function ServiceOrderDetailsPage(): JSX.Element | null {
   /* ---------------- LOADING ---------------- */
 
   if (loading || !hasFetched) {
-    return (
-      <div className="min-h-screen bg-white">
-        <div className="max-w-6xl mx-auto p-4 md:p-10 space-y-6">
-          <HeaderSkeleton />
-          <FeaturesSkeleton />
-          <PhasesSkeleton />
-          <DeliveriesSkeleton />
-        </div>
-      </div>
-    );
+    return <ServiceOrderDetailsSkeleton />;
   }
-
   /* ---------------- ERROR ---------------- */
 
   if (error) {
@@ -260,90 +195,74 @@ export default function ServiceOrderDetailsPage(): JSX.Element | null {
   /* ---------------- UI ---------------- */
 
   return (
-    <div className="max-w-6xl bg-white">
+    <div className="min-h-screen bg-white dark:bg-gray-950 transition-colors">
       <TopNav title="Order Details" />
-      {/* HEADER */}
-      <div className="max-w-6xl bg-white mx-auto p-4 md:p-10 space-y-6">
-        <div className="bg-white border rounded-2xl p-6 shadow-sm">
-          <h1 className="text-xl font-semibold text-gray-800">
+
+      <div className="max-w-6xl mx-auto p-4 md:p-10 space-y-8">
+        {/* HEADER */}
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm transition-colors">
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
             {order.service_title}
           </h1>
 
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
             {order.package_name} ({order.package_type})
           </p>
 
-          <div className="flex justify-between mt-4">
-            <span className="text-lg font-bold text-blue-900">
+          <div className="flex justify-between items-center mt-6">
+            <span className="text-xl font-bold text-blue-700 dark:text-blue-400">
               {formatKES(order.total_price)}
             </span>
 
             <span
-              className={`px-3 py-1 text-xs rounded capitalize ${
-                statusStyles[order.status] ?? "bg-gray-100 text-gray-700"
+              className={`px-3 py-1 text-xs rounded-full capitalize font-medium ${
+                statusStyles[order.status] ??
+                "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
               }`}
             >
               {order.status.replace(/_/g, " ")}
             </span>
           </div>
 
-          <p className="text-xs text-gray-400 mt-2">
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-3">
             Due: {new Date(order.due_date).toLocaleDateString()}
           </p>
         </div>
 
         {/* PACKAGE DETAILS */}
-
         {order.package && (
-          <div className="bg-white border rounded-2xl p-6 shadow-sm space-y-6">
-            <h2 className="font-semibold text-gray-800 text-lg">
+          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm space-y-6 transition-colors">
+            <h2 className="font-semibold text-gray-900 dark:text-gray-100 text-lg">
               Package Details
             </h2>
 
-            <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-5 text-sm">
               {order.package.delivery_days !== undefined && (
-                <div className="border rounded-lg p-4">
-                  <p className="text-gray-500 text-xs">Delivery Time</p>
-                  <p className="font-semibold text-gray-800">
-                    {order.package.delivery_days} Days
-                  </p>
-                </div>
+                <InfoCard
+                  label="Delivery Time"
+                  value={`${order.package.delivery_days} Days`}
+                />
               )}
 
               {order.package.revisions !== undefined && (
-                <div className="border rounded-lg p-4">
-                  <p className="text-gray-500 text-xs">Revisions</p>
-                  <p className="font-semibold text-gray-800">
-                    {order.package.revisions}
-                  </p>
-                </div>
+                <InfoCard label="Revisions" value={order.package.revisions} />
               )}
 
               {order.package.pages != null && (
-                <div className="border rounded-lg p-4">
-                  <p className="text-gray-500 text-xs">Pages</p>
-                  <p className="font-semibold text-gray-800">
-                    {order.package.pages}
-                  </p>
-                </div>
+                <InfoCard label="Pages" value={order.package.pages} />
               )}
 
               {order.package.products != null && (
-                <div className="border rounded-lg p-4">
-                  <p className="text-gray-500 text-xs">Products</p>
-                  <p className="font-semibold text-gray-800">
-                    {order.package.products}
-                  </p>
-                </div>
+                <InfoCard label="Products" value={order.package.products} />
               )}
             </div>
 
             {order.package.description && (
               <div>
-                <h3 className="font-medium text-gray-700 mb-2">
+                <h3 className="font-medium text-gray-800 dark:text-gray-200 mb-2">
                   Package Description
                 </h3>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
                   {order.package.description}
                 </p>
               </div>
@@ -351,14 +270,19 @@ export default function ServiceOrderDetailsPage(): JSX.Element | null {
 
             {order.package.features?.length ? (
               <div>
-                <h3 className="font-medium text-gray-700 mb-3">
+                <h3 className="font-medium text-gray-800 dark:text-gray-200 mb-3">
                   Included Features
                 </h3>
 
-                <ul className="grid sm:grid-cols-2 gap-2 text-gray-600 text-sm">
+                <ul className="grid sm:grid-cols-2 gap-3 text-sm">
                   {order.package.features.map((feature, index) => (
-                    <li key={`${feature}-${index}`} className="flex gap-2">
-                      <span className="text-green-600">✔</span>
+                    <li
+                      key={`${feature}-${index}`}
+                      className="flex items-center gap-2 text-gray-700 dark:text-gray-300"
+                    >
+                      <span className="text-green-600 dark:text-green-400">
+                        ✔
+                      </span>
                       {feature}
                     </li>
                   ))}
@@ -369,31 +293,32 @@ export default function ServiceOrderDetailsPage(): JSX.Element | null {
         )}
 
         {/* PHASES */}
+        {order.phases && (
+          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm transition-colors">
+            <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-5">
+              Payment Phases
+            </h2>
 
-        {order.phases ? (
-          <div className="bg-white border rounded-2xl p-6 shadow-sm">
-            <h2 className="font-semibold text-gray-700 mb-4">Payment Phases</h2>
-
-            <div className="space-y-3">
+            <div className="space-y-4">
               {Object.entries(order.phases).map(([key, phase]) => (
                 <div
                   key={key}
-                  className="flex justify-between items-center border rounded-lg p-3"
+                  className="flex justify-between items-center border border-gray-200 dark:border-gray-800 rounded-xl p-4 bg-gray-50 dark:bg-gray-800/40 transition"
                 >
                   <div>
-                    <p className="capitalize text-gray-700 font-medium">
+                    <p className="capitalize text-gray-800 dark:text-gray-200 font-medium">
                       {key}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                       {formatKES(phase.amount)}
                     </p>
                   </div>
 
                   <span
-                    className={`text-xs px-3 py-1 rounded-full ${
+                    className={`text-xs px-3 py-1 rounded-full font-medium ${
                       phase.paid
-                        ? "bg-green-100 text-green-700"
-                        : "bg-gray-100 text-gray-600"
+                        ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400"
+                        : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
                     }`}
                   >
                     {phase.paid ? "Paid" : "Unpaid"}
@@ -404,33 +329,35 @@ export default function ServiceOrderDetailsPage(): JSX.Element | null {
 
             {nextUnpaidPhase && (
               <button
-                type="button"
                 onClick={() =>
                   router.push(
                     `/projects/pay/${order.id}?phase=${nextUnpaidPhase[0]}`,
                   )
                 }
-                className="mt-5 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm font-medium"
+                className="mt-6 w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white py-3 rounded-xl text-sm font-semibold shadow-md transition active:scale-[0.98]"
               >
                 Pay Next Phase ({nextUnpaidPhase[0].toUpperCase()})
               </button>
             )}
           </div>
-        ) : null}
+        )}
 
         {/* DELIVERIES */}
-
         {order.deliveries?.length ? (
-          <div className="bg-white border rounded-2xl p-6 shadow-sm">
-            <h2 className="font-semibold mb-4">Deliveries</h2>
+          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm transition-colors">
+            <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-5">
+              Deliveries
+            </h2>
 
-            <div className="space-y-4">
+            <div className="space-y-5">
               {order.deliveries.map((delivery, index) => (
                 <div
                   key={`${delivery.message}-${index}`}
-                  className="border rounded-lg p-4"
+                  className="border border-gray-200 dark:border-gray-800 rounded-xl p-5 bg-gray-50 dark:bg-gray-800/40 transition"
                 >
-                  <p className="mb-3">{delivery.message}</p>
+                  <p className="text-gray-800 dark:text-gray-200 mb-3">
+                    {delivery.message}
+                  </p>
 
                   {delivery.file_urls?.map((url, idx) => (
                     <a
@@ -438,14 +365,14 @@ export default function ServiceOrderDetailsPage(): JSX.Element | null {
                       href={url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="block text-blue-600 underline text-xs"
+                      className="block text-blue-600 dark:text-blue-400 hover:underline text-xs mb-1"
                     >
                       Download File
                     </a>
                   ))}
 
                   {delivery.delivered_at && (
-                    <p className="text-xs text-gray-400 mt-2">
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
                       Delivered:{" "}
                       {new Date(delivery.delivered_at).toLocaleDateString()}
                     </p>

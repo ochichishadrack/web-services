@@ -120,6 +120,7 @@ export default function PaymentPage() {
           order?.extras?.filter((e) => e.enabled).map((e) => e.id) ?? [],
         phase: backendPhase,
         amount: Math.round(amount * 100),
+        callback_url: `${window.location.origin}/payment/verify`,
       };
 
       const formData = new FormData();
@@ -149,8 +150,8 @@ export default function PaymentPage() {
   /* ---------------- UI ---------------- */
   if (!orderId) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-red-600 font-semibold text-base">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 transition-colors">
+        <div className="text-red-600 dark:text-red-400 font-semibold text-base">
           Invalid order ID
         </div>
       </div>
@@ -158,42 +159,44 @@ export default function PaymentPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-md p-6 space-y-4 border border-gray-100">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center px-4 transition-colors">
+      <div className="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-6 space-y-5 border border-gray-100 dark:border-gray-700 transition-colors">
         {/* Header */}
-        <div className="text-center space-y-1">
-          <h1 className="text-2xl font-semibold text-gray-900">
+        <div className="text-center space-y-2">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
             Complete Payment
           </h1>
-          <p className="text-gray-500 text-sm">
+          <p className="text-gray-500 dark:text-gray-400 text-sm">
             Secure checkout for your service
           </p>
         </div>
 
         {/* Payment Info */}
-        <div className="space-y-2">
-          <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 flex flex-col">
-            <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">
+        <div className="space-y-3">
+          <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 flex flex-col transition-colors">
+            <span className="text-xs font-medium text-gray-400 dark:text-gray-300 uppercase tracking-wide">
               Payment Type
             </span>
-            <span className="mt-1 text-sm font-medium text-gray-900">
+            <span className="mt-1 text-sm font-semibold text-gray-900 dark:text-gray-100">
               {phaseLabel}
             </span>
           </div>
 
-          <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 flex flex-col">
-            <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">
+          <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 flex flex-col transition-colors">
+            <span className="text-xs font-medium text-gray-400 dark:text-gray-300 uppercase tracking-wide">
               Amount
             </span>
             <div className="mt-1">
               {loadingAmount ? (
-                <div className="h-6 w-24 bg-gray-200 animate-pulse rounded" />
+                <div className="h-6 w-24 bg-gray-200 dark:bg-gray-700 animate-pulse rounded" />
               ) : amount ? (
-                <span className="text-sm font-semibold text-gray-900">
+                <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                   {formatKES(amount)}
                 </span>
               ) : (
-                <span className="text-gray-400 text-sm">Unavailable</span>
+                <span className="text-gray-400 dark:text-gray-300 text-sm">
+                  Unavailable
+                </span>
               )}
             </div>
           </div>
@@ -201,7 +204,7 @@ export default function PaymentPage() {
 
         {/* Error */}
         {error && (
-          <div className="text-sm text-red-600 font-medium text-center">
+          <div className="text-sm text-red-600 dark:text-red-400 font-medium text-center">
             {error}
           </div>
         )}
@@ -212,7 +215,7 @@ export default function PaymentPage() {
             type="button"
             onClick={handlePay}
             disabled={loadingPayment || loadingAmount || !amount}
-            className="w-full h-10 bg-black text-white font-medium rounded-lg hover:opacity-90 disabled:opacity-50 transition"
+            className="w-full h-11 bg-orange-600 text-white font-semibold rounded-lg hover:bg-orange-700 disabled:opacity-50 transition"
           >
             {loadingPayment ? "Redirecting…" : "Proceed to Pay"}
           </button>
@@ -220,14 +223,14 @@ export default function PaymentPage() {
           <button
             type="button"
             onClick={() => router.back()}
-            className="w-full h-9 text-gray-600 font-medium rounded-lg border border-gray-200 hover:bg-gray-100 transition"
+            className="w-full h-10 text-gray-700 dark:text-gray-200 font-medium rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
           >
             Cancel
           </button>
         </div>
 
         {/* Footer */}
-        <p className="text-xs text-center text-gray-400">
+        <p className="text-xs text-center text-gray-400 dark:text-gray-500 transition-colors">
           Securely processed via Paystack
         </p>
       </div>
