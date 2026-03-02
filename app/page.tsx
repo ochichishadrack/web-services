@@ -111,9 +111,9 @@ export default function HomePage(): JSX.Element {
 
           <Link
             href="/services"
-            className="text-blue-600 font-medium hover:underline"
+            className="text-blue-600 underline font-medium hover:underline"
           >
-            View All Services →
+            View All
           </Link>
         </div>
 
