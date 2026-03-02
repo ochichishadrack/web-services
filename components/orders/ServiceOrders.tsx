@@ -206,59 +206,64 @@ export default function ServiceOrders(): JSX.Element {
 
   /* ---------------- Orders Grid ---------------- */
   return (
-    <div className="p-6 bg-white dark:bg-gray-950 min-h-screen transition-colors">
-      <div className="grid gap-5 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-        {orders.map((order) => (
-          <div
-            key={order.id}
-            className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-5 shadow-sm hover:shadow-lg transition cursor-pointer flex flex-col justify-between"
-            onClick={() => router.push(`/projects/${order.id}`)}
-          >
-            {/* Header */}
-            <div className="flex justify-between items-start">
-              <h3 className="font-semibold text-gray-800 dark:text-gray-100 text-base md:text-lg truncate">
-                {order.service_title}
-              </h3>
-              <span
-                className={`px-3 py-1.5 rounded-full text-xs md:text-sm font-semibold whitespace-nowrap ${statusConfig[order.status].className}`}
-              >
-                {statusConfig[order.status].label}
-              </span>
-            </div>
+    <div className="px-4 sm:px-6 bg-white dark:bg-gray-950 min-h-screen transition-colors overflow-x-hidden">
+      <div className="max-w-7xl mx-auto">
+        <div className="grid gap-4 sm:gap-5 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+          {orders.map((order) => (
+            <div
+              key={order.id}
+              className="w-full min-w-0 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-lg transition cursor-pointer flex flex-col justify-between"
+              onClick={() => router.push(`/projects/${order.id}`)}
+            >
+              {/* Header */}
+              <div className="flex items-start gap-3 min-w-0">
+                <h3 className="font-semibold text-gray-800 dark:text-gray-100 text-sm sm:text-base md:text-lg wrap-break-word min-w-0 flex-1">
+                  {order.service_title}
+                </h3>
 
-            {/* Package & Price */}
-            <div className="flex justify-between items-center mt-3 text-sm md:text-base">
-              <p className="text-gray-500 dark:text-gray-300 truncate">
-                Package: {order.package_type}
-              </p>
-              <span className="font-semibold text-gray-900 dark:text-gray-100">
-                KES {order.total_price.toLocaleString()}
-              </span>
-            </div>
+                <span
+                  className={`shrink-0 px-2.5 py-1 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap ${statusConfig[order.status].className}`}
+                >
+                  {statusConfig[order.status].label}
+                </span>
+              </div>
 
-            {/* Dates */}
-            <div className="mt-2 text-xs md:text-sm text-gray-400 dark:text-gray-400 space-y-1">
-              <p>
-                Created:{' '}
-                {new Date(order.created_at).toLocaleDateString('en-KE', {
-                  day: 'numeric',
-                  month: 'short',
-                  year: 'numeric',
-                })}
-              </p>
-              {order.due_date && (
+              {/* Package & Price */}
+              <div className="flex items-start justify-between gap-3 mt-3 text-sm sm:text-base min-w-0">
+                <p className="text-gray-500 dark:text-gray-300 wrap-break-word min-w-0 flex-1">
+                  Package: {order.package_type}
+                </p>
+
+                <span className="font-semibold text-gray-900 dark:text-gray-100 shrink-0">
+                  KES {order.total_price.toLocaleString()}
+                </span>
+              </div>
+
+              {/* Dates */}
+              <div className="mt-3 text-xs sm:text-sm text-gray-400 dark:text-gray-400 space-y-1">
                 <p>
-                  Due:{' '}
-                  {new Date(order.due_date).toLocaleDateString('en-KE', {
+                  Created{' '}
+                  {new Date(order.created_at).toLocaleDateString('en-KE', {
                     day: 'numeric',
                     month: 'short',
                     year: 'numeric',
                   })}
                 </p>
-              )}
+
+                {order.due_date && (
+                  <p>
+                    Due{' '}
+                    {new Date(order.due_date).toLocaleDateString('en-KE', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric',
+                    })}
+                  </p>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );

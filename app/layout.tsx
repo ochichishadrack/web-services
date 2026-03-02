@@ -4,8 +4,9 @@ import ThemeProvider from "@/components/ThemeProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Developer_Maraspot",
-  description: "Premium real estate demo platform",
+  title: "Maraspot Services",
+  description:
+    "Professional web development services by Maraspot. Specializing in React, Next.js, Tailwind CSS, Python & more to create stunning full stack websites and applications. Contact us for custom solutions that elevate your online presence.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

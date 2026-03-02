@@ -87,19 +87,24 @@ export default function ServicesPage(): JSX.Element {
       <TopNav activePage="services" />
 
       {/* Hero Section */}
-      <section
-        className="relative h-80 md:h-96 text-white flex flex-col justify-center items-center text-center px-4"
-        style={{
-          backgroundImage:
-            "url('https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1400&q=80')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        <div className="absolute inset-0 bg-black/40" /> {/* overlay */}
-        <div className="relative z-10 max-w-3xl">
+      <section className="relative h-80 md:h-96 flex items-center justify-center text-center text-white overflow-hidden">
+        {/* Background Image */}
+        <Image
+          src="/pages-web.jpeg"
+          alt="Web services hero"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
+        />
+
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-black/50" />
+
+        {/* Content */}
+        <div className="relative z-10 px-4 max-w-3xl">
           <h2 className="text-3xl md:text-5xl font-bold mb-3">
-            Exprole All Our Services
+            Explore All Our Services
           </h2>
           <p className="text-sm md:text-lg opacity-90">
             Modern, responsive, and scalable web solutions tailored for your
