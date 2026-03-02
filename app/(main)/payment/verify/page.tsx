@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import {
   CheckCircle,
   XCircle,
@@ -37,6 +39,7 @@ export default function PaymentVerifyPage() {
         const res = await axiosInstance.get(
           `/api/paystack/verify/${reference}`,
         );
+
         if (res.data.status === "success") {
           setStatus("success");
           setMessage("Your service order has been confirmed.");
@@ -95,7 +98,6 @@ export default function PaymentVerifyPage() {
   return (
     <main className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900 flex items-center justify-center px-4 transition-colors">
       <div className="w-full max-w-lg">
-        {/* BRAND */}
         <div className="text-center mb-6">
           <h1 className="text-2xl font-extrabold text-orange-600 tracking-tight">
             MaraSpot
@@ -105,7 +107,6 @@ export default function PaymentVerifyPage() {
           </p>
         </div>
 
-        {/* STATUS CARD */}
         <div
           className={`rounded-2xl shadow-xl border p-6 text-center ${statusUI.bg} ${statusUI.border}`}
         >
@@ -126,13 +127,11 @@ export default function PaymentVerifyPage() {
             </div>
           </div>
 
-          {/* TRUST BADGE */}
           <div className="mt-4 flex items-center justify-center gap-2 text-xs text-gray-500 dark:text-gray-400">
             <ShieldCheck size={14} />
             Encrypted & Secure Payment Processing
           </div>
 
-          {/* ACTIONS */}
           {(status === "success" || status === "failed") && (
             <div className="mt-6 flex gap-3">
               {status === "success" && (
@@ -163,7 +162,6 @@ export default function PaymentVerifyPage() {
           )}
         </div>
 
-        {/* SUPPORT */}
         <div className="mt-6 border rounded-2xl p-4 text-center shadow-sm bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-700 transition-colors">
           <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
             Need help with your order?
