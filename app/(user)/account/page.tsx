@@ -111,8 +111,8 @@ export default function CustomerAccount() {
       icon: <Gift className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />,
     },
     {
-      label: "Notifications",
-      path: "/notifications",
+      label: "Subscriptions",
+      path: "/subscription",
       icon: <Bell className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />,
     },
     {

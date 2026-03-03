@@ -2,7 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Bell, User, Home, Briefcase, FolderKanban, Menu, X } from 'lucide-react';
+import { Bell, User, Home, Briefcase, FolderKanban, Menu, X, LogIn } from 'lucide-react';
+import { useCustomerAuth } from '@/context/CustomerAuthContext';
+import { usePathname } from 'next/navigation';
 
 interface TopNavProps {
   activePage?: 'home' | 'services' | 'projects' | 'account' | 'notifications';
@@ -10,6 +12,8 @@ interface TopNavProps {
 
 export default function TopNav({ activePage = 'home' }: TopNavProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { isAuthenticated, loading: authLoading } = useCustomerAuth();
+  const pathname = usePathname(); // current page for callbackUrl
 
   const navItems = [
     { key: 'home', label: 'Home', href: '/', icon: Home },
@@ -17,6 +21,8 @@ export default function TopNav({ activePage = 'home' }: TopNavProps) {
     { key: 'projects', label: 'My Projects', href: '/projects', icon: FolderKanban },
     { key: 'account', label: 'Account', href: '/account', icon: User },
   ];
+
+  const loginHref = `/login?callbackUrl=${encodeURIComponent(pathname)}`;
 
   return (
     <header className="sticky top-0 z-50 backdrop-blur-md bg-white/80 dark:bg-gray-900/80 border-b border-gray-200 dark:border-gray-800">
@@ -52,24 +58,44 @@ export default function TopNav({ activePage = 'home' }: TopNavProps) {
             );
           })}
 
-          {/* Notifications on desktop */}
-          <Link
-            href="/notifications"
-            className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800"
-          >
-            <Bell className="w-5 h-5" />
-          </Link>
+          {/* Conditional login or notifications */}
+          {!authLoading && !isAuthenticated ? (
+            <Link
+              href={loginHref}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-green-600 text-white hover:bg-green-700 transition"
+            >
+              <LogIn className="w-5 h-5" />
+              Login
+            </Link>
+          ) : (
+            <Link
+              href="/notifications"
+              className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800"
+            >
+              <Bell className="w-5 h-5" />
+            </Link>
+          )}
         </nav>
 
         {/* ================= MOBILE ACTIONS ================= */}
         <div className="flex items-center gap-3 md:hidden">
-          {/* Notifications */}
-          <Link
-            href="/notifications"
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
-          >
-            <Bell className="w-5 h-5" />
-          </Link>
+          {/* Conditional login or notifications */}
+          {!authLoading && !isAuthenticated ? (
+            <Link
+              href={loginHref}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition"
+            >
+              <LogIn className="w-5 h-5" />
+              Login
+            </Link>
+          ) : (
+            <Link
+              href="/notifications"
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+            >
+              <Bell className="w-5 h-5" />
+            </Link>
+          )}
 
           {/* Menu Toggle */}
           <button
@@ -105,6 +131,18 @@ export default function TopNav({ activePage = 'home' }: TopNavProps) {
               </Link>
             );
           })}
+
+          {/* Mobile login button with text */}
+          {!authLoading && !isAuthenticated && (
+            <Link
+              href={loginHref}
+              onClick={() => setMenuOpen(false)}
+              className="flex items-center gap-2 px-4 py-3 rounded-xl bg-green-600 text-white hover:bg-green-700 transition"
+            >
+              <LogIn className="w-5 h-5" />
+              Login
+            </Link>
+          )}
         </div>
       )}
     </header>

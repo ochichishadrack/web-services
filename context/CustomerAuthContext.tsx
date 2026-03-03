@@ -29,7 +29,7 @@ interface CustomerAuthContextType {
 }
 
 const CustomerAuthContext = createContext<CustomerAuthContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export const CustomerAuthProvider = ({ children }: { children: ReactNode }) => {
@@ -89,7 +89,7 @@ export const CustomerAuthProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setCustomer(null);
       // Full page reload to Login, removing current page from history
-      window.location.replace("/user/login");
+      window.location.replace("/login");
     }
   };
 
