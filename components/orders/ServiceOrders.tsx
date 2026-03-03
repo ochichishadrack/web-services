@@ -206,13 +206,13 @@ export default function ServiceOrders(): JSX.Element {
 
   /* ---------------- Orders Grid ---------------- */
   return (
-    <div className="px-4 mt-3 sm:px-6 bg-white dark:bg-gray-950 min-h-screen transition-colors overflow-x-hidden">
+    <div className="px-4 sm:px-6 bg-white dark:bg-gray-950 min-h-screen transition-colors overflow-x-hidden">
       <div className="max-w-7xl mx-auto">
         <div className="grid gap-4 sm:gap-5 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
           {orders.map((order) => (
             <div
               key={order.id}
-              className="w-full min-w-0 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-lg transition cursor-pointer flex flex-col justify-between"
+              className="w-full min-w-0 mt-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-lg transition cursor-pointer flex flex-col justify-between"
               onClick={() => router.push(`/projects/${order.id}`)}
             >
               {/* Header */}
