@@ -51,6 +51,7 @@ export default function HomePage(): JSX.Element {
   const [loading, setLoading] = useState(true);
   const { customer, isAuthenticated } = useCustomerAuth();
   const router = useRouter();
+  const [prices, setPrices] = useState<Record<string, any>>({});
 
   const [showModal, setShowModal] = useState(false);
   const [subLoading, setSubLoading] = useState(false);
@@ -84,6 +85,19 @@ export default function HomePage(): JSX.Element {
     }
 
     void fetchServices();
+  }, []);
+
+  useEffect(() => {
+    async function fetchPrices() {
+      try {
+        const res = await axiosInstance.get("/api/web-services/prices");
+        setPrices(res.data || {});
+      } catch {
+        console.error("Failed to fetch prices");
+      }
+    }
+
+    fetchPrices();
   }, []);
 
   useEffect(() => {
@@ -146,9 +160,9 @@ export default function HomePage(): JSX.Element {
       <TopNav activePage="home" />
 
       {/* HERO */}
-      <section className="relative h-130 md:h-155 flex items-center justify-center text-center text-white">
+      <section className="relative h-110 sm:h-130 md:h-145 flex items-center justify-center text-center text-white">
         <Image
-          src="/need-web.jpeg"
+          src="/stunning-web.jpeg"
           alt="Web Development"
           fill
           priority
@@ -170,6 +184,19 @@ export default function HomePage(): JSX.Element {
           >
             Explore Services
           </Link>
+        </div>
+      </section>
+
+      {/* INTRO PARAGRAPH */}
+      <section className="bg-gray-50 dark:bg-gray-900 py-12">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <p className="text-gray-700 dark:text-gray-300 text-base md:text-lg leading-relaxed">
+            We partner with startups, businesses, and growing brands to design
+            and develop powerful digital experiences. From corporate websites to
+            full-scale web applications, our solutions are crafted to increase
+            visibility, improve conversions, and drive measurable business
+            growth.
+          </p>
         </div>
       </section>
 
@@ -207,6 +234,8 @@ export default function HomePage(): JSX.Element {
           <div className={gridClass}>
             {services.map((service) => {
               const coverMedia = service.media?.find((m) => m.is_cover) || {};
+              const priceData = prices[service.id];
+              const price = priceData?.basic ?? priceData?.min ?? null;
 
               const hasVideo = !!coverMedia.video_url;
               const hasImage = !!coverMedia.image_url || !!service.cover_image;
@@ -257,6 +286,22 @@ export default function HomePage(): JSX.Element {
                         {service.category}
                         {service.subcategory ? ` / ${service.subcategory}` : ""}
                       </p>
+
+                      <div className="flex items-center justify-between pt-2">
+                        {service.is_featured ? (
+                          <span className="text-[11px] font-medium bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2.5 py-1 rounded-md">
+                            Featured
+                          </span>
+                        ) : (
+                          <span />
+                        )}
+
+                        {price && (
+                          <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                            From KES {Number(price).toLocaleString()}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </Link>

@@ -268,16 +268,24 @@ export default function ServiceCheckoutPage(): JSX.Element {
               <Layers className="w-4 h-4 text-gray-500 dark:text-gray-400" />
               <span>{selectedPackage.revisions} revisions</span>
             </div>
-            {selectedPackage.pages && (
+            {Number(selectedPackage.pages ?? 0) > 0 && (
               <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
                 <PackageIcon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                <span>{selectedPackage.pages} pages</span>
+                <span>
+                  {Number(selectedPackage.pages)}{" "}
+                  {Number(selectedPackage.pages) === 1 ? "page" : "pages"}
+                </span>
               </div>
             )}
-            {selectedPackage.products && (
+            {Number(selectedPackage.products ?? 0) > 0 && (
               <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
                 <Tag className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                <span>{selectedPackage.products} products</span>
+                <span>
+                  {Number(selectedPackage.products)}{" "}
+                  {Number(selectedPackage.products) === 1
+                    ? "product"
+                    : "products"}
+                </span>
               </div>
             )}
           </div>

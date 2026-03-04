@@ -372,17 +372,17 @@ export default function ServiceDetailsPage() {
                   <RefreshCcw className="w-4 h-4" />
                   {selectedPackage.revisions} revisions
                 </div>
-                {selectedPackage.pages && (
+                {Number(selectedPackage.pages ?? 0) > 0 && (
                   <div className="flex items-center gap-2">
                     <FileText className="w-4 h-4" />
-                    {selectedPackage.pages}{" "}
+                    {Number(selectedPackage.pages)}{" "}
                     {Number(selectedPackage.pages) === 1 ? "page" : "pages"}
                   </div>
                 )}
-                {selectedPackage.products && (
+                {Number(selectedPackage.products ?? 0) > 0 && (
                   <div className="flex items-center gap-2">
                     <Boxes className="w-4 h-4" />
-                    {selectedPackage.products}{" "}
+                    {Number(selectedPackage.products)}{" "}
                     {Number(selectedPackage.products) === 1
                       ? "product"
                       : "products"}

@@ -248,12 +248,26 @@ export default function ServiceOrderDetailsPage(): JSX.Element | null {
                 <InfoCard label="Revisions" value={order.package.revisions} />
               )}
 
-              {order.package.pages != null && (
-                <InfoCard label="Pages" value={order.package.pages} />
+              {Number(order.package.pages ?? 0) > 0 && (
+                <InfoCard
+                  label="Pages"
+                  value={
+                    Number(order.package.pages) === 1
+                      ? "1 Page"
+                      : `${Number(order.package.pages)} Pages`
+                  }
+                />
               )}
 
-              {order.package.products != null && (
-                <InfoCard label="Products" value={order.package.products} />
+              {Number(order.package.products ?? 0) > 0 && (
+                <InfoCard
+                  label="Products"
+                  value={
+                    Number(order.package.products) === 1
+                      ? "1 Product"
+                      : `${Number(order.package.products)} Products`
+                  }
+                />
               )}
             </div>
 
