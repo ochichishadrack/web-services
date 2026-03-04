@@ -64,7 +64,7 @@ export default function TopNav({ activePage = 'home' }: TopNavProps) {
               href={loginHref}
               className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-green-600 text-white hover:bg-green-700 transition"
             >
-              <LogIn className="w-5 h-5" />
+              <LogIn className="w-4 h-4" />
               Login
             </Link>
           ) : (
@@ -83,9 +83,8 @@ export default function TopNav({ activePage = 'home' }: TopNavProps) {
           {!authLoading && !isAuthenticated ? (
             <Link
               href={loginHref}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition"
+              className="flex items-center gap-2 px-3 py-1 rounded-lg bg-green-600 text-white hover:bg-green-700 transition"
             >
-              <LogIn className="w-5 h-5" />
               Login
             </Link>
           ) : (

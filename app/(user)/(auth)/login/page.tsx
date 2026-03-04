@@ -18,7 +18,8 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // Get callbackUrl from query
+  const [animate, setAnimate] = useState(false);
+
   const params = new URLSearchParams(window.location.search);
   const callbackUrlFromQuery = params.get("callbackUrl") || "/user/account";
 
@@ -30,21 +31,20 @@ export default function Login() {
     formState: { errors },
   } = useForm<LoginForm>();
 
-  // After login
   useEffect(() => {
-    if (!customer) return; // wait for context to update
+    setTimeout(() => setAnimate(true), 50);
+  }, []);
+
+  useEffect(() => {
+    if (!customer) return;
 
     const hasPhone = Boolean(customer.phone_number_primary);
-
-    // Get callbackUrl from query
     const params = new URLSearchParams(window.location.search);
     const callbackUrlFromQuery = params.get("callbackUrl") || "/account";
 
     if (!hasPhone) {
-      // Full browser refresh to complete phone page
       window.location.replace("/complete-phone");
     } else {
-      // Full browser refresh to account or callbackUrl
       window.location.replace(callbackUrlFromQuery);
     }
   }, [customer]);
@@ -61,10 +61,7 @@ export default function Login() {
       }
 
       await refreshCustomer();
-      // ❌ DO NOT redirect here
-      // The useEffect above will handle the redirect
     } catch (err: unknown) {
-      console.error(err);
       setError(
         typeof err === "string"
           ? err
@@ -78,7 +75,6 @@ export default function Login() {
   };
 
   const handleContinueAsGuest = () => {
-    // Full browser reload to home, removing Login from history
     window.location.replace("/");
   };
 
@@ -86,17 +82,24 @@ export default function Login() {
     <>
       <Head>
         <title>Sign in | Maraspot</title>
-        <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-        <div className="w-full max-w-sm">
-          {/* Card */}
-          <div className="bg-white rounded-2xl shadow-xl p-6 space-y-6">
-            {/* Error */}
+        <div
+          className={`w-full max-w-md transform transition-all duration-700 ease-out
+            ${animate ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-10"}`}
+        >
+          <div className="bg-white rounded-3xl shadow-2xl hover:shadow-3xl transition-shadow p-8 space-y-6">
+            <div className="text-center space-y-1">
+              <h1 className="text-2xl font-bold text-gray-800">Welcome Back</h1>
+              <p className="text-sm text-gray-500">
+                Sign in to continue to Maraspot
+              </p>
+            </div>
+
             {error && (
               <div
-                className="flex gap-3 items-start rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 animate-fadeIn"
+                className="flex gap-3 items-start rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
                 role="alert"
               >
                 <span className="mt-0.5 text-red-500">⚠</span>
@@ -107,15 +110,22 @@ export default function Login() {
               </div>
             )}
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-              <div className="relative">
+            <form onSubmit={handleSubmit(onSubmit)} className=" space-y-5">
+              <div className="relative text-gray-600">
                 <input
                   type="email"
-                  {...register("email", { required: "Email is required" })}
+                  {...register("email", {
+                    required: "Email is required",
+                  })}
                   placeholder=" "
-                  className="peer w-full text-gray-900 rounded-md border border-gray-300 px-3 pt-5 pb-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
+                  className="peer w-full rounded-xl border border-gray-300 px-4 pt-5 pb-2 text-sm
+                  focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition"
                 />
-                <label className="absolute left-3 top-2.5 text-xs text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm peer-focus:top-2.5 peer-focus:text-xs">
+                <label
+                  className="absolute left-4 top-2.5 text-xs text-gray-500
+                  peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm
+                  peer-focus:top-2.5 peer-focus:text-xs"
+                >
                   Email address
                 </label>
                 {errors.email && (
@@ -125,22 +135,27 @@ export default function Login() {
                 )}
               </div>
 
-              <div className="relative">
+              <div className="relative text-gray-600">
                 <input
                   type={showPassword ? "text" : "password"}
                   {...register("password", {
                     required: "Password is required",
                   })}
                   placeholder=" "
-                  className="peer w-full text-gray-900 rounded-md border border-gray-300 px-3 pt-5 pb-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
+                  className="peer w-full rounded-xl border border-gray-300 px-4 pt-5 pb-2 text-sm
+                  focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition"
                 />
-                <label className="absolute left-3 top-2.5 text-xs text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm peer-focus:top-2.5 peer-focus:text-xs">
+                <label
+                  className="absolute left-4 top-2.5 text-xs text-gray-500
+                  peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm
+                  peer-focus:top-2.5 peer-focus:text-xs"
+                >
                   Password
                 </label>
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3.5 text-gray-400 hover:text-orange-600"
+                  className="absolute right-4 top-3.5 text-gray-400 hover:text-orange-600 transition"
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -154,13 +169,15 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 rounded-md transition disabled:opacity-50"
+                className="w-full bg-linear-to-r from-orange-500 to-orange-600
+                hover:from-orange-600 hover:to-orange-700 text-white font-medium
+                py-2 rounded-xl transition-all disabled:opacity-50"
               >
-                {loading ? "Signing in..." : "Sign in"}
+                {loading ? "Signing in..." : "Sign In"}
               </button>
             </form>
 
-            <div className="relative text-center">
+            <div className="relative text-center my-3">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-300" />
               </div>
@@ -174,12 +191,13 @@ export default function Login() {
             <button
               type="button"
               onClick={handleContinueAsGuest}
-              className="w-full border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-md transition"
+              className="w-full border border-gray-300 text-gray-700 hover:bg-gray-100
+              font-medium py-2 rounded-xl transition"
             >
               Continue as Guest
             </button>
 
-            <div className="text-center text-sm text-gray-600">
+            <div className="text-center text-sm text-gray-600 mt-2">
               <p>
                 Don&apos;t have an account?{" "}
                 <Link
