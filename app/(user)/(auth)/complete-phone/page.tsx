@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import Head from "next/head";
 import { getApiBaseUrl } from "@/api/api";
 
 export default function CompletePhonePage() {
@@ -53,100 +52,93 @@ export default function CompletePhonePage() {
   };
 
   return (
-    <>
-      <Head>
-        <title>Complete Profile | Maraspot</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-        <div className="w-full max-w-sm">
-          {/* Brand Header */}
-          <div className="mb-6 text-center">
-            <div className="flex justify-center mb-2">
-              <Image
-                src="/favicon-512x512.png"
-                alt="Maraspot"
-                width={56}
-                height={56}
-                priority
-              />
-            </div>
-
-            <h1 className="text-xl font-semibold tracking-tight text-gray-900">
-              Maraspot
-            </h1>
-
-            <p className="text-sm text-gray-500 mt-1">Complete your profile</p>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <div className="w-full max-w-sm">
+        {/* Brand Header */}
+        <div className="mb-6 text-center">
+          <div className="flex justify-center mb-2">
+            <Image
+              src="/icons/icon-192.png"
+              alt="Maraspot"
+              width={56}
+              height={56}
+              priority
+            />
           </div>
 
-          {/* Card */}
-          <div className="bg-white rounded-2xl shadow-lg p-6 space-y-5">
-            {/* Error Alert */}
-            {error && (
-              <div
-                role="alert"
-                className="flex gap-3 items-start rounded-lg border border-red-200 
-                bg-red-50 px-4 py-3 text-sm text-red-800"
-              >
-                <span className="mt-0.5 text-red-500">⚠</span>
-                <div>
-                  <p className="font-medium">Submission failed</p>
-                  <p>{error}</p>
-                </div>
-              </div>
-            )}
+          <h1 className="text-xl font-semibold tracking-tight text-gray-900">
+            Maraspot
+          </h1>
 
-            {/* Primary Phone */}
-            <div className="relative">
-              <input
-                value={phonePrimary}
-                onChange={(e) => setPhonePrimary(e.target.value)}
-                placeholder=" "
-                className="peer w-full text-gray-900 rounded-md border border-gray-300 
-                px-3 pt-5 pb-2 text-sm focus:ring-2 focus:ring-orange-500 
-                focus:border-orange-500 outline-none"
-              />
-              <label
-                className="absolute left-3 top-2.5 text-xs text-gray-500 transition-all
-                peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm
-                peer-focus:top-2.5 peer-focus:text-xs"
-              >
-                Primary phone number
-              </label>
-            </div>
+          <p className="text-sm text-gray-500 mt-1">Complete your profile</p>
+        </div>
 
-            {/* Secondary Phone */}
-            <div className="relative">
-              <input
-                value={phoneSecondary}
-                onChange={(e) => setPhoneSecondary(e.target.value)}
-                placeholder=" "
-                className="peer w-full text-gray-900 rounded-md border border-gray-300 
-                px-3 pt-5 pb-2 text-sm focus:ring-2 focus:ring-orange-500 
-                focus:border-orange-500 outline-none"
-              />
-              <label
-                className="absolute left-3 top-2.5 text-xs text-gray-500 transition-all
-                peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm
-                peer-focus:top-2.5 peer-focus:text-xs"
-              >
-                Secondary phone number (optional)
-              </label>
-            </div>
-
-            {/* Submit Button */}
-            <button
-              onClick={submitPhone}
-              disabled={loading}
-              className="w-full bg-orange-600 hover:bg-orange-700 
-              text-white font-medium py-2 rounded-md transition disabled:opacity-50"
+        {/* Card */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 space-y-5">
+          {/* Error Alert */}
+          {error && (
+            <div
+              role="alert"
+              className="flex gap-3 items-start rounded-lg border border-red-200 
+              bg-red-50 px-4 py-3 text-sm text-red-800"
             >
-              {loading ? "Saving..." : "Continue"}
-            </button>
+              <span className="mt-0.5 text-red-500">⚠</span>
+              <div>
+                <p className="font-medium">Submission failed</p>
+                <p>{error}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Primary Phone */}
+          <div className="relative">
+            <input
+              value={phonePrimary}
+              onChange={(e) => setPhonePrimary(e.target.value)}
+              placeholder=" "
+              className="peer w-full text-gray-900 rounded-md border border-gray-300 
+              px-3 pt-5 pb-2 text-sm focus:ring-2 focus:ring-orange-500 
+              focus:border-orange-500 outline-none"
+            />
+            <label
+              className="absolute left-3 top-2.5 text-xs text-gray-500 transition-all
+              peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm
+              peer-focus:top-2.5 peer-focus:text-xs"
+            >
+              Primary phone number
+            </label>
           </div>
+
+          {/* Secondary Phone */}
+          <div className="relative">
+            <input
+              value={phoneSecondary}
+              onChange={(e) => setPhoneSecondary(e.target.value)}
+              placeholder=" "
+              className="peer w-full text-gray-900 rounded-md border border-gray-300 
+              px-3 pt-5 pb-2 text-sm focus:ring-2 focus:ring-orange-500 
+              focus:border-orange-500 outline-none"
+            />
+            <label
+              className="absolute left-3 top-2.5 text-xs text-gray-500 transition-all
+              peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm
+              peer-focus:top-2.5 peer-focus:text-xs"
+            >
+              Secondary phone number (optional)
+            </label>
+          </div>
+
+          {/* Submit Button */}
+          <button
+            onClick={submitPhone}
+            disabled={loading}
+            className="w-full bg-orange-600 hover:bg-orange-700 
+            text-white font-medium py-2 rounded-md transition disabled:opacity-50"
+          >
+            {loading ? "Saving..." : "Continue"}
+          </button>
         </div>
       </div>
-    </>
+    </div>
   );
 }

@@ -32,9 +32,9 @@ export default function Register() {
     reset,
     formState: { errors },
   } = useForm<RegisterForm>();
+
   const [callbackUrl, setCallbackUrl] = useState("/account");
 
-  // Card animation state
   const [animate, setAnimate] = useState(false);
 
   useEffect(() => {
@@ -42,7 +42,6 @@ export default function Register() {
     const cb = params.get("callbackUrl");
     if (cb) setCallbackUrl(cb);
 
-    // Trigger entrance animation
     setTimeout(() => setAnimate(true), 50);
   }, []);
 
@@ -68,6 +67,7 @@ export default function Register() {
           password: data.password,
         }),
       });
+
       const result = await response.json();
       if (!response.ok) throw new Error(result.detail || "Registration failed");
 
@@ -75,7 +75,9 @@ export default function Register() {
         type: "success",
         message: "Account created. Redirecting...",
       });
+
       reset();
+
       setTimeout(() => {
         window.location.replace(
           `/login?callbackUrl=${encodeURIComponent(callbackUrl)}`,
@@ -92,46 +94,55 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 px-4 transition-colors">
       <div
         className={`w-full max-w-lg transform transition-all duration-700 ease-out
-          ${animate ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-10"}`}
+        ${animate ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-10"}`}
       >
-        <div className="bg-white rounded-3xl shadow-2xl p-8 space-y-6">
-          <h1 className="text-2xl font-bold text-gray-800 text-center">
-            Create Your Account
-          </h1>
-          <p className="text-sm text-gray-500 text-center">
-            Join Maraspot and start managing your services
-          </p>
+        <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-8 space-y-6">
+          {/* HEADER */}
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+              Create Your Account
+            </h1>
 
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Join Maraspot and start managing your projects
+            </p>
+          </div>
+
+          {/* FEEDBACK */}
           {feedback && (
             <div
-              className={`text-xs px-3 py-2 rounded text-center ${
+              className={`text-xs px-3 py-2 rounded text-center
+              ${
                 feedback.type === "success"
-                  ? "bg-green-100 text-green-700"
-                  : "bg-red-100 text-red-700"
+                  ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
+                  : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
               }`}
             >
               {feedback.message}
             </div>
           )}
 
+          {/* FORM */}
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="grid grid-cols-1 text-gray-700 sm:grid-cols-2 md:grid-cols-2 gap-4"
+            className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-700 dark:text-gray-200"
           >
             <Input
               label="First Name"
               error={errors.firstName?.message}
               {...register("firstName", { required: "Required" })}
             />
+
             <Input
               label="Last Name"
               error={errors.lastName?.message}
               {...register("lastName", { required: "Required" })}
             />
-            <div className="md:col-span-2">
+
+            <div className="sm:col-span-2">
               <Input
                 type="email"
                 label="Email Address"
@@ -139,6 +150,7 @@ export default function Register() {
                 {...register("email", { required: "Required" })}
               />
             </div>
+
             <Input
               type="tel"
               label="Primary Phone"
@@ -148,13 +160,16 @@ export default function Register() {
                 minLength: { value: 7, message: "Invalid" },
               })}
             />
+
             <Input
               type="tel"
               label="Secondary Phone"
               error={errors.phoneSecondary?.message}
               {...register("phoneSecondary")}
             />
-            <div className="relative md:col-span-2">
+
+            {/* PASSWORD */}
+            <div className="relative sm:col-span-2">
               <input
                 type={showPassword ? "text" : "password"}
                 {...register("password", {
@@ -162,15 +177,20 @@ export default function Register() {
                   minLength: { value: 6, message: "Min 6 chars" },
                 })}
                 placeholder=" "
-                className="peer w-full rounded-xl border border-gray-300 px-4 pt-5 pb-2 text-sm
-                  focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition"
+                className="peer w-full rounded-xl border border-gray-300 dark:border-gray-700
+                bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100
+                px-4 pt-5 pb-2 text-sm
+                focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition"
               />
+
               <label
-                className="absolute left-4 top-2.5 text-xs text-gray-500
-                peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm peer-focus:top-2.5 peer-focus:text-xs"
+                className="absolute left-4 top-2.5 text-xs text-gray-500 dark:text-gray-400
+                peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm
+                peer-focus:top-2.5 peer-focus:text-xs"
               >
                 Password
               </label>
+
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
@@ -178,6 +198,7 @@ export default function Register() {
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
+
               {errors.password && (
                 <p className="text-xs text-red-600 mt-1">
                   {errors.password.message}
@@ -185,30 +206,35 @@ export default function Register() {
               )}
             </div>
 
-            <div className="sm:col-span-2 md:col-span-2">
+            {/* SUBMIT */}
+            <div className="sm:col-span-2">
               <button
                 type="submit"
                 disabled={loading}
                 className="w-full bg-linear-to-r from-orange-500 to-orange-600
-                  hover:from-orange-600 hover:to-orange-700 text-white text-sm font-medium py-2 rounded-xl disabled:opacity-50 transition-all"
+                hover:from-orange-600 hover:to-orange-700 text-white text-sm
+                font-medium py-2 rounded-xl disabled:opacity-50 transition-all"
               >
                 {loading ? "Creating..." : "Create Account"}
               </button>
             </div>
           </form>
 
+          {/* DIVIDER */}
           <div className="relative text-center text-xs my-3">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300" />
+              <div className="w-full border-t border-gray-300 dark:border-gray-700" />
             </div>
-            <span className="relative bg-white px-2 text-gray-500">
+
+            <span className="relative bg-white dark:bg-gray-900 px-2 text-gray-500 dark:text-gray-400">
               or continue with
             </span>
           </div>
 
           <GoogleLoginButton callbackUrl={callbackUrl} />
 
-          <p className="text-center text-xs text-gray-600 mt-2">
+          {/* LOGIN LINK */}
+          <p className="text-center text-xs text-gray-600 dark:text-gray-400 mt-2">
             Already have an account?{" "}
             <Link
               href={`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`}
@@ -236,15 +262,20 @@ function Input({
       <input
         {...props}
         placeholder=" "
-        className="peer w-full rounded-xl border border-gray-300 px-4 pt-5.5 pb-2 text-sm
-          focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition"
+        className="peer w-full rounded-xl border border-gray-300 dark:border-gray-700
+        bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100
+        px-4 pt-5 pb-2 text-sm
+        focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition"
       />
+
       <label
-        className="absolute left-4 top-2.5 text-xs text-gray-500
-        peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm peer-focus:top-2.5 peer-focus:text-xs"
+        className="absolute left-4 top-2.5 text-xs text-gray-500 dark:text-gray-400
+        peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm
+        peer-focus:top-2.5 peer-focus:text-xs"
       >
         {label}
       </label>
+
       {error && <p className="text-xs text-red-600 mt-1">{error}</p>}
     </div>
   );
