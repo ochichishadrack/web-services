@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
+import { X, Download } from 'lucide-react';
 
 export default function InstallAppButton() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -22,7 +24,6 @@ export default function InstallAppButton() {
     if (!deferredPrompt) return;
 
     deferredPrompt.prompt();
-
     const { outcome } = await deferredPrompt.userChoice;
 
     if (outcome === 'accepted') {
@@ -33,14 +34,50 @@ export default function InstallAppButton() {
     setShowInstall(false);
   };
 
+  const closePrompt = () => {
+    setShowInstall(false);
+  };
+
   if (!showInstall) return null;
 
   return (
-    <button
-      onClick={installApp}
-      className="fixed bottom-6 right-6 bg-blue-600 text-white px-4 py-3 rounded-xl shadow-lg hover:bg-blue-700 transition"
-    >
-      Install Maraspot App
-    </button>
+    <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:w-95 z-50 animate-fade-in">
+      <div className="flex items-center gap-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-xl rounded-2xl p-4">
+        {/* App Icon */}
+        <div className="shrink-0">
+          <Image
+            src="/favicon-96x96.png"
+            alt="Maraspot"
+            width={48}
+            height={48}
+            className="rounded-lg"
+          />
+        </div>
+
+        {/* Text */}
+        <div className="flex-1">
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Install Maraspot</h3>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Add Maraspot to your device for a faster app-like experience.
+          </p>
+
+          <button
+            onClick={installApp}
+            className="mt-2 inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition"
+          >
+            <Download size={14} />
+            Install App
+          </button>
+        </div>
+
+        {/* Close Button */}
+        <button
+          onClick={closePrompt}
+          className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+        >
+          <X size={18} />
+        </button>
+      </div>
+    </div>
   );
 }
