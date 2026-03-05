@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
       "res.cloudinary.com",
       "lh3.googleusercontent.com",
       "images.unsplash.com",
+      "source.unsplash.com",
     ],
   },
 };

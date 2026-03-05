@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { axiosInstance } from "@/utils/axiosInstance";
 import TopNav from "@/components/ui/TopNav";
 import Footer from "@/components/ui/Footer";
-
+import Portfolio from "@/components/ui/Portfolio";
 /* ---------------- TYPES ---------------- */
 
 interface ServiceMedia {
@@ -362,6 +362,7 @@ export default function HomePage(): JSX.Element {
           </div>
         </div>
       )}
+      <Portfolio />
       <Footer />
     </div>
   );
