@@ -46,7 +46,7 @@ export default function InstallAppButton() {
         {/* App Icon */}
         <div className="shrink-0">
           <Image
-            src="/favicon-96x96.png"
+            src="/favicon-192x192.png"
             alt="Maraspot"
             width={48}
             height={48}
@@ -58,7 +58,7 @@ export default function InstallAppButton() {
         <div className="flex-1">
           <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Install Maraspot</h3>
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            Add Maraspot to your device for a faster app-like experience.
+            Add Maraspot to your device for a better & faster experience.
           </p>
 
           <button
