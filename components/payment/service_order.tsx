@@ -3,6 +3,7 @@
 import { JSX, useState } from 'react';
 import { FileText, ShieldCheck, BadgePercent, Loader } from 'lucide-react';
 import { axiosInstance } from '@/utils/axiosInstance';
+import { useCustomerAuth } from '@/context/CustomerAuthContext';
 
 /* ---------------- TYPES ---------------- */
 export interface Extra {
@@ -99,6 +100,8 @@ export default function PaymentComponent({
   const [accepted, setAccepted] = useState<boolean>(false);
   const [showContract, setShowContract] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const { getReferralCode } = useCustomerAuth();
+  const referralCode = getReferralCode();
 
   const extrasTotal = selectedExtras.reduce((sum, e) => sum + e.price, 0);
   const backendTotal = selectedPackage.price + extrasTotal;
@@ -157,6 +160,7 @@ export default function PaymentComponent({
         amount: amountKobo,
         email: customer.email,
         requirements: cleanedRequirements,
+        referral_code: referralCode,
         callback_url: `${window.location.origin}/payment/verify`,
       };
 

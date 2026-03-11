@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
 import TopNav from "@/components/ui/DynamicTopNav";
 import MediaGallery from "./MediaGallery";
 import ServiceExtras from "./ServiceExtras";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useCustomerAuth } from "@/context/CustomerAuthContext";
 import TiptapPageView from "@/components/TiptapPageView";
 import { axiosInstance } from "@/utils/axiosInstance";
 import {
@@ -150,6 +151,8 @@ export default function ServiceDetailsPage() {
   const { id } = useParams();
   const serviceId = id as string;
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { setReferralCode } = useCustomerAuth();
 
   const [service, setService] = useState<Service | null>(null);
   const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
@@ -160,6 +163,37 @@ export default function ServiceDetailsPage() {
 
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [galleryIndex, setGalleryIndex] = useState(0);
+
+  useEffect(() => {
+    const ref = searchParams.get("ref");
+
+    if (!ref) return;
+
+    // store referral locally
+    setReferralCode(ref);
+
+    // prevent duplicate tracking
+    const trackedKey = `affiliate_click_${ref}_${serviceId}`;
+    const alreadyTracked = sessionStorage.getItem(trackedKey);
+
+    if (alreadyTracked) return;
+
+    async function trackClick() {
+      try {
+        await axiosInstance.post("/api/affiliate-clicks/", {
+          referral_code: ref,
+          service_id: serviceId,
+          referrer: document.referrer || null,
+        });
+
+        sessionStorage.setItem(trackedKey, "1");
+      } catch (err) {
+        console.error("Affiliate click tracking failed", err);
+      }
+    }
+
+    trackClick();
+  }, [searchParams, serviceId, setReferralCode]);
 
   useEffect(() => {
     async function fetchService() {

@@ -26,6 +26,11 @@ interface CustomerAuthContextType {
   loading: boolean;
   refreshCustomer: () => Promise<void>;
   logout: () => Promise<void>;
+
+  // Affiliate helpers
+  setReferralCode: (code: string) => void;
+  getReferralCode: () => string | null;
+  clearReferralCode: () => void;
 }
 
 const CustomerAuthContext = createContext<CustomerAuthContextType | undefined>(
@@ -35,11 +40,75 @@ const CustomerAuthContext = createContext<CustomerAuthContextType | undefined>(
 export const CustomerAuthProvider = ({ children }: { children: ReactNode }) => {
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [loading, setLoading] = useState(true);
+
   const router = useRouter();
 
-  // --- Fetch session from backend ---
+  // ---------------------------
+  // Referral helpers (24h TTL)
+  // ---------------------------
+
+  const REFERRAL_KEY = "referral_data";
+  const REFERRAL_TTL = 1000 * 60 * 60 * 24; // 24 hours
+
+  const setReferralCode = (code: string) => {
+    if (!code) return;
+
+    const existingRaw = localStorage.getItem(REFERRAL_KEY);
+
+    if (existingRaw) {
+      try {
+        const existing = JSON.parse(existingRaw);
+        const age = Date.now() - existing.timestamp;
+
+        // If still within 24h, do NOT override
+        if (age < REFERRAL_TTL) return;
+
+        // If expired, remove it
+        localStorage.removeItem(REFERRAL_KEY);
+      } catch {
+        localStorage.removeItem(REFERRAL_KEY);
+      }
+    }
+
+    const data = {
+      code,
+      timestamp: Date.now(),
+    };
+
+    localStorage.setItem(REFERRAL_KEY, JSON.stringify(data));
+  };
+
+  const getReferralCode = () => {
+    const raw = localStorage.getItem(REFERRAL_KEY);
+    if (!raw) return null;
+
+    try {
+      const data = JSON.parse(raw);
+      const age = Date.now() - data.timestamp;
+
+      // Expire after 24h
+      if (age > REFERRAL_TTL) {
+        localStorage.removeItem(REFERRAL_KEY);
+        return null;
+      }
+
+      return data.code;
+    } catch {
+      localStorage.removeItem(REFERRAL_KEY);
+      return null;
+    }
+  };
+
+  const clearReferralCode = () => {
+    localStorage.removeItem(REFERRAL_KEY);
+  };
+
+  // ---------------------------
+  // Fetch session
+  // ---------------------------
   const refreshCustomer = async () => {
     setLoading(true);
+
     try {
       const res = await fetch(`${getApiBaseUrl()}/api/auth/session/me`, {
         credentials: "include",
@@ -47,8 +116,6 @@ export const CustomerAuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (res.ok) {
         const data = await res.json();
-
-        // Map backend response to Customer type
 
         const customerData: Customer = {
           public_id: data.public_id,
@@ -72,12 +139,13 @@ export const CustomerAuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // --- Initialize on mount ---
   useEffect(() => {
     refreshCustomer();
   }, []);
 
-  // --- Logout ---
+  // ---------------------------
+  // Logout
+  // ---------------------------
   const logout = async () => {
     try {
       await fetch(`${getApiBaseUrl()}/api/auth/logout`, {
@@ -88,7 +156,6 @@ export const CustomerAuthProvider = ({ children }: { children: ReactNode }) => {
       console.error("Logout failed:", err);
     } finally {
       setCustomer(null);
-      // Full page reload to Login, removing current page from history
       window.location.replace("/login");
     }
   };
@@ -101,6 +168,9 @@ export const CustomerAuthProvider = ({ children }: { children: ReactNode }) => {
         loading,
         refreshCustomer,
         logout,
+        setReferralCode,
+        getReferralCode,
+        clearReferralCode,
       }}
     >
       {children}
@@ -110,7 +180,10 @@ export const CustomerAuthProvider = ({ children }: { children: ReactNode }) => {
 
 export const useCustomerAuth = () => {
   const context = useContext(CustomerAuthContext);
-  if (!context)
+
+  if (!context) {
     throw new Error("useCustomerAuth must be used within CustomerAuthProvider");
+  }
+
   return context;
 };
