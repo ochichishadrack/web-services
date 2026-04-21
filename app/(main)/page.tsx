@@ -160,30 +160,33 @@ export default function HomePage(): JSX.Element {
       <TopNav activePage="home" />
 
       {/* HERO */}
-      <section className="relative h-110 sm:h-130 md:h-145 flex items-center justify-center text-center text-white">
-        <Image
-          src="/stunning-web.jpeg"
-          alt="Web Development"
-          fill
-          priority
-          className="object-cover"
-        />
-        <div className="absolute inset-0 bg-black/60" />
-
-        <div className="relative z-10 max-w-2xl px-4">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
+      {/* HERO */}
+      <section className="h-[70vh] flex items-center justify-center text-center bg-white dark:bg-gray-950 text-gray-900 dark:text-white">
+        <div className="max-w-3xl px-6">
+          <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
             We Build Websites That Grow Your Business
           </h1>
-          <p className="text-lg md:text-xl mb-6 opacity-90">
-            Modern, scalable and high-performance websites built for growth.
+
+          <p className="text-lg md:text-xl mb-8 text-gray-600 dark:text-gray-400">
+            Modern, scalable, and high-performance websites built to elevate
+            your brand.
           </p>
 
-          <Link
-            href="/services"
-            className="inline-block px-6 py-3 bg-blue-600 rounded-lg font-semibold hover:bg-blue-700 transition"
-          >
-            Explore Services
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/services"
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition"
+            >
+              Explore Services
+            </Link>
+
+            <Link
+              href="/contact"
+              className="px-6 py-3 border border-gray-300 dark:border-white/20 rounded-lg font-semibold hover:bg-gray-100 dark:hover:bg-white/10 transition"
+            >
+              Get a Quote
+            </Link>
+          </div>
         </div>
       </section>
 
