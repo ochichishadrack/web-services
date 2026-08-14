@@ -30,7 +30,7 @@ export default function TopNav({ activePage = 'home' }: TopNavProps) {
         {/* Logo */}
         <Link
           href="/"
-          className="font-bold text-xl bg-gradient-to-r from-orange-300 to-orange-400 bg-clip-text text-transparent"
+          className="font-bold text-xl bg-gradient-to-r from-orange-400 to-orange-300 bg-clip-text text-transparent"
         >
           Web Services
         </Link>
@@ -63,14 +63,14 @@ export default function TopNav({ activePage = 'home' }: TopNavProps) {
             );
           })}
 
-          {/* Conditional login or notifications */}
+          {/* Conditional sign in or notifications */}
           {!authLoading && !isAuthenticated ? (
             <Link
               href={loginHref}
               className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border border-orange-500 text-orange-600 dark:text-orange-400 hover:bg-orange-500 hover:text-white transition-all"
             >
               <LogIn className="w-4 h-4" />
-              Login
+              Sign In
             </Link>
           ) : (
             <Link
@@ -84,14 +84,8 @@ export default function TopNav({ activePage = 'home' }: TopNavProps) {
 
         {/* ================= MOBILE ACTIONS ================= */}
         <div className="flex items-center gap-3 md:hidden">
-          {!authLoading && !isAuthenticated ? (
-            <Link
-              href={loginHref}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-orange-500 text-orange-500 dark:text-orange-400 hover:bg-orange-500 hover:text-white transition-all text-sm font-medium"
-            >
-              Login
-            </Link>
-          ) : (
+          {/* No bordered Sign In button on mobile — only show notifications when authenticated */}
+          {!authLoading && isAuthenticated && (
             <Link
               href="/notifications"
               className="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-orange-500/10 hover:text-orange-500"
@@ -141,7 +135,7 @@ export default function TopNav({ activePage = 'home' }: TopNavProps) {
               className="flex items-center gap-2 px-4 py-3 text-orange-600 dark:text-orange-400 hover:bg-orange-500 hover:text-white transition-all font-medium"
             >
               <LogIn className="w-5 h-5" />
-              Login
+              Sign In
             </Link>
           )}
         </div>
