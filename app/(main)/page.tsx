@@ -160,29 +160,38 @@ export default function HomePage(): JSX.Element {
       <TopNav activePage="home" />
 
       {/* HERO */}
-      {/* HERO */}
-      <section className="h-[70vh] flex items-center justify-center text-center bg-white dark:bg-gray-950 text-gray-900 dark:text-white">
-        <div className="max-w-3xl px-6">
+      <section
+        className="relative h-[90vh] flex items-center justify-center text-center text-white"
+        style={{
+          backgroundImage: `url('https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8ZGV2ZWxvcGVyfGVufDB8fDB8fHww')`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        {/* Dark overlay for readability */}
+        <div className="absolute inset-0 bg-black/60" />
+
+        <div className="relative z-10 max-w-3xl px-6">
           <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
-            We Build Websites That Grow Your Business
+            Websites That <span className="text-orange-500">Drive Growth</span>
           </h1>
 
-          <p className="text-lg md:text-xl mb-8 text-gray-600 dark:text-gray-400">
-            Modern, scalable, and high-performance websites built to elevate
-            your brand.
+          <p className="text-lg md:text-xl mb-8 text-gray-200">
+            We design and build high-performance websites that convert visitors
+            into customers and help your business scale with confidence.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/services"
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition"
+              className="px-6 py-3 bg-orange-500 text-white rounded-lg font-semibold hover:bg-orange-600 transition"
             >
               Explore Services
             </Link>
 
             <Link
               href="/contact"
-              className="px-6 py-3 border border-gray-300 dark:border-white/20 rounded-lg font-semibold hover:bg-gray-100 dark:hover:bg-white/10 transition"
+              className="px-6 py-3 border border-white/40 rounded-lg font-semibold hover:bg-white/10 transition"
             >
               Get a Quote
             </Link>
@@ -191,14 +200,15 @@ export default function HomePage(): JSX.Element {
       </section>
 
       {/* INTRO PARAGRAPH */}
-      <section className="bg-gray-50 dark:bg-gray-900 py-12">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <p className="text-gray-700 dark:text-gray-300 text-base md:text-lg leading-relaxed">
-            We partner with startups, businesses, and growing brands to design
-            and develop powerful digital experiences. From corporate websites to
-            full-scale web applications, our solutions are crafted to increase
-            visibility, improve conversions, and drive measurable business
-            growth.
+      <section className="bg-gray-50 dark:bg-gray-900 py-16 md:py-20">
+        <div className="max-w-3xl mx-auto px-6 text-center">
+          <div className="w-16 h-1 bg-orange-500 mx-auto mb-8 rounded-full" />
+
+          <p className="text-base md:text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
+            We help ambitious businesses turn their online presence into a
+            growth engine — through thoughtfully designed websites and
+            high-performance web applications that convert visitors into
+            customers.
           </p>
         </div>
       </section>

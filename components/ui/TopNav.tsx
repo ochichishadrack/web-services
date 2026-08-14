@@ -13,7 +13,7 @@ interface TopNavProps {
 export default function TopNav({ activePage = 'home' }: TopNavProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const { isAuthenticated, loading: authLoading } = useCustomerAuth();
-  const pathname = usePathname(); // current page for callbackUrl
+  const pathname = usePathname();
 
   const navItems = [
     { key: 'home', label: 'Home', href: '/', icon: Home },
@@ -30,13 +30,13 @@ export default function TopNav({ activePage = 'home' }: TopNavProps) {
         {/* Logo */}
         <Link
           href="/"
-          className="font-bold text-xl bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
+          className="font-bold text-xl bg-gradient-to-r from-orange-300 to-orange-400 bg-clip-text text-transparent"
         >
           Web Services
         </Link>
 
         {/* ================= DESKTOP NAV ================= */}
-        <nav className="hidden md:flex items-center gap-4">
+        <nav className="hidden md:flex items-center gap-2">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activePage === item.key;
@@ -45,15 +45,20 @@ export default function TopNav({ activePage = 'home' }: TopNavProps) {
               <Link
                 key={item.key}
                 href={item.href}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition
+                className={`relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
                 ${
                   isActive
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                    ? 'text-orange-500 dark:text-orange-400'
+                    : 'text-gray-600 dark:text-gray-300 hover:text-orange-500 dark:hover:text-orange-400'
                 }`}
               >
                 <Icon className="w-5 h-5" />
                 {item.label}
+
+                {/* Active indicator */}
+                {isActive && (
+                  <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-orange-500 rounded-full" />
+                )}
               </Link>
             );
           })}
@@ -62,7 +67,7 @@ export default function TopNav({ activePage = 'home' }: TopNavProps) {
           {!authLoading && !isAuthenticated ? (
             <Link
               href={loginHref}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-green-600 text-white hover:bg-green-700 transition"
+              className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border border-orange-500 text-orange-600 dark:text-orange-400 hover:bg-orange-500 hover:text-white transition-all"
             >
               <LogIn className="w-4 h-4" />
               Login
@@ -70,7 +75,7 @@ export default function TopNav({ activePage = 'home' }: TopNavProps) {
           ) : (
             <Link
               href="/notifications"
-              className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800"
+              className="p-2.5 rounded-full text-gray-600 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-orange-500/10 hover:text-orange-500 transition-colors"
             >
               <Bell className="w-5 h-5" />
             </Link>
@@ -79,27 +84,25 @@ export default function TopNav({ activePage = 'home' }: TopNavProps) {
 
         {/* ================= MOBILE ACTIONS ================= */}
         <div className="flex items-center gap-3 md:hidden">
-          {/* Conditional login or notifications */}
           {!authLoading && !isAuthenticated ? (
             <Link
               href={loginHref}
-              className="flex items-center gap-2 px-3 py-1 rounded-lg bg-green-600 text-white hover:bg-green-700 transition"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-orange-500 text-orange-500 dark:text-orange-400 hover:bg-orange-500 hover:text-white transition-all text-sm font-medium"
             >
               Login
             </Link>
           ) : (
             <Link
               href="/notifications"
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+              className="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-orange-500/10 hover:text-orange-500"
             >
               <Bell className="w-5 h-5" />
             </Link>
           )}
 
-          {/* Menu Toggle */}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+            className="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
             {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -108,7 +111,7 @@ export default function TopNav({ activePage = 'home' }: TopNavProps) {
 
       {/* ================= MOBILE MENU ================= */}
       {menuOpen && (
-        <div className="md:hidden border-t border-gray-200 dark:border-gray-800 px-4 py-4 space-y-2 bg-white dark:bg-gray-900">
+        <div className="md:hidden border-t border-gray-200 dark:border-gray-800 px-4 py-4 space-y-1.5 bg-white dark:bg-gray-900">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activePage === item.key;
@@ -118,10 +121,10 @@ export default function TopNav({ activePage = 'home' }: TopNavProps) {
                 key={item.key}
                 href={item.href}
                 onClick={() => setMenuOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all
                 ${
                   isActive
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-500/30'
                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                 }`}
               >
@@ -131,12 +134,11 @@ export default function TopNav({ activePage = 'home' }: TopNavProps) {
             );
           })}
 
-          {/* Mobile login button with text */}
           {!authLoading && !isAuthenticated && (
             <Link
               href={loginHref}
               onClick={() => setMenuOpen(false)}
-              className="flex items-center gap-2 px-4 py-3 rounded-xl bg-green-600 text-white hover:bg-green-700 transition"
+              className="flex items-center gap-2 px-4 py-3 text-orange-600 dark:text-orange-400 hover:bg-orange-500 hover:text-white transition-all font-medium"
             >
               <LogIn className="w-5 h-5" />
               Login
