@@ -30,7 +30,7 @@ export default function TopNav({ activePage = 'home' }: TopNavProps) {
         {/* Logo */}
         <Link
           href="/"
-          className="font-bold text-xl bg-gradient-to-r from-orange-400 to-orange-300 bg-clip-text text-transparent"
+          className="font-bold text-xl bg-gradient-to-r from-orange-500 to-orange-400 bg-clip-text text-transparent"
         >
           Web Services
         </Link>
