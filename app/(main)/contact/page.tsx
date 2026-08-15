@@ -92,7 +92,6 @@ function getBusinessStatus() {
     if (!schedule) continue;
 
     if (offset === 0) {
-      // Still today, before opening
       if (minutes < schedule.open) {
         const minsUntil = schedule.open - minutes;
         const hours = Math.floor(minsUntil / 60);
@@ -168,14 +167,18 @@ function ClosedDialog({
   nextAvailable,
   shortMessage,
   onContinueWhatsApp,
+  onContinueSend,
   mode,
+  sending,
 }: {
   open: boolean;
   onClose: () => void;
   nextAvailable: string | null;
   shortMessage: string | null;
   onContinueWhatsApp?: () => void;
+  onContinueSend?: () => void;
   mode: "form" | "whatsapp";
+  sending?: boolean;
 }) {
   if (!open) return null;
 
@@ -197,7 +200,8 @@ function ClosedDialog({
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+          disabled={sending}
+          className="absolute top-4 right-4 p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition disabled:opacity-50"
           aria-label="Close"
         >
           <X className="w-5 h-5" />
@@ -222,11 +226,32 @@ function ClosedDialog({
 
           <p className="mt-3 text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
             {mode === "form"
-              ? "You may leave a message, and we will respond as soon as we reopen. Alternatively, you can reach us on WhatsApp."
+              ? "You may still send your message. We will respond as soon as we reopen."
               : `You may still send a WhatsApp message. We will respond promptly ${shortMessage ? shortMessage : "once we reopen"}.`}
           </p>
 
           <div className="mt-6 flex flex-col sm:flex-row gap-3 w-full">
+            {mode === "form" && onContinueSend && (
+              <button
+                type="button"
+                onClick={onContinueSend}
+                disabled={sending}
+                className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold transition disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {sending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Sending…
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    Continue to send message
+                  </>
+                )}
+              </button>
+            )}
+
             {mode === "whatsapp" && onContinueWhatsApp && (
               <button
                 type="button"
@@ -244,16 +269,10 @@ function ClosedDialog({
             <button
               type="button"
               onClick={onClose}
-              className={`
-                flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold transition
-                ${
-                  mode === "whatsapp"
-                    ? "border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800"
-                    : "bg-orange-500 hover:bg-orange-600 text-white"
-                }
-              `}
+              disabled={sending}
+              className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold transition border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50"
             >
-              {mode === "form" ? "Got it" : "Close"}
+              Close
             </button>
           </div>
         </div>
@@ -274,13 +293,10 @@ export default function ContactPage(): JSX.Element {
     mode: "form" | "whatsapp";
   }>({ open: false, mode: "form" });
 
-  // Recalculate on every render so status stays accurate
   const { isOpen, nextAvailable, shortMessage } = useMemo(
     () => getBusinessStatus(),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      /* intentionally empty – Date.now() is read inside */
-    ],
+    [],
   );
 
   const fullName = customer
@@ -299,15 +315,9 @@ export default function ContactPage(): JSX.Element {
     window.open(WHATSAPP_URL, "_blank", "noopener,noreferrer");
   }, [WHATSAPP_URL]);
 
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  /** Actual API send — used both when open and when user chooses “Continue to send” */
+  async function sendMessage() {
     if (!customer) return;
-
-    // Strictly respect business hours — show dialog instead of sending
-    if (!isOpen) {
-      setClosedDialog({ open: true, mode: "form" });
-      return;
-    }
 
     setLoading(true);
     setError(null);
@@ -333,15 +343,30 @@ export default function ContactPage(): JSX.Element {
 
       setSent(true);
       setMessage("");
+      setClosedDialog((s) => ({ ...s, open: false }));
     } catch (err) {
       setError(
         err instanceof Error
           ? err.message
           : "Something went wrong. Please try again.",
       );
+      setClosedDialog((s) => ({ ...s, open: false }));
     } finally {
       setLoading(false);
     }
+  }
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!customer) return;
+
+    // Strictly respect business hours — show dialog first
+    if (!isOpen) {
+      setClosedDialog({ open: true, mode: "form" });
+      return;
+    }
+
+    await sendMessage();
   }
 
   function handleWhatsAppClick(e: React.MouseEvent) {
@@ -349,7 +374,6 @@ export default function ContactPage(): JSX.Element {
       e.preventDefault();
       setClosedDialog({ open: true, mode: "whatsapp" });
     }
-    // when open, the <a> navigates normally
   }
 
   return (
@@ -477,7 +501,7 @@ export default function ContactPage(): JSX.Element {
             </div>
           </div>
 
-          {/* Right — Form (always available when authenticated; closed state handled by dialog) */}
+          {/* Right — Form */}
           <div className="lg:col-span-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-5 sm:p-7 shadow-sm">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
               Send a Message
@@ -529,7 +553,6 @@ export default function ContactPage(): JSX.Element {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-                {/* User info preview (read-only) */}
                 <div className="rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700 px-4 py-3 text-sm">
                   <p className="text-gray-500 dark:text-gray-400 text-xs mb-1">
                     Sending as
@@ -547,7 +570,6 @@ export default function ContactPage(): JSX.Element {
                   )}
                 </div>
 
-                {/* Message */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                     Message
@@ -576,7 +598,6 @@ export default function ContactPage(): JSX.Element {
                   </p>
                 )}
 
-                {/* Send button is never disabled for closed hours — dialog handles it */}
                 <button
                   type="submit"
                   disabled={loading || !message.trim()}
@@ -609,7 +630,7 @@ export default function ContactPage(): JSX.Element {
         </div>
       </div>
 
-      {/* Floating WhatsApp button — always clickable; dialog when closed */}
+      {/* Floating WhatsApp button */}
       <a
         href={WHATSAPP_URL}
         target="_blank"
@@ -644,9 +665,13 @@ export default function ContactPage(): JSX.Element {
         mode={closedDialog.mode}
         nextAvailable={nextAvailable}
         shortMessage={shortMessage}
+        sending={loading}
         onClose={() => setClosedDialog((s) => ({ ...s, open: false }))}
         onContinueWhatsApp={
           closedDialog.mode === "whatsapp" ? openWhatsApp : undefined
+        }
+        onContinueSend={
+          closedDialog.mode === "form" ? () => sendMessage() : undefined
         }
       />
     </div>
