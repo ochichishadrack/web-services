@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import nodemailer from "nodemailer";
 
 export async function POST(req: Request) {
   try {
@@ -12,18 +13,29 @@ export async function POST(req: Request) {
       );
     }
 
-    const TO_EMAIL = process.env.CONTACT_TO_EMAIL;
-    const BREVO_API_KEY = process.env.BREVO_API_KEY;
-    const FROM_EMAIL = process.env.BREVO_FROM_EMAIL || "noreply@maraspot.com"; // must be a verified sender in Brevo
-    const FROM_NAME = "Maraspot Services";
+    const TO_EMAIL = process.env.CONTACT_TO_EMAIL || process.env.GMAIL_USER;
 
-    if (!BREVO_API_KEY || !TO_EMAIL) {
-      console.error("Missing BREVO_API_KEY or CONTACT_TO_EMAIL");
+    if (
+      !process.env.GMAIL_USER ||
+      !process.env.GMAIL_APP_PASSWORD ||
+      !TO_EMAIL
+    ) {
+      console.error(
+        "Missing GMAIL_USER, GMAIL_APP_PASSWORD or CONTACT_TO_EMAIL",
+      );
       return NextResponse.json(
         { error: "Email service is not configured" },
         { status: 500 },
       );
     }
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_APP_PASSWORD,
+      },
+    });
 
     const safeMessage = message
       .replace(/&/g, "&amp;")
@@ -31,7 +43,7 @@ export async function POST(req: Request) {
       .replace(/>/g, "&gt;")
       .replace(/\n/g, "<br/>");
 
-    const htmlContent = `
+    const html = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -119,43 +131,14 @@ export async function POST(req: Request) {
 </html>
     `.trim();
 
-    // Send via Brevo API
-    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
-      method: "POST",
-      headers: {
-        accept: "application/json",
-        "api-key": BREVO_API_KEY,
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        sender: {
-          name: FROM_NAME,
-          email: FROM_EMAIL,
-        },
-        to: [
-          {
-            email: TO_EMAIL,
-            name: "Maraspot Team",
-          },
-        ],
-        replyTo: {
-          email: email, // ← customer's email (so Reply goes to them)
-          name: name,
-        },
-        subject: `Inquiry message from ${name}`,
-        htmlContent,
-        textContent: `Name: ${name}\nEmail: ${email}${phone ? `\nPhone: ${phone}` : ""}\n\nMessage:\n${message}`,
-      }),
+    await transporter.sendMail({
+      from: `"Maraspot Services" <${process.env.GMAIL_USER}>`,
+      to: TO_EMAIL,
+      replyTo: email, // ← correctly set to the user's email
+      subject: `Inquiry message from ${name}`,
+      text: `Name: ${name}\nEmail: ${email}${phone ? `\nPhone: ${phone}` : ""}\n\nMessage:\n${message}`,
+      html,
     });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      console.error("Brevo error:", errorData);
-      return NextResponse.json(
-        { error: "Failed to send message" },
-        { status: 500 },
-      );
-    }
 
     return NextResponse.json({ ok: true });
   } catch (err) {
