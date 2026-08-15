@@ -227,7 +227,7 @@ export default function ServiceCheckoutPage(): JSX.Element {
       <div className="bg-gray-50 dark:bg-gray-900 min-h-screen py-2 px-4 space-y-6 transition-colors">
         {/* SERVICE INFO */}
         <div className="py-6 px-2 space-y-2">
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
             {service.title}
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">

@@ -2,21 +2,19 @@
 
 import { useEffect, useMemo, useState, JSX } from "react";
 import { useParams, useRouter } from "next/navigation";
+import axios from "axios";
 import { axiosInstance } from "@/utils/axiosInstance";
 import TopNav from "@/components/ui/DynamicTopNav";
 import ServiceOrderDetailsSkeleton from "./ServiceOrderDetailsSkeleton";
-/* ---------------- TYPES ---------------- */
 
+/* ---------------- TYPES ---------------- */
 type OrderStatus =
-  /* Core lifecycle */
   | "pending"
   | "paid"
   | "delivered"
   | "completed"
   | "cancelled"
   | "disputed"
-
-  /* Phase tracking */
   | "phase_1_in_progress"
   | "phase_1_completed"
   | "phase_2_in_progress"
@@ -40,14 +38,11 @@ interface PackageData {
   id?: string;
   name?: string;
   type?: string;
-
   price?: number;
   delivery_days?: number;
   revisions?: number | string;
-
   pages?: number | string | null;
   products?: number | string | null;
-
   description?: string | null;
   features?: string[] | null;
 }
@@ -67,32 +62,76 @@ interface ServiceOrder {
 }
 
 /* ---------------- HELPERS ---------------- */
-
 const formatKES = (amount: number): string => `KES ${amount.toLocaleString()}`;
 
-const statusStyles: Record<OrderStatus, string> = {
-  /* Core lifecycle */
-  pending: "bg-yellow-100 text-yellow-800",
-  paid: "bg-blue-100 text-blue-800",
-  delivered: "bg-green-100 text-green-800",
-  completed: "bg-emerald-100 text-emerald-800",
-  cancelled: "bg-red-100 text-red-800",
-  disputed: "bg-orange-100 text-orange-800",
-
-  /* Phase tracking */
-  phase_1_in_progress: "bg-purple-100 text-purple-800",
-  phase_1_completed: "bg-purple-200 text-purple-900",
-  phase_2_in_progress: "bg-indigo-100 text-indigo-800",
-  phase_2_completed: "bg-indigo-200 text-indigo-900",
-  phase_3_in_progress: "bg-violet-100 text-violet-800",
-  phase_3_completed: "bg-violet-200 text-violet-900",
-};
+const statusConfig: Record<OrderStatus, { label: string; className: string }> =
+  {
+    pending: {
+      label: "Pending",
+      className:
+        "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300",
+    },
+    paid: {
+      label: "Paid",
+      className:
+        "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300",
+    },
+    delivered: {
+      label: "Delivered",
+      className:
+        "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300",
+    },
+    completed: {
+      label: "Completed",
+      className:
+        "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300",
+    },
+    cancelled: {
+      label: "Cancelled",
+      className: "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300",
+    },
+    disputed: {
+      label: "Disputed",
+      className:
+        "bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300",
+    },
+    phase_1_in_progress: {
+      label: "Phase 1 In Progress",
+      className:
+        "bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300",
+    },
+    phase_1_completed: {
+      label: "Phase 1 Completed",
+      className:
+        "bg-purple-200 text-purple-900 dark:bg-purple-900/50 dark:text-purple-200",
+    },
+    phase_2_in_progress: {
+      label: "Phase 2 In Progress",
+      className:
+        "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300",
+    },
+    phase_2_completed: {
+      label: "Phase 2 Completed",
+      className:
+        "bg-indigo-200 text-indigo-900 dark:bg-indigo-900/50 dark:text-indigo-200",
+    },
+    phase_3_in_progress: {
+      label: "Phase 3 In Progress",
+      className:
+        "bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-300",
+    },
+    phase_3_completed: {
+      label: "Phase 3 Completed",
+      className:
+        "bg-violet-200 text-violet-900 dark:bg-violet-900/50 dark:text-violet-200",
+    },
+  };
 
 function InfoCard({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="border border-gray-200 dark:border-gray-800 rounded-xl p-4 bg-gray-50 dark:bg-gray-800/40 transition">
-      <p className="text-gray-500 dark:text-gray-400 text-xs">{label}</p>
-      <p className="font-semibold text-gray-900 dark:text-gray-100 mt-1">
+    <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40 p-4">
+      <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
+      <p className="mt-1 font-semibold text-gray-900 dark:text-white">
         {value}
       </p>
     </div>
@@ -100,172 +139,213 @@ function InfoCard({ label, value }: { label: string; value: string | number }) {
 }
 
 /* ---------------- PAGE ---------------- */
-
 export default function ServiceOrderDetailsPage(): JSX.Element | null {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const orderId = params?.id;
 
   const [order, setOrder] = useState<ServiceOrder | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [hasFetched, setHasFetched] = useState<boolean>(false);
-
-  /* ---------------- FETCH ---------------- */
 
   useEffect(() => {
     if (!orderId) return;
 
     const controller = new AbortController();
+    let isActive = true; // prevents state updates after abort / unmount
 
-    const fetchOrder = async (): Promise<void> => {
+    const fetchOrder = async () => {
       try {
         setLoading(true);
         setError(null);
+        setOrder(null); // clear previous order while loading
 
         const res = await axiosInstance.get<ServiceOrder>(
           `/api/service-orders/${orderId}`,
           { signal: controller.signal },
         );
 
-        setOrder(res.data);
-      } catch (err) {
-        if ((err as Error).name !== "CanceledError") {
-          console.error(err);
-          setError("Failed to load order details.");
+        if (isActive) {
+          setOrder(res.data);
         }
+      } catch (err) {
+        if (!isActive) return;
+
+        // Ignore cancelled / aborted requests
+        if (
+          axios.isCancel(err) ||
+          (err as Error).name === "CanceledError" ||
+          (err as Error).name === "AbortError"
+        ) {
+          return;
+        }
+
+        // Real 404 → treat as "Order not found"
+        if (axios.isAxiosError(err) && err.response?.status === 404) {
+          setOrder(null);
+          setError(null);
+          return;
+        }
+
+        console.error(err);
+        setError("Failed to load order details. Please try again.");
       } finally {
-        setLoading(false);
-        setHasFetched(true); // ✅ mark fetch complete
+        if (isActive) {
+          setLoading(false);
+        }
       }
     };
 
     fetchOrder();
-    return () => controller.abort();
-  }, [orderId]);
 
-  /* ---------------- PHASE LOGIC ---------------- */
+    return () => {
+      isActive = false;
+      controller.abort();
+    };
+  }, [orderId]);
 
   const nextUnpaidPhase = useMemo(() => {
     if (!order?.phases) return null;
-
-    const entry = Object.entries(order.phases).find(([, phase]) => !phase.paid);
-
-    return entry ?? null;
+    return (
+      Object.entries(order.phases).find(([, phase]) => !phase.paid) ?? null
+    );
   }, [order]);
 
-  /* ---------------- LOADING UI ---------------- */
-
-  /* ---------------- LOADING ---------------- */
-
-  if (loading || !hasFetched) {
+  /* ✅ Keep skeleton until the real backend response arrives */
+  if (loading) {
     return <ServiceOrderDetailsSkeleton />;
   }
-  /* ---------------- ERROR ---------------- */
 
+  /* Error (network / 500 / etc.) */
   if (error) {
     return (
-      <div className="p-10 text-center text-red-600 font-medium">{error}</div>
+      <div className="min-h-[50vh] flex flex-col items-center justify-center gap-4 px-4">
+        <p className="text-red-600 dark:text-red-400 font-medium text-center">
+          {error}
+        </p>
+        <button
+          onClick={() => window.location.reload()}
+          className="px-5 py-2.5 rounded-xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-medium hover:opacity-90 transition"
+        >
+          Try Again
+        </button>
+      </div>
     );
   }
 
-  /* ---------------- NO DATA ---------------- */
-  /* Only show if backend finished AND returned null */
-
-  if (hasFetched && !order) {
-    return null; // or keep skeleton if you prefer
-  }
-
-  /* ---------------- ERROR ---------------- */
-
-  if (error) {
-    return (
-      <div className="p-10 text-center text-red-600 font-medium">{error}</div>
-    );
-  }
-
-  /* ---------------- NOT FOUND ---------------- */
-
+  /* Not Found — only after a completed request that returned no order */
   if (!order) {
     return (
-      <div className="p-10 text-center text-gray-600">Order not found.</div>
+      <div className="min-h-[50vh] flex flex-col items-center justify-center gap-3 px-4 text-center">
+        <p className="text-gray-600 dark:text-gray-400 font-medium">
+          Order not found.
+        </p>
+        <button
+          onClick={() => router.push("/projects")}
+          className="text-sm text-orange-600 hover:underline"
+        >
+          Back to projects
+        </button>
+      </div>
     );
   }
 
-  /* ---------------- UI ---------------- */
+  const status = statusConfig[order.status] ?? {
+    label: order.status.replace(/_/g, " "),
+    className: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
+  };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950 transition-colors">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <TopNav title="Order Details" />
 
-      <div className="max-w-6xl mx-auto p-4 md:p-10 space-y-8">
-        {/* HEADER */}
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm transition-colors">
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-            {order.service_title}
-          </h1>
-
-          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
-            {order.package_name} ({order.package_type})
-          </p>
-
-          <div className="flex justify-between items-center mt-6">
-            <span className="text-xl font-bold text-blue-700 dark:text-blue-400">
-              {formatKES(order.total_price)}
-            </span>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+        {/* Header Card */}
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+            <div>
+              <h1 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
+                {order.service_title}
+              </h1>
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                {order.package_name} · {order.package_type}
+              </p>
+            </div>
 
             <span
-              className={`px-3 py-1 text-xs rounded-full capitalize font-medium ${
-                statusStyles[order.status] ??
-                "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
-              }`}
+              className={`self-start px-3 py-1 rounded-full text-xs font-medium ${status.className}`}
             >
-              {order.status.replace(/_/g, " ")}
+              {status.label}
             </span>
           </div>
 
-          <p className="text-xs text-gray-400 dark:text-gray-500 mt-3">
-            Due: {new Date(order.due_date).toLocaleDateString()}
-          </p>
+          <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Total Amount
+              </p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                {formatKES(order.total_price)}
+              </p>
+            </div>
+
+            <div className="text-sm text-gray-500 dark:text-gray-400 space-y-1 text-right">
+              <p>
+                Created{" "}
+                {new Date(order.created_at).toLocaleDateString("en-KE", {
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                })}
+              </p>
+              {order.due_date && (
+                <p>
+                  Due{" "}
+                  {new Date(order.due_date).toLocaleDateString("en-KE", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </p>
+              )}
+            </div>
+          </div>
         </div>
 
-        {/* PACKAGE DETAILS */}
+        {/* Package Details */}
         {order.package && (
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm space-y-6 transition-colors">
-            <h2 className="font-semibold text-gray-900 dark:text-gray-100 text-lg">
+          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm space-y-6">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
               Package Details
             </h2>
 
-            <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-5 text-sm">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {order.package.delivery_days !== undefined && (
                 <InfoCard
                   label="Delivery Time"
                   value={`${order.package.delivery_days} Days`}
                 />
               )}
-
               {order.package.revisions !== undefined && (
                 <InfoCard label="Revisions" value={order.package.revisions} />
               )}
-
               {Number(order.package.pages ?? 0) > 0 && (
                 <InfoCard
                   label="Pages"
                   value={
                     Number(order.package.pages) === 1
                       ? "1 Page"
-                      : `${Number(order.package.pages)} Pages`
+                      : `${order.package.pages} Pages`
                   }
                 />
               )}
-
               {Number(order.package.products ?? 0) > 0 && (
                 <InfoCard
                   label="Products"
                   value={
                     Number(order.package.products) === 1
                       ? "1 Product"
-                      : `${Number(order.package.products)} Products`
+                      : `${order.package.products} Products`
                   }
                 />
               )}
@@ -273,8 +353,8 @@ export default function ServiceOrderDetailsPage(): JSX.Element | null {
 
             {order.package.description && (
               <div>
-                <h3 className="font-medium text-gray-800 dark:text-gray-200 mb-2">
-                  Package Description
+                <h3 className="text-sm font-medium text-gray-800 dark:text-gray-200 mb-2">
+                  Description
                 </h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
                   {order.package.description}
@@ -282,57 +362,56 @@ export default function ServiceOrderDetailsPage(): JSX.Element | null {
               </div>
             )}
 
-            {order.package.features?.length ? (
+            {order.package.features && order.package.features.length > 0 && (
               <div>
-                <h3 className="font-medium text-gray-800 dark:text-gray-200 mb-3">
+                <h3 className="text-sm font-medium text-gray-800 dark:text-gray-200 mb-3">
                   Included Features
                 </h3>
-
-                <ul className="grid sm:grid-cols-2 gap-3 text-sm">
+                <ul className="grid sm:grid-cols-2 gap-2.5">
                   {order.package.features.map((feature, index) => (
                     <li
                       key={`${feature}-${index}`}
-                      className="flex items-center gap-2 text-gray-700 dark:text-gray-300"
+                      className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300"
                     >
-                      <span className="text-green-600 dark:text-green-400">
-                        ✔
+                      <span className="mt-0.5 text-green-600 dark:text-green-400">
+                        ✓
                       </span>
                       {feature}
                     </li>
                   ))}
                 </ul>
               </div>
-            ) : null}
+            )}
           </div>
         )}
 
-        {/* PHASES */}
+        {/* Payment Phases */}
         {order.phases && (
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm transition-colors">
-            <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-5">
+          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-5">
               Payment Phases
             </h2>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               {Object.entries(order.phases).map(([key, phase]) => (
                 <div
                   key={key}
-                  className="flex justify-between items-center border border-gray-200 dark:border-gray-800 rounded-xl p-4 bg-gray-50 dark:bg-gray-800/40 transition"
+                  className="flex items-center justify-between gap-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40 px-4 py-3.5"
                 >
                   <div>
-                    <p className="capitalize text-gray-800 dark:text-gray-200 font-medium">
-                      {key}
+                    <p className="font-medium text-gray-900 dark:text-white capitalize">
+                      {key.replace(/_/g, " ")}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
                       {formatKES(phase.amount)}
                     </p>
                   </div>
 
                   <span
-                    className={`text-xs px-3 py-1 rounded-full font-medium ${
+                    className={`text-xs px-2.5 py-1 rounded-full font-medium ${
                       phase.paid
-                        ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400"
-                        : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                        ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300"
+                        : "bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300"
                     }`}
                   >
                     {phase.paid ? "Paid" : "Unpaid"}
@@ -348,54 +427,66 @@ export default function ServiceOrderDetailsPage(): JSX.Element | null {
                     `/projects/pay/${order.id}?phase=${nextUnpaidPhase[0]}`,
                   )
                 }
-                className="mt-6 w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white py-3 rounded-xl text-sm font-semibold shadow-md transition active:scale-[0.98]"
+                className="mt-6 w-full py-3 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold transition active:scale-[0.98]"
               >
-                Pay Next Phase ({nextUnpaidPhase[0].toUpperCase()})
+                Pay Next Phase ({nextUnpaidPhase[0].replace(/_/g, " ")})
               </button>
             )}
           </div>
         )}
 
-        {/* DELIVERIES */}
-        {order.deliveries?.length ? (
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm transition-colors">
-            <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-5">
+        {/* Deliveries */}
+        {order.deliveries && order.deliveries.length > 0 && (
+          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-5">
               Deliveries
             </h2>
 
-            <div className="space-y-5">
+            <div className="space-y-4">
               {order.deliveries.map((delivery, index) => (
                 <div
                   key={`${delivery.message}-${index}`}
-                  className="border border-gray-200 dark:border-gray-800 rounded-xl p-5 bg-gray-50 dark:bg-gray-800/40 transition"
+                  className="rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40 p-5"
                 >
-                  <p className="text-gray-800 dark:text-gray-200 mb-3">
+                  <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed">
                     {delivery.message}
                   </p>
 
-                  {delivery.file_urls?.map((url, idx) => (
-                    <a
-                      key={`${url}-${idx}`}
-                      href={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block text-blue-600 dark:text-blue-400 hover:underline text-xs mb-1"
-                    >
-                      Download File
-                    </a>
-                  ))}
+                  {delivery.file_urls && delivery.file_urls.length > 0 && (
+                    <div className="mt-3 space-y-1.5">
+                      {delivery.file_urls.map((url, idx) => (
+                        <a
+                          key={`${url}-${idx}`}
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 text-sm text-orange-600 dark:text-orange-400 hover:underline"
+                        >
+                          Download File{" "}
+                          {delivery.file_urls!.length > 1 ? idx + 1 : ""}
+                        </a>
+                      ))}
+                    </div>
+                  )}
 
                   {delivery.delivered_at && (
-                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
-                      Delivered:{" "}
-                      {new Date(delivery.delivered_at).toLocaleDateString()}
+                    <p className="mt-3 text-xs text-gray-400 dark:text-gray-500">
+                      Delivered{" "}
+                      {new Date(delivery.delivered_at).toLocaleDateString(
+                        "en-KE",
+                        {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        },
+                      )}
                     </p>
                   )}
                 </div>
               ))}
             </div>
           </div>
-        ) : null}
+        )}
       </div>
     </div>
   );

@@ -52,7 +52,7 @@ export default function TiptapPageView({ value }: Props) {
     <div
       className={`
         prose max-w-none p-2 rounded-md shadow-sm
-        bg-green-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100
+        bg-green-50 text-sm lg:text-base text-gray-900 dark:bg-gray-900 dark:text-gray-100
         [&_ul]:list-disc [&_ul]:pl-6 
         [&_ol]:list-decimal [&_ol]:pl-6 
         [&_li]:ml-4

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import DynamicTopNav from "@/components/ui/DynamicTopNav";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, HelpCircle } from "lucide-react";
 
 interface FAQItem {
   id: string;
@@ -69,49 +69,101 @@ export default function FAQPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <DynamicTopNav title="FAQs" />
 
-      <main className="max-w-4xl mx-auto px-4 py-10 space-y-6">
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-10 space-y-8">
+        {/* Header */}
         <div className="text-center space-y-3">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">
+          <div className="mx-auto w-12 h-12 rounded-2xl bg-orange-50 dark:bg-orange-900/30 flex items-center justify-center mb-2">
+            <HelpCircle className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
             Frequently Asked Questions
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 max-w-xl mx-auto leading-relaxed">
             Everything you need to know about our web development process,
             pricing, timelines, and ongoing support.
           </p>
         </div>
 
-        <div className="space-y-4 mt-8">
+        {/* FAQ List */}
+        <div className="space-y-3">
           {faqData.map((faq) => {
             const isOpen = openFAQId === faq.id;
 
             return (
               <div
                 key={faq.id}
-                className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm overflow-hidden transition"
+                className={`
+                  bg-white dark:bg-gray-900
+                  border rounded-2xl shadow-sm overflow-hidden
+                  transition-all duration-200
+                  ${
+                    isOpen
+                      ? "border-orange-200 dark:border-orange-800/50 shadow-md"
+                      : "border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700"
+                  }
+                `}
               >
                 <button
                   onClick={() => toggleFAQ(faq.id)}
-                  className="w-full px-6 py-5 flex justify-between items-center text-left text-gray-800 dark:text-gray-200 font-semibold hover:bg-gray-50 dark:hover:bg-slate-700 transition"
+                  className="
+                    w-full px-5 sm:px-6 py-4 sm:py-5
+                    flex justify-between items-center gap-4
+                    text-left
+                    hover:bg-gray-50/80 dark:hover:bg-gray-800/50
+                    transition
+                  "
+                  aria-expanded={isOpen}
                 >
-                  <span>{faq.question}</span>
-                  {isOpen ? (
-                    <ChevronUp className="w-5 h-5" />
-                  ) : (
-                    <ChevronDown className="w-5 h-5" />
-                  )}
+                  <span className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base leading-snug">
+                    {faq.question}
+                  </span>
+                  <ChevronDown
+                    className={`
+                      w-5 h-5 shrink-0 text-gray-400 dark:text-gray-500
+                      transition-transform duration-200
+                      ${isOpen ? "rotate-180 text-orange-500 dark:text-orange-400" : ""}
+                    `}
+                  />
                 </button>
 
-                {isOpen && (
-                  <div className="px-6 pb-6 pt-2 text-gray-600 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
-                    {faq.answer}
+                <div
+                  className={`
+                    grid transition-all duration-200 ease-in-out
+                    ${isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}
+                  `}
+                >
+                  <div className="overflow-hidden">
+                    <div className="px-5 sm:px-6 pb-5 sm:pb-6 pt-0 text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed border-t border-gray-100 dark:border-gray-800/80">
+                      <div className="pt-4">{faq.answer}</div>
+                    </div>
                   </div>
-                )}
+                </div>
               </div>
             );
           })}
+        </div>
+
+        {/* Bottom CTA */}
+        <div className="text-center pt-4 pb-8">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+            Still have questions?
+          </p>
+          <a
+            href="/contact"
+            className="
+              inline-flex items-center justify-center
+              px-6 py-3 rounded-xl
+              bg-orange-500 hover:bg-orange-600
+              text-white text-sm font-semibold
+              shadow-sm shadow-orange-500/20
+              transition
+            "
+          >
+            Contact Us
+          </a>
         </div>
       </main>
     </div>

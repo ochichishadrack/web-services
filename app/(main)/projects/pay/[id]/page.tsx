@@ -35,6 +35,7 @@ interface InitializeResponse {
 /* ---------------- HELPERS ---------------- */
 
 const formatKES = (amount: number): string => `KES ${amount.toLocaleString()}`;
+
 const mapPhaseForBackend = (phase: PhaseKey): PhaseKey =>
   phase === "phase1_2" ? "phase1_2" : phase;
 
@@ -51,24 +52,34 @@ export default function PaymentPage() {
   const [order, setOrder] = useState<OrderResponse | null>(null);
   const [amount, setAmount] = useState<number | null>(null);
   const [loadingAmount, setLoadingAmount] = useState(true);
+  const [hasFetched, setHasFetched] = useState(false);
   const [loadingPayment, setLoadingPayment] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const backendPhase = mapPhaseForBackend(phaseParam);
 
+  // Show spinner until a real (non-aborted) response arrives
+  const isLoading = loadingAmount || !hasFetched;
+
   /* ---------------- FETCH ORDER ---------------- */
   useEffect(() => {
     if (!orderId) return;
+
     const controller = new AbortController();
 
     const fetchOrder = async () => {
       try {
         setLoadingAmount(true);
         setError(null);
+
         const res = await axiosInstance.get<OrderResponse>(
           `/api/service-orders/${orderId}`,
           { signal: controller.signal },
         );
+
+        // If this request was aborted, don't update state
+        if (controller.signal.aborted) return;
+
         const orderData = res.data;
         setOrder(orderData);
 
@@ -79,8 +90,9 @@ export default function PaymentPage() {
 
         const baseTotal = orderData.total_price + extrasTotal;
 
-        if (backendPhase === "full") setAmount(baseTotal);
-        else if (backendPhase === "phase1_2") {
+        if (backendPhase === "full") {
+          setAmount(baseTotal);
+        } else if (backendPhase === "phase1_2") {
           const p1 = orderData.phases.phase1?.amount ?? 0;
           const p2 = orderData.phases.phase2?.amount ?? 0;
           setAmount(p1 + p2);
@@ -90,16 +102,29 @@ export default function PaymentPage() {
           setAmount(phaseData?.amount ?? null);
         }
       } catch (err) {
-        if ((err as Error).name !== "CanceledError") {
-          console.error(err);
-          setError("Unable to load order.");
+        // Ignore aborted requests — keep showing spinner
+        if (
+          controller.signal.aborted ||
+          (err as Error).name === "CanceledError" ||
+          (err as Error).name === "AbortError"
+        ) {
+          return;
         }
+
+        console.error(err);
+        setError("Unable to load order.");
+        setAmount(null);
       } finally {
-        setLoadingAmount(false);
+        // Only end loading on a real completion (not abort)
+        if (!controller.signal.aborted) {
+          setLoadingAmount(false);
+          setHasFetched(true);
+        }
       }
     };
 
     fetchOrder();
+
     return () => controller.abort();
   }, [orderId, backendPhase]);
 
@@ -186,15 +211,40 @@ export default function PaymentPage() {
             <span className="text-xs font-medium text-gray-400 dark:text-gray-300 uppercase tracking-wide">
               Amount
             </span>
-            <div className="mt-1">
-              {loadingAmount ? (
-                <div className="h-6 w-24 bg-gray-200 dark:bg-gray-700 animate-pulse rounded" />
-              ) : amount ? (
-                <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+
+            <div className="mt-2 min-h-[28px] flex items-center">
+              {isLoading ? (
+                <div className="flex items-center gap-2.5">
+                  <svg
+                    className="h-5 w-5 animate-spin text-orange-500"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
+                  <span className="text-sm text-gray-400 dark:text-gray-500">
+                    Loading amount…
+                  </span>
+                </div>
+              ) : amount !== null ? (
+                <span className="text-lg font-bold text-gray-900 dark:text-gray-100">
                   {formatKES(amount)}
                 </span>
               ) : (
-                <span className="text-gray-400 dark:text-gray-300 text-sm">
+                <span className="text-sm text-gray-400 dark:text-gray-300">
                   Unavailable
                 </span>
               )}
@@ -214,7 +264,7 @@ export default function PaymentPage() {
           <button
             type="button"
             onClick={handlePay}
-            disabled={loadingPayment || loadingAmount || !amount}
+            disabled={loadingPayment || isLoading || amount === null}
             className="w-full h-11 bg-orange-600 text-white font-semibold rounded-lg hover:bg-orange-700 disabled:opacity-50 transition"
           >
             {loadingPayment ? "Redirecting…" : "Proceed to Pay"}
@@ -223,7 +273,8 @@ export default function PaymentPage() {
           <button
             type="button"
             onClick={() => router.back()}
-            className="w-full h-10 text-gray-700 dark:text-gray-200 font-medium rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+            disabled={loadingPayment}
+            className="w-full h-10 text-gray-700 dark:text-gray-200 font-medium rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition disabled:opacity-50"
           >
             Cancel
           </button>

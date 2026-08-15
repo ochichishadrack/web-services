@@ -87,28 +87,34 @@ export default function ServicesPage(): JSX.Element {
       <TopNav activePage="services" />
 
       {/* Hero Section */}
-      <section className="relative h-80 md:h-96 flex items-center justify-center text-center text-white overflow-hidden">
+      <section className="relative h-[22rem] md:h-[28rem] flex items-center justify-center text-center text-white overflow-hidden">
         {/* Background Image */}
         <Image
-          src="/pages-web.jpeg"
+          src="https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8d2ViJTIwZGV2ZWxvcGVyfGVufDB8fDB8fHww"
           alt="Web services hero"
           fill
           priority
           sizes="100vw"
-          className="object-cover"
+          className="object-cover scale-105"
         />
 
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-black/50" />
+        {/* Darker gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/65 to-black/80" />
 
         {/* Content */}
-        <div className="relative z-10 px-4 max-w-3xl">
-          <h2 className="text-3xl md:text-5xl font-bold mb-3">
-            Explore All Our Services
+        <div className="relative z-10 px-4 max-w-3xl mx-auto">
+          <span className="inline-block mb-4 px-3 py-1 text-xs font-medium tracking-wider uppercase bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
+            Our Services
+          </span>
+
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-4 leading-tight">
+            Web Solutions That <span className="text-white">Drive Results</span>
           </h2>
-          <p className="text-sm md:text-lg opacity-90">
-            Modern, responsive, and scalable web solutions tailored for your
-            business.
+
+          <p className="text-sm sm:text-base md:text-lg text-white/85 max-w-xl mx-auto leading-relaxed">
+            From high-converting websites to custom web apps — we build digital
+            experiences that attract customers, streamline operations, and grow
+            your business.
           </p>
         </div>
       </section>

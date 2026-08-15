@@ -316,7 +316,7 @@ export default function ServiceDetailsPage() {
         {/* LEFT */}
         <div className="lg:col-span-2 space-y-6">
           <div>
-            <h1 className="text-3xl font-bold">{service.title}</h1>
+            <h1 className="text-xl font-bold">{service.title}</h1>
             <p className="text-sm text-gray-700 dark:text-gray-300">
               {service.category}
               {service.subcategory ? ` / ${service.subcategory}` : ""}
@@ -331,7 +331,7 @@ export default function ServiceDetailsPage() {
           </div>
 
           {service.faqs?.length ? (
-            <div className="border rounded-xl p-5 bg-white dark:bg-gray-900 shadow-sm border-gray-200 dark:border-gray-700">
+            <div className="border rounded-xl mb-4 p-5 bg-white dark:bg-gray-900 shadow-sm border-gray-200 dark:border-gray-700">
               <button
                 onClick={() => setFaqOpen(!faqOpen)}
                 className="flex items-center text-gray-700 dark:text-gray-300 justify-between w-full font-semibold text-lg"

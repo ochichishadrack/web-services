@@ -449,34 +449,101 @@ interface ContractModalProps {
 
 function ContractModal({ onClose }: ContractModalProps): JSX.Element {
   return (
-    <div className="fixed inset-0 bg-black/70 flex justify-center items-center p-4 z-50">
-      <div className="bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-300 max-w-lg w-full p-6 rounded-2xl shadow-2xl space-y-4 text-sm">
-        <h2 className="font-bold text-gray-800 dark:text-gray-100 text-lg">
-          Service Payment Terms & Agreement
-        </h2>
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center p-4 z-50">
+      <div className="bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-300 max-w-lg w-full p-6 md:p-8 rounded-2xl shadow-2xl space-y-5 text-sm">
+        {/* Header */}
+        <div className="space-y-1">
+          <h2 className="font-bold text-gray-900 dark:text-white text-xl">
+            Service Agreement & Payment Terms
+          </h2>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Professional Web Development Services
+          </p>
+        </div>
 
-        <p>
-          This contract outlines the phased payment model to ensure financial flexibility while
-          maintaining project accountability. All phases must be completed sequentially.
+        <p className="leading-relaxed">
+          This agreement outlines the available payment options for web development projects.
+          Clients may choose either a one-time full payment or a structured phased payment plan.
         </p>
 
-        <ul className="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-1">
-          <li>
-            <strong>Phase 1:</strong> Project Initiation - 20% deposit.
-          </li>
-          <li>
-            <strong>Phase 2:</strong> Design & Development - 60% payment.
-          </li>
-          <li>
-            <strong>Phase 3:</strong> Delivery & Launch - Final 20%.
-          </li>
-        </ul>
+        {/* Option 1: Full Payment */}
+        <div className="space-y-2">
+          <h3 className="font-semibold text-gray-800 dark:text-gray-100 text-sm">
+            Option 1: Full Payment
+          </h3>
+          <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-800/40 rounded-xl p-3">
+            <p className="font-medium text-gray-800 dark:text-gray-100">100% upfront payment</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Pay the full project amount at the start. Work begins immediately and final delivery
+              is made upon completion and client approval.
+            </p>
+          </div>
+        </div>
 
+        {/* Option 2: Phased Payment */}
+        <div className="space-y-3">
+          <h3 className="font-semibold text-gray-800 dark:text-gray-100 text-sm">
+            Option 2: Phased Payment Plan
+          </h3>
+
+          <ul className="space-y-3">
+            <li className="flex gap-3">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-orange-100 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400 flex items-center justify-center text-xs font-bold">
+                1
+              </span>
+              <div>
+                <p className="font-medium text-gray-800 dark:text-gray-100">
+                  Project Initiation — 20%
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  Covers project scoping, requirements gathering, and kickoff.
+                </p>
+              </div>
+            </li>
+
+            <li className="flex gap-3">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-orange-100 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400 flex items-center justify-center text-xs font-bold">
+                2
+              </span>
+              <div>
+                <p className="font-medium text-gray-800 dark:text-gray-100">
+                  Design & Development — 60%
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  Covers UI/UX design, development, integrations, and testing.
+                </p>
+              </div>
+            </li>
+
+            <li className="flex gap-3">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-orange-100 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400 flex items-center justify-center text-xs font-bold">
+                3
+              </span>
+              <div>
+                <p className="font-medium text-gray-800 dark:text-gray-100">
+                  Final Delivery & Launch — 20%
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  Payable upon successful deployment, handover, and client approval.
+                </p>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        {/* Notes */}
+        <div className="bg-gray-50 dark:bg-gray-800/60 rounded-xl p-3 text-xs text-gray-500 dark:text-gray-400 space-y-1">
+          <p>• Work on each phase begins only after the corresponding payment is received.</p>
+          <p>• Final source files and ownership are transferred after full payment.</p>
+          <p>• Additional features or scope changes may incur extra charges.</p>
+        </div>
+
+        {/* Action */}
         <button
           onClick={onClose}
-          className="bg-black dark:bg-white text-white dark:text-black w-full py-2 rounded-xl mt-2"
+          className="w-full py-2.5 rounded-xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium hover:opacity-90 transition"
         >
-          Close Agreement
+          I Understand
         </button>
       </div>
     </div>
