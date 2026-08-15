@@ -223,7 +223,7 @@ export default function ContactPage(): JSX.Element {
                   Message sent successfully
                 </p>
                 <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                  We’ll respond as soon as possible.
+                  We’ll respond your email as soon as possible.
                 </p>
                 <button
                   onClick={() => setSent(false)}
