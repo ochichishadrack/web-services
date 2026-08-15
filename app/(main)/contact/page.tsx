@@ -3,6 +3,7 @@
 import { JSX, useState, FormEvent } from "react";
 import DynamicTopNav from "@/components/ui/DynamicTopNav";
 import { Mail, Phone, MapPin, Clock, Send, CheckCircle2 } from "lucide-react";
+import { useCustomerAuth } from "@/context/CustomerAuthContext"; // ← adjust path if needed
 
 const WHATSAPP_NUMBER = "254113388120";
 const WHATSAPP_MESSAGE = encodeURIComponent(
@@ -25,23 +26,29 @@ function WhatsAppIcon({ className }: { className?: string }) {
 }
 
 export default function ContactPage(): JSX.Element {
+  const { customer, isAuthenticated, loading: authLoading } = useCustomerAuth();
+
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState("");
+
+  const fullName = customer
+    ? `${customer.first_name || ""} ${customer.last_name || ""}`.trim()
+    : "";
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (!customer) return;
+
     setLoading(true);
     setError(null);
 
-    const form = e.currentTarget;
-    const formData = new FormData(form);
-
     const payload = {
-      name: formData.get("name") as string,
-      email: formData.get("email") as string,
-      message: formData.get("message") as string,
-      to: CONTACT_EMAIL,
+      name: fullName || "Customer",
+      email: customer.email,
+      message,
+      phone: customer.phone_number_primary || undefined,
     };
 
     try {
@@ -57,7 +64,7 @@ export default function ContactPage(): JSX.Element {
       }
 
       setSent(true);
-      form.reset();
+      setMessage("");
     } catch (err) {
       setError(
         err instanceof Error
@@ -73,7 +80,7 @@ export default function ContactPage(): JSX.Element {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <DynamicTopNav title="Contact Us" />
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-10 space-y-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-8 space-y-8">
         {/* Hero */}
         <div className="text-center space-y-3">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
@@ -178,24 +185,6 @@ export default function ContactPage(): JSX.Element {
                 </div>
               </div>
             </div>
-
-            {/* WhatsApp CTA */}
-            <a
-              href={WHATSAPP_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="
-                flex items-center justify-center gap-2.5
-                w-full py-3.5 rounded-xl
-                bg-[#25D366] hover:bg-[#20BD5A]
-                text-white font-semibold text-sm
-                shadow-sm shadow-green-500/20
-                transition
-              "
-            >
-              <WhatsAppIcon className="w-5 h-5" />
-              Chat on WhatsApp
-            </a>
           </div>
 
           {/* Right — Form */}
@@ -204,10 +193,28 @@ export default function ContactPage(): JSX.Element {
               Send a Message
             </h3>
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              Fill out the form and we’ll get back to you shortly.
+              {isAuthenticated
+                ? "Your message will be sent using your account details."
+                : "Please log in to send a message."}
             </p>
 
-            {sent ? (
+            {authLoading ? (
+              <div className="mt-10 text-center text-sm text-gray-500">
+                Loading...
+              </div>
+            ) : !isAuthenticated ? (
+              <div className="mt-10 text-center py-8">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                  You need to be logged in to send a message.
+                </p>
+                <a
+                  href="/login"
+                  className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold transition"
+                >
+                  Log in
+                </a>
+              </div>
+            ) : sent ? (
               <div className="mt-10 flex flex-col items-center justify-center text-center py-8">
                 <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center mb-4">
                   <CheckCircle2 className="w-7 h-7 text-emerald-500" />
@@ -227,54 +234,33 @@ export default function ContactPage(): JSX.Element {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                    Full Name
-                  </label>
-                  <input
-                    required
-                    name="name"
-                    placeholder="John Doe"
-                    className="
-                      w-full px-4 py-3 rounded-xl
-                      border border-gray-200 dark:border-gray-700
-                      bg-white dark:bg-gray-950
-                      text-gray-900 dark:text-white
-                      placeholder:text-gray-400
-                      focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500
-                      transition
-                    "
-                  />
+                {/* User info preview (read-only) */}
+                <div className="rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700 px-4 py-3 text-sm">
+                  <p className="text-gray-500 dark:text-gray-400 text-xs mb-1">
+                    Sending as
+                  </p>
+                  <p className="font-medium text-gray-900 dark:text-white">
+                    {fullName || "Customer"}
+                  </p>
+                  <p className="text-gray-600 dark:text-gray-300">
+                    {customer?.email}
+                  </p>
+                  {customer?.phone_number_primary && (
+                    <p className="text-gray-600 dark:text-gray-300">
+                      {customer.phone_number_primary}
+                    </p>
+                  )}
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                    Email Address
-                  </label>
-                  <input
-                    required
-                    type="email"
-                    name="email"
-                    placeholder="you@example.com"
-                    className="
-                      w-full px-4 py-3 rounded-xl
-                      border border-gray-200 dark:border-gray-700
-                      bg-white dark:bg-gray-950
-                      text-gray-900 dark:text-white
-                      placeholder:text-gray-400
-                      focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500
-                      transition
-                    "
-                  />
-                </div>
-
+                {/* Message only */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                     Message
                   </label>
                   <textarea
                     required
-                    name="message"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
                     rows={5}
                     placeholder="How can we help you?"
                     className="
@@ -297,13 +283,13 @@ export default function ContactPage(): JSX.Element {
 
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || !message.trim()}
                   className={`
                     w-full py-3.5 rounded-xl font-semibold text-sm
                     flex items-center justify-center gap-2
                     transition
                     ${
-                      loading
+                      loading || !message.trim()
                         ? "bg-orange-300 dark:bg-orange-800/50 text-white cursor-not-allowed"
                         : "bg-orange-500 hover:bg-orange-600 text-white shadow-sm shadow-orange-500/20"
                     }
@@ -314,7 +300,7 @@ export default function ContactPage(): JSX.Element {
                   ) : (
                     <>
                       <Send className="w-4 h-4" />
-                      Send Message
+                      Send as {fullName || "me"}
                     </>
                   )}
                 </button>
