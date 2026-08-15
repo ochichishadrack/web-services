@@ -1,16 +1,151 @@
 "use client";
 
-import { JSX, useState, FormEvent } from "react";
+import { JSX, useState, FormEvent, useMemo } from "react";
 import DynamicTopNav from "@/components/ui/DynamicTopNav";
-import { Mail, Phone, MapPin, Clock, Send, CheckCircle2 } from "lucide-react";
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Clock,
+  Send,
+  CheckCircle2,
+  Loader2,
+} from "lucide-react";
 import { useCustomerAuth } from "@/context/CustomerAuthContext"; // ← adjust path if needed
 
 const WHATSAPP_NUMBER = "254113388120";
-const WHATSAPP_MESSAGE = encodeURIComponent(
-  "Hi, I’d like to inquire about your services.",
-);
-const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MESSAGE}`;
-const CONTACT_EMAIL = "marasot.ke@gmail.com";
+const CONTACT_EMAIL = "maraspot.ke@gmail.com";
+const TIMEZONE = "Africa/Nairobi";
+
+/** Business hours in EAT (Africa/Nairobi) */
+const BUSINESS_HOURS: Record<
+  number, // 0 = Sunday … 6 = Saturday
+  { open: number; close: number } | null // minutes from midnight, null = closed
+> = {
+  0: { open: 10 * 60, close: 16 * 60 }, // Sunday 10:00 – 16:00
+  1: { open: 9 * 60, close: 18 * 60 }, // Monday
+  2: { open: 9 * 60, close: 18 * 60 }, // Tuesday
+  3: { open: 9 * 60, close: 18 * 60 }, // Wednesday
+  4: { open: 9 * 60, close: 18 * 60 }, // Thursday
+  5: { open: 9 * 60, close: 18 * 60 }, // Friday
+  6: null, // Saturday closed
+};
+
+function getNairobiParts(date = new Date()) {
+  const formatter = new Intl.DateTimeFormat("en-GB", {
+    timeZone: TIMEZONE,
+    weekday: "short",
+    hour: "numeric",
+    minute: "numeric",
+    hour12: false,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+
+  const parts = formatter.formatToParts(date);
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
+
+  const weekdayMap: Record<string, number> = {
+    Sun: 0,
+    Mon: 1,
+    Tue: 2,
+    Wed: 3,
+    Thu: 4,
+    Fri: 5,
+    Sat: 6,
+  };
+
+  const day = weekdayMap[get("weekday")] ?? 0;
+  const hour = parseInt(get("hour"), 10);
+  const minute = parseInt(get("minute"), 10);
+  const minutes = hour * 60 + minute;
+
+  return { day, minutes, hour, minute };
+}
+
+function getBusinessStatus() {
+  const { day, minutes } = getNairobiParts();
+  const today = BUSINESS_HOURS[day];
+
+  if (today && minutes >= today.open && minutes < today.close) {
+    return {
+      isOpen: true,
+      nextAvailable: null as string | null,
+      shortMessage: null as string | null,
+    };
+  }
+
+  // Find next opening
+  for (let offset = 0; offset < 8; offset++) {
+    const checkDay = (day + offset) % 7;
+    const schedule = BUSINESS_HOURS[checkDay];
+    if (!schedule) continue;
+
+    if (offset === 0) {
+      // Still today but before opening
+      if (minutes < schedule.open) {
+        const minsUntil = schedule.open - minutes;
+        const hours = Math.floor(minsUntil / 60);
+        const mins = minsUntil % 60;
+
+        let shortMessage: string;
+        if (hours === 0) {
+          shortMessage = `in approximately ${mins} minutes`;
+        } else if (hours === 1 && mins === 0) {
+          shortMessage = "in approximately 1 hour";
+        } else if (mins === 0) {
+          shortMessage = `in approximately ${hours} hours`;
+        } else {
+          shortMessage = `in approximately ${hours} hour${hours > 1 ? "s" : ""} and ${mins} minutes`;
+        }
+
+        return {
+          isOpen: false,
+          nextAvailable: `We reopen today at ${formatTime(schedule.open)}.`,
+          shortMessage,
+        };
+      }
+      // After closing today → look at later days
+      continue;
+    }
+
+    // Future day
+    const dayName =
+      offset === 1
+        ? "tomorrow"
+        : [
+            "Sunday",
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+          ][checkDay];
+
+    return {
+      isOpen: false,
+      nextAvailable: `We reopen ${dayName} at ${formatTime(schedule.open)}.`,
+      shortMessage: offset === 1 ? "tomorrow" : dayName,
+    };
+  }
+
+  // Fallback (should never hit)
+  return {
+    isOpen: false,
+    nextAvailable: "Please check our business hours and try again later.",
+    shortMessage: "later",
+  };
+}
+
+function formatTime(minutesFromMidnight: number) {
+  const h = Math.floor(minutesFromMidnight / 60);
+  const m = minutesFromMidnight % 60;
+  const period = h >= 12 ? "PM" : "AM";
+  const displayH = h % 12 || 12;
+  return `${displayH}:${m.toString().padStart(2, "0")} ${period}`;
+}
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -33,13 +168,27 @@ export default function ContactPage(): JSX.Element {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState("");
 
+  const { isOpen, nextAvailable, shortMessage } = useMemo(
+    () => getBusinessStatus(),
+    [], // recalculates on every render is fine; or add a timer if you want live updates
+  );
+
   const fullName = customer
     ? `${customer.first_name || ""} ${customer.last_name || ""}`.trim()
     : "";
 
+  // Professional WhatsApp pre-fill
+  const whatsappMessage = isOpen
+    ? "Hi, I’d like to inquire about your services."
+    : `Hi, I understand you are currently closed. ${nextAvailable ?? "Please respond when you are available."} I would like to inquire about your services.`;
+
+  const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+    whatsappMessage,
+  )}`;
+
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!customer) return;
+    if (!customer || !isOpen) return;
 
     setLoading(true);
     setError(null);
@@ -184,6 +333,20 @@ export default function ContactPage(): JSX.Element {
                   </span>
                 </div>
               </div>
+
+              {/* Live status badge */}
+              <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+                {isOpen ? (
+                  <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    Currently open
+                  </p>
+                ) : (
+                  <p className="text-sm text-amber-600 dark:text-amber-400">
+                    Currently closed · {nextAvailable}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 
@@ -193,25 +356,31 @@ export default function ContactPage(): JSX.Element {
               Send a Message
             </h3>
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              {isAuthenticated
-                ? "Your message will be sent using your account details."
-                : "Please log in to send a message."}
+              {authLoading
+                ? "Checking your account…"
+                : isAuthenticated
+                  ? "Your message will be sent using your account details."
+                  : "Please log in to send a message."}
             </p>
 
+            {/* Always show spinner while waiting for real auth response from backend */}
             {authLoading ? (
-              <div className="mt-10 text-center text-sm text-gray-500">
-                Loading...
+              <div className="mt-12 flex flex-col items-center justify-center py-10 gap-3">
+                <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Loading…
+                </p>
               </div>
             ) : !isAuthenticated ? (
               <div className="mt-10 text-center py-8">
                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                  You need to be logged in to send a message.
+                  You need to be signed in to send a message.
                 </p>
                 <a
                   href={`/login?callbackUrl=${encodeURIComponent("/contact")}`}
                   className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold transition"
                 >
-                  Log in
+                  Sign in
                 </a>
               </div>
             ) : sent ? (
@@ -223,7 +392,7 @@ export default function ContactPage(): JSX.Element {
                   Message sent successfully
                 </p>
                 <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                  We’ll respond your email as soon as possible.
+                  We’ll respond to your email as soon as possible.
                 </p>
                 <button
                   onClick={() => setSent(false)}
@@ -231,6 +400,29 @@ export default function ContactPage(): JSX.Element {
                 >
                   Send another message
                 </button>
+              </div>
+            ) : !isOpen ? (
+              /* Business closed – do not allow sending */
+              <div className="mt-10 text-center py-8 px-2">
+                <div className="w-14 h-14 rounded-2xl bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center mb-4 mx-auto">
+                  <Clock className="w-7 h-7 text-amber-500" />
+                </div>
+                <p className="text-base font-semibold text-gray-900 dark:text-white">
+                  We’re currently closed
+                </p>
+                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 max-w-sm mx-auto leading-relaxed">
+                  {nextAvailable} You may still reach us via WhatsApp — we’ll
+                  respond promptly once we reopen.
+                </p>
+                <a
+                  href={WHATSAPP_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-6 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#25D366] hover:bg-[#20BD5A] text-white text-sm font-semibold transition"
+                >
+                  <WhatsAppIcon className="w-4 h-4" />
+                  Message us on WhatsApp
+                </a>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -283,20 +475,23 @@ export default function ContactPage(): JSX.Element {
 
                 <button
                   type="submit"
-                  disabled={loading || !message.trim()}
+                  disabled={loading || !message.trim() || !isOpen}
                   className={`
                     w-full py-3.5 rounded-xl font-semibold text-sm
                     flex items-center justify-center gap-2
                     transition
                     ${
-                      loading || !message.trim()
+                      loading || !message.trim() || !isOpen
                         ? "bg-orange-300 dark:bg-orange-800/50 text-white cursor-not-allowed"
                         : "bg-orange-500 hover:bg-orange-600 text-white shadow-sm shadow-orange-500/20"
                     }
                   `}
                 >
                   {loading ? (
-                    "Sending..."
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Sending…
+                    </>
                   ) : (
                     <>
                       <Send className="w-4 h-4" />
@@ -315,6 +510,11 @@ export default function ContactPage(): JSX.Element {
         href={WHATSAPP_URL}
         target="_blank"
         rel="noopener noreferrer"
+        title={
+          isOpen
+            ? "Chat with us on WhatsApp"
+            : `Currently closed · ${nextAvailable ?? "We’ll respond when we reopen"}`
+        }
         className="
           fixed bottom-6 right-6 z-40
           w-14 h-14 rounded-full
@@ -324,7 +524,11 @@ export default function ContactPage(): JSX.Element {
           shadow-lg shadow-green-500/30
           transition hover:scale-105
         "
-        aria-label="Chat on WhatsApp"
+        aria-label={
+          isOpen
+            ? "Chat on WhatsApp"
+            : `WhatsApp – currently closed, ${shortMessage ?? "later"}`
+        }
       >
         <WhatsAppIcon className="w-7 h-7" />
       </a>
