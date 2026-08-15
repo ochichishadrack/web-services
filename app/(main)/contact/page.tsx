@@ -1,6 +1,6 @@
 "use client";
 
-import { JSX, useState, FormEvent, useMemo } from "react";
+import { JSX, useState, FormEvent, useMemo, useCallback } from "react";
 import DynamicTopNav from "@/components/ui/DynamicTopNav";
 import {
   Mail,
@@ -10,6 +10,7 @@ import {
   Send,
   CheckCircle2,
   Loader2,
+  X,
 } from "lucide-react";
 import { useCustomerAuth } from "@/context/CustomerAuthContext"; // ← adjust path if needed
 
@@ -17,7 +18,7 @@ const WHATSAPP_NUMBER = "254113388120";
 const CONTACT_EMAIL = "maraspot.ke@gmail.com";
 const TIMEZONE = "Africa/Nairobi";
 
-/** Business hours in EAT (Africa/Nairobi) */
+/** Business hours in EAT (Africa/Nairobi) — adhered to strictly */
 const BUSINESS_HOURS: Record<
   number, // 0 = Sunday … 6 = Saturday
   { open: number; close: number } | null // minutes from midnight, null = closed
@@ -64,6 +65,14 @@ function getNairobiParts(date = new Date()) {
   return { day, minutes, hour, minute };
 }
 
+function formatTime(minutesFromMidnight: number) {
+  const h = Math.floor(minutesFromMidnight / 60);
+  const m = minutesFromMidnight % 60;
+  const period = h >= 12 ? "PM" : "AM";
+  const displayH = h % 12 || 12;
+  return `${displayH}:${m.toString().padStart(2, "0")} ${period}`;
+}
+
 function getBusinessStatus() {
   const { day, minutes } = getNairobiParts();
   const today = BUSINESS_HOURS[day];
@@ -73,17 +82,17 @@ function getBusinessStatus() {
       isOpen: true,
       nextAvailable: null as string | null,
       shortMessage: null as string | null,
+      reopenTimeLabel: null as string | null,
     };
   }
 
-  // Find next opening
   for (let offset = 0; offset < 8; offset++) {
     const checkDay = (day + offset) % 7;
     const schedule = BUSINESS_HOURS[checkDay];
     if (!schedule) continue;
 
     if (offset === 0) {
-      // Still today but before opening
+      // Still today, before opening
       if (minutes < schedule.open) {
         const minsUntil = schedule.open - minutes;
         const hours = Math.floor(minsUntil / 60);
@@ -104,13 +113,12 @@ function getBusinessStatus() {
           isOpen: false,
           nextAvailable: `We reopen today at ${formatTime(schedule.open)}.`,
           shortMessage,
+          reopenTimeLabel: formatTime(schedule.open),
         };
       }
-      // After closing today → look at later days
       continue;
     }
 
-    // Future day
     const dayName =
       offset === 1
         ? "tomorrow"
@@ -128,23 +136,16 @@ function getBusinessStatus() {
       isOpen: false,
       nextAvailable: `We reopen ${dayName} at ${formatTime(schedule.open)}.`,
       shortMessage: offset === 1 ? "tomorrow" : dayName,
+      reopenTimeLabel: formatTime(schedule.open),
     };
   }
 
-  // Fallback (should never hit)
   return {
     isOpen: false,
     nextAvailable: "Please check our business hours and try again later.",
     shortMessage: "later",
+    reopenTimeLabel: null,
   };
-}
-
-function formatTime(minutesFromMidnight: number) {
-  const h = Math.floor(minutesFromMidnight / 60);
-  const m = minutesFromMidnight % 60;
-  const period = h >= 12 ? "PM" : "AM";
-  const displayH = h % 12 || 12;
-  return `${displayH}:${m.toString().padStart(2, "0")} ${period}`;
 }
 
 function WhatsAppIcon({ className }: { className?: string }) {
@@ -160,6 +161,107 @@ function WhatsAppIcon({ className }: { className?: string }) {
   );
 }
 
+/** Closed-hours dialog */
+function ClosedDialog({
+  open,
+  onClose,
+  nextAvailable,
+  shortMessage,
+  onContinueWhatsApp,
+  mode,
+}: {
+  open: boolean;
+  onClose: () => void;
+  nextAvailable: string | null;
+  shortMessage: string | null;
+  onContinueWhatsApp?: () => void;
+  mode: "form" | "whatsapp";
+}) {
+  if (!open) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="closed-dialog-title"
+    >
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      {/* Panel */}
+      <div className="relative w-full max-w-md rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-xl p-6 sm:p-7">
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute top-4 right-4 p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+          aria-label="Close"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        <div className="flex flex-col items-center text-center">
+          <div className="w-14 h-14 rounded-2xl bg-amber-50 dark:bg-amber-900/25 flex items-center justify-center mb-4">
+            <Clock className="w-7 h-7 text-amber-500" />
+          </div>
+
+          <h2
+            id="closed-dialog-title"
+            className="text-lg font-semibold text-gray-900 dark:text-white"
+          >
+            We’re currently closed
+          </h2>
+
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+            {nextAvailable ??
+              "Please check our business hours and try again later."}
+          </p>
+
+          <p className="mt-3 text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+            {mode === "form"
+              ? "You may leave a message, and we will respond as soon as we reopen. Alternatively, you can reach us on WhatsApp."
+              : `You may still send a WhatsApp message. We will respond promptly ${shortMessage ? shortMessage : "once we reopen"}.`}
+          </p>
+
+          <div className="mt-6 flex flex-col sm:flex-row gap-3 w-full">
+            {mode === "whatsapp" && onContinueWhatsApp && (
+              <button
+                type="button"
+                onClick={() => {
+                  onContinueWhatsApp();
+                  onClose();
+                }}
+                className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#25D366] hover:bg-[#20BD5A] text-white text-sm font-semibold transition"
+              >
+                <WhatsAppIcon className="w-4 h-4" />
+                Continue to WhatsApp
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={onClose}
+              className={`
+                flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold transition
+                ${
+                  mode === "whatsapp"
+                    ? "border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800"
+                    : "bg-orange-500 hover:bg-orange-600 text-white"
+                }
+              `}
+            >
+              {mode === "form" ? "Got it" : "Close"}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function ContactPage(): JSX.Element {
   const { customer, isAuthenticated, loading: authLoading } = useCustomerAuth();
 
@@ -167,17 +269,24 @@ export default function ContactPage(): JSX.Element {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState("");
+  const [closedDialog, setClosedDialog] = useState<{
+    open: boolean;
+    mode: "form" | "whatsapp";
+  }>({ open: false, mode: "form" });
 
+  // Recalculate on every render so status stays accurate
   const { isOpen, nextAvailable, shortMessage } = useMemo(
     () => getBusinessStatus(),
-    [], // recalculates on every render is fine; or add a timer if you want live updates
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      /* intentionally empty – Date.now() is read inside */
+    ],
   );
 
   const fullName = customer
     ? `${customer.first_name || ""} ${customer.last_name || ""}`.trim()
     : "";
 
-  // Professional WhatsApp pre-fill
   const whatsappMessage = isOpen
     ? "Hi, I’d like to inquire about your services."
     : `Hi, I understand you are currently closed. ${nextAvailable ?? "Please respond when you are available."} I would like to inquire about your services.`;
@@ -186,9 +295,19 @@ export default function ContactPage(): JSX.Element {
     whatsappMessage,
   )}`;
 
+  const openWhatsApp = useCallback(() => {
+    window.open(WHATSAPP_URL, "_blank", "noopener,noreferrer");
+  }, [WHATSAPP_URL]);
+
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!customer || !isOpen) return;
+    if (!customer) return;
+
+    // Strictly respect business hours — show dialog instead of sending
+    if (!isOpen) {
+      setClosedDialog({ open: true, mode: "form" });
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -223,6 +342,14 @@ export default function ContactPage(): JSX.Element {
     } finally {
       setLoading(false);
     }
+  }
+
+  function handleWhatsAppClick(e: React.MouseEvent) {
+    if (!isOpen) {
+      e.preventDefault();
+      setClosedDialog({ open: true, mode: "whatsapp" });
+    }
+    // when open, the <a> navigates normally
   }
 
   return (
@@ -350,7 +477,7 @@ export default function ContactPage(): JSX.Element {
             </div>
           </div>
 
-          {/* Right — Form */}
+          {/* Right — Form (always available when authenticated; closed state handled by dialog) */}
           <div className="lg:col-span-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-5 sm:p-7 shadow-sm">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
               Send a Message
@@ -363,7 +490,6 @@ export default function ContactPage(): JSX.Element {
                   : "Please log in to send a message."}
             </p>
 
-            {/* Always show spinner while waiting for real auth response from backend */}
             {authLoading ? (
               <div className="mt-12 flex flex-col items-center justify-center py-10 gap-3">
                 <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
@@ -401,29 +527,6 @@ export default function ContactPage(): JSX.Element {
                   Send another message
                 </button>
               </div>
-            ) : !isOpen ? (
-              /* Business closed – do not allow sending */
-              <div className="mt-10 text-center py-8 px-2">
-                <div className="w-14 h-14 rounded-2xl bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center mb-4 mx-auto">
-                  <Clock className="w-7 h-7 text-amber-500" />
-                </div>
-                <p className="text-base font-semibold text-gray-900 dark:text-white">
-                  We’re currently closed
-                </p>
-                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 max-w-sm mx-auto leading-relaxed">
-                  {nextAvailable} You may still reach us via WhatsApp — we’ll
-                  respond promptly once we reopen.
-                </p>
-                <a
-                  href={WHATSAPP_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-6 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#25D366] hover:bg-[#20BD5A] text-white text-sm font-semibold transition"
-                >
-                  <WhatsAppIcon className="w-4 h-4" />
-                  Message us on WhatsApp
-                </a>
-              </div>
             ) : (
               <form onSubmit={handleSubmit} className="mt-6 space-y-4">
                 {/* User info preview (read-only) */}
@@ -444,7 +547,7 @@ export default function ContactPage(): JSX.Element {
                   )}
                 </div>
 
-                {/* Message only */}
+                {/* Message */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                     Message
@@ -473,15 +576,16 @@ export default function ContactPage(): JSX.Element {
                   </p>
                 )}
 
+                {/* Send button is never disabled for closed hours — dialog handles it */}
                 <button
                   type="submit"
-                  disabled={loading || !message.trim() || !isOpen}
+                  disabled={loading || !message.trim()}
                   className={`
                     w-full py-3.5 rounded-xl font-semibold text-sm
                     flex items-center justify-center gap-2
                     transition
                     ${
-                      loading || !message.trim() || !isOpen
+                      loading || !message.trim()
                         ? "bg-orange-300 dark:bg-orange-800/50 text-white cursor-not-allowed"
                         : "bg-orange-500 hover:bg-orange-600 text-white shadow-sm shadow-orange-500/20"
                     }
@@ -505,11 +609,12 @@ export default function ContactPage(): JSX.Element {
         </div>
       </div>
 
-      {/* Floating WhatsApp button */}
+      {/* Floating WhatsApp button — always clickable; dialog when closed */}
       <a
         href={WHATSAPP_URL}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={handleWhatsAppClick}
         title={
           isOpen
             ? "Chat with us on WhatsApp"
@@ -532,6 +637,18 @@ export default function ContactPage(): JSX.Element {
       >
         <WhatsAppIcon className="w-7 h-7" />
       </a>
+
+      {/* Closed-hours dialog */}
+      <ClosedDialog
+        open={closedDialog.open}
+        mode={closedDialog.mode}
+        nextAvailable={nextAvailable}
+        shortMessage={shortMessage}
+        onClose={() => setClosedDialog((s) => ({ ...s, open: false }))}
+        onContinueWhatsApp={
+          closedDialog.mode === "whatsapp" ? openWhatsApp : undefined
+        }
+      />
     </div>
   );
 }
