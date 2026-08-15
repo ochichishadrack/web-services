@@ -8,7 +8,13 @@ interface Props {
 
 export default function GoogleLoginButton({ callbackUrl }: Props) {
   const handleGoogleLogin = () => {
-    const encodedCallback = encodeURIComponent(callbackUrl);
+    // Always send a full URL so the backend can detect the correct frontend origin
+    const finalCallback = callbackUrl.startsWith('http')
+      ? callbackUrl
+      : `${window.location.origin}${callbackUrl.startsWith('/') ? callbackUrl : `/${callbackUrl}`}`;
+
+    const encodedCallback = encodeURIComponent(finalCallback);
+
     window.location.href = `${getApiBaseUrl()}/api/auth/login/google?callbackUrl=${encodedCallback}`;
   };
 
