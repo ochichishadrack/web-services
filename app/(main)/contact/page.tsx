@@ -208,7 +208,7 @@ export default function ContactPage(): JSX.Element {
                   You need to be logged in to send a message.
                 </p>
                 <a
-                  href="/login"
+                  href={`/login?callbackUrl=${encodeURIComponent("/contact")}`}
                   className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold transition"
                 >
                   Log in
