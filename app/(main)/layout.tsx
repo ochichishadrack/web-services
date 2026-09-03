@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode } from "react";
+import { ReactNode, Suspense } from "react";
 import {
   useCustomerAuth,
   CustomerAuthProvider,
@@ -25,7 +25,9 @@ function MainLayoutContent({ children }: { children: ReactNode }) {
 export default function MainLayout({ children }: { children: ReactNode }) {
   return (
     <CustomerAuthProvider>
-      <AnalyticsTracker />
+      <Suspense fallback={null}>
+        <AnalyticsTracker />
+      </Suspense>
       <MainLayoutContent>{children}</MainLayoutContent>
     </CustomerAuthProvider>
   );
