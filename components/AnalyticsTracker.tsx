@@ -11,7 +11,7 @@ import { axiosInstance } from '@/utils/axiosInstance';
 // Identifies which frontend this tracker is running on.
 // Sent with every tracked event so the backend can separate
 // analytics data by app (affiliate / web-services / ecommerce / etc.)
-const APP_NAME = 'web-services';
+const APP_NAME = 'services';
 
 // ============================================================
 // STORAGE KEYS
