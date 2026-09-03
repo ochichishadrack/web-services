@@ -5,6 +5,7 @@ import {
   useCustomerAuth,
   CustomerAuthProvider,
 } from "@/context/CustomerAuthContext";
+import AnalyticsTracker from "@/components/AnalyticsTracker";
 function MainLayoutContent({ children }: { children: ReactNode }) {
   const { isAuthenticated: isCustomer } = useCustomerAuth();
 
@@ -24,6 +25,7 @@ function MainLayoutContent({ children }: { children: ReactNode }) {
 export default function MainLayout({ children }: { children: ReactNode }) {
   return (
     <CustomerAuthProvider>
+      <AnalyticsTracker />
       <MainLayoutContent>{children}</MainLayoutContent>
     </CustomerAuthProvider>
   );
