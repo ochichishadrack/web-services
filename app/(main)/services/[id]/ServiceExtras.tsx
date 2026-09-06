@@ -1,6 +1,7 @@
 "use client";
 
 import { FC } from "react";
+import { useLocalCurrency } from "@/hooks/useLocalCurrency";
 
 interface Extra {
   id: string;
@@ -15,6 +16,7 @@ interface Props {
 }
 
 const ServiceExtras: FC<Props> = ({ extras, selectedExtras, toggleExtra }) => {
+  const { format } = useLocalCurrency();
   if (!extras?.length) return null;
 
   return (
@@ -37,9 +39,8 @@ const ServiceExtras: FC<Props> = ({ extras, selectedExtras, toggleExtra }) => {
               />
               {extra.title}
             </div>
-            <span className="font-semibold">
-              + KES {extra.price.toLocaleString()}
-            </span>
+
+            <span className="font-semibold">+ {format(extra.price)}</span>
           </label>
         );
       })}

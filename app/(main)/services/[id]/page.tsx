@@ -8,6 +8,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useCustomerAuth } from "@/context/CustomerAuthContext";
 import TiptapPageView from "@/components/TiptapPageView";
 import { axiosInstance } from "@/utils/axiosInstance";
+import { useLocalCurrency } from "@/hooks/useLocalCurrency";
 import {
   Check,
   Clock,
@@ -160,6 +161,7 @@ export default function ServiceDetailsPage() {
   const [faqOpen, setFaqOpen] = useState(false);
   const [openFaqId, setOpenFaqId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const { format } = useLocalCurrency();
 
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [galleryIndex, setGalleryIndex] = useState(0);
@@ -391,12 +393,9 @@ export default function ServiceDetailsPage() {
           {/* PACKAGE CONTENT */}
           {selectedPackage && (
             <div className="p-6 space-y-4">
-              <div className="text-3xl font-bold">
-                KES {totalPrice.toLocaleString()}
-              </div>
+              <div className="text-3xl font-bold">{format(totalPrice)}</div>
               <p className="font-semibold">{selectedPackage.name}</p>
               <p className="text-sm">{selectedPackage.description}</p>
-
               <div className="flex flex-wrap gap-4 text-sm font-medium text-gray-700 dark:text-gray-300 pt-3">
                 <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4" />
@@ -423,7 +422,6 @@ export default function ServiceDetailsPage() {
                   </div>
                 )}
               </div>
-
               {selectedPackage.features?.length && (
                 <ul className="text-gray-700 dark:text-gray-300 space-y-1 text-sm border-t pt-3">
                   <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">
@@ -437,14 +435,12 @@ export default function ServiceDetailsPage() {
                   ))}
                 </ul>
               )}
-
               {/* Extras */}
               <ServiceExtras
                 extras={service.extras}
                 selectedExtras={selectedExtras}
                 toggleExtra={toggleExtra}
               />
-
               {/* CTA */}
               <button
                 onClick={() =>

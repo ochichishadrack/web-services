@@ -10,6 +10,9 @@ import { axiosInstance } from "@/utils/axiosInstance";
 import TopNav from "@/components/ui/TopNav";
 import Footer from "@/components/ui/Footer";
 import Portfolio from "@/components/ui/Portfolio";
+import { useLocalCurrency } from "@/hooks/useLocalCurrency";
+
+
 /* ---------------- TYPES ---------------- */
 
 interface ServiceMedia {
@@ -52,6 +55,7 @@ export default function HomePage(): JSX.Element {
   const { customer, isAuthenticated } = useCustomerAuth();
   const router = useRouter();
   const [prices, setPrices] = useState<Record<string, any>>({});
+  const { format, loading: fxLoading } = useLocalCurrency();
 
   const [showModal, setShowModal] = useState(false);
   const [subLoading, setSubLoading] = useState(false);
@@ -309,9 +313,9 @@ export default function HomePage(): JSX.Element {
                           <span />
                         )}
 
-                        {price && (
+                           {price != null && (
                           <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                            From KES {Number(price).toLocaleString()}
+                            {fxLoading ? "..." : `From ${format(price)}`}
                           </div>
                         )}
                       </div>

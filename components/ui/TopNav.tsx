@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Bell, User, Home, Briefcase, FolderKanban, Menu, X, LogIn } from 'lucide-react';
 import { useCustomerAuth } from '@/context/CustomerAuthContext';
 import { usePathname } from 'next/navigation';
+import CountrySelector from '@/components/ui/CountrySelector';
 
 interface TopNavProps {
   activePage?: 'home' | 'services' | 'projects' | 'account' | 'notifications';
@@ -55,13 +56,15 @@ export default function TopNav({ activePage = 'home' }: TopNavProps) {
                 <Icon className="w-5 h-5" />
                 {item.label}
 
-                {/* Active indicator */}
                 {isActive && (
                   <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-orange-500 rounded-full" />
                 )}
               </Link>
             );
           })}
+
+          {/* Country / currency selector */}
+          <CountrySelector />
 
           {/* Conditional sign in or notifications */}
           {!authLoading && !isAuthenticated ? (
@@ -84,7 +87,8 @@ export default function TopNav({ activePage = 'home' }: TopNavProps) {
 
         {/* ================= MOBILE ACTIONS ================= */}
         <div className="flex items-center gap-3 md:hidden">
-          {/* No bordered Sign In button on mobile — only show notifications when authenticated */}
+          <CountrySelector />
+
           {!authLoading && isAuthenticated && (
             <Link
               href="/notifications"

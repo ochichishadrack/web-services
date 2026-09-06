@@ -6,12 +6,13 @@ import { axiosInstance } from '@/utils/axiosInstance';
 import { useCustomerAuth } from '@/context/CustomerAuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useLocalCurrency } from '@/hooks/useLocalCurrency';
 
 interface ServiceOrder {
   id: string;
   service_title: string;
   package_type: string;
-  total_price: number;
+  total_price: number; // USD from DB
   status:
     | 'pending'
     | 'paid'
@@ -85,13 +86,11 @@ function OrdersSkeleton(): JSX.Element {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
-        {/* Header Skeleton */}
         <div className="space-y-2">
           <div className="h-8 w-48 bg-gray-200 dark:bg-gray-800 rounded-lg animate-pulse" />
           <div className="h-4 w-72 bg-gray-200 dark:bg-gray-800 rounded animate-pulse" />
         </div>
 
-        {/* Cards Skeleton */}
         <div className="grid gap-5 grid-cols-1 md:grid-cols-2 xl:grid-cols-2">
           {Array.from({ length: 6 }).map((_, i) => (
             <div
@@ -126,9 +125,24 @@ export default function ServiceOrders(): JSX.Element {
   const [orders, setOrders] = useState<ServiceOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [hasFetched, setHasFetched] = useState(false); // prevents premature empty state
+  const [hasFetched, setHasFetched] = useState(false);
   const router = useRouter();
   const buyerId = customer?.public_id ?? null;
+
+  // ---------- Currency ----------
+  const { currency: localCurrency, convert, format, loading: currencyLoading } = useLocalCurrency();
+
+  const payCurrency: 'KES' | 'USD' = localCurrency === 'KES' ? 'KES' : 'USD';
+  const isKes = payCurrency === 'KES';
+  const showLocalEstimate = !currencyLoading && localCurrency !== payCurrency;
+
+  const formatMoney = (usdAmount: number) => {
+    const amount = isKes ? convert(usdAmount) : usdAmount;
+    return `${payCurrency} ${amount.toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
+  };
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -136,40 +150,6 @@ export default function ServiceOrders(): JSX.Element {
       router.replace(`/login?callbackUrl=${callbackUrl}`);
     }
   }, [authLoading, isAuthenticated, router]);
-
-  const fetchOrders = useCallback(
-    async (signal?: AbortSignal) => {
-      if (!buyerId) return;
-
-      try {
-        setLoading(true);
-        setError(null);
-
-        const res = await axiosInstance.get<ServiceOrder[]>(
-          `/api/service-orders/buyer/${buyerId}`,
-          { signal }
-        );
-
-        setOrders(Array.isArray(res.data) ? res.data : []);
-      } catch (err) {
-        // Ignore cancelled / aborted requests
-        if (
-          axios.isCancel(err) ||
-          (err as Error).name === 'CanceledError' ||
-          (err as Error).name === 'AbortError'
-        ) {
-          return;
-        }
-
-        console.error('Failed to fetch orders:', err);
-        setError('Failed to load your service orders. Please try again.');
-      } finally {
-        setLoading(false);
-        setHasFetched(true);
-      }
-    },
-    [buyerId]
-  );
 
   useEffect(() => {
     if (!buyerId) return;
@@ -219,12 +199,10 @@ export default function ServiceOrders(): JSX.Element {
     };
   }, [buyerId]);
 
-  /* Keep skeleton until auth + first real response */
   if (authLoading || loading || !hasFetched) {
     return <OrdersSkeleton />;
   }
 
-  /* Redirecting */
   if (!isAuthenticated || !customer) {
     return (
       <div className="min-h-[50vh] flex items-center justify-center text-gray-500 dark:text-gray-400">
@@ -233,7 +211,6 @@ export default function ServiceOrders(): JSX.Element {
     );
   }
 
-  /* Error */
   if (error) {
     return (
       <div className="min-h-[50vh] flex flex-col items-center justify-center gap-4 px-4">
@@ -242,8 +219,6 @@ export default function ServiceOrders(): JSX.Element {
           onClick={() => {
             setHasFetched(false);
             setLoading(true);
-            // re-trigger by temporarily clearing buyerId effect dependency isn't ideal,
-            // so we call a manual refetch
             const controller = new AbortController();
             axiosInstance
               .get<ServiceOrder[]>(`/api/service-orders/buyer/${buyerId}`, {
@@ -275,7 +250,6 @@ export default function ServiceOrders(): JSX.Element {
     );
   }
 
-  /* Empty State — only after a completed successful fetch */
   if (orders.length === 0) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-4">
@@ -310,11 +284,9 @@ export default function ServiceOrders(): JSX.Element {
     );
   }
 
-  /* Orders List */
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        {/* Page Header */}
         <div className="mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
             My Projects
@@ -324,7 +296,6 @@ export default function ServiceOrders(): JSX.Element {
           </p>
         </div>
 
-        {/* Grid */}
         <div className="grid gap-5 grid-cols-1 md:grid-cols-2 xl:grid-cols-2">
           {orders.map((order) => (
             <div
@@ -349,9 +320,16 @@ export default function ServiceOrders(): JSX.Element {
                 <span className="text-sm text-gray-500 dark:text-gray-400">
                   {order.package_type}
                 </span>
-                <span className="font-semibold text-gray-900 dark:text-white">
-                  KES {order.total_price.toLocaleString()}
-                </span>
+                <div className="text-right">
+                  <span className="font-semibold text-gray-900 dark:text-white">
+                    {formatMoney(order.total_price)}
+                  </span>
+                  {showLocalEstimate && (
+                    <span className="block text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                      ≈ {format(order.total_price)}
+                    </span>
+                  )}
+                </div>
               </div>
 
               {/* Dates */}

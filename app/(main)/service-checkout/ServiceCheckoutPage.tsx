@@ -16,6 +16,7 @@ import {
   Loader2,
 } from "lucide-react";
 import PaymentComponent from "@/components/payment/service_order";
+import { useLocalCurrency } from "@/hooks/useLocalCurrency";
 
 /* ---------------- TYPES ---------------- */
 
@@ -63,6 +64,7 @@ export default function ServiceCheckoutPage(): JSX.Element {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { customer, loading: authLoading } = useCustomerAuth();
+  const { format } = useLocalCurrency();
 
   const serviceId = searchParams.get("serviceId") ?? "";
   const packageId = searchParams.get("packageId") ?? "";
@@ -253,8 +255,9 @@ export default function ServiceCheckoutPage(): JSX.Element {
               <p className="text-xs text-gray-500 dark:text-gray-400">
                 Package Price
               </p>
+
               <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                KES {selectedPackage.price.toLocaleString()}
+                {format(selectedPackage.price)}
               </p>
             </div>
           </div>
@@ -317,8 +320,8 @@ export default function ServiceCheckoutPage(): JSX.Element {
             <ul className="text-sm text-gray-700 dark:text-gray-300 list-disc list-inside space-y-1">
               {selectedExtras.map((extra) => (
                 <li key={extra.id}>
-                  {extra.title} — KES {extra.price.toLocaleString()} (
-                  {extra.delivery_days} days)
+                  {extra.title} — {format(extra.price)} ({extra.delivery_days}{" "}
+                  days)
                 </li>
               ))}
             </ul>
@@ -480,9 +483,8 @@ export default function ServiceCheckoutPage(): JSX.Element {
         <div className="bg-black dark:bg-white text-white dark:text-black rounded-2xl p-6 flex flex-col gap-3 transition-colors">
           <div className="flex justify-between">
             <span>Total</span>
-            <span className="text-xl font-bold">
-              KES {totalPrice.toLocaleString()}
-            </span>
+
+            <span className="text-xl font-bold">{format(totalPrice)}</span>
           </div>
           <button
             onClick={handleProceedToPayment}

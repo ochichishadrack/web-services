@@ -6,6 +6,7 @@ import axios from "axios";
 import { axiosInstance } from "@/utils/axiosInstance";
 import TopNav from "@/components/ui/DynamicTopNav";
 import ServiceOrderDetailsSkeleton from "./ServiceOrderDetailsSkeleton";
+import { useLocalCurrency } from "@/hooks/useLocalCurrency";
 
 /* ---------------- TYPES ---------------- */
 type OrderStatus =
@@ -23,7 +24,7 @@ type OrderStatus =
   | "phase_3_completed";
 
 interface Phase {
-  amount: number;
+  amount: number; // USD
   paid: boolean;
   amount_paid?: number;
 }
@@ -52,7 +53,7 @@ interface ServiceOrder {
   service_title: string;
   package_name: string;
   package_type: string;
-  total_price: number;
+  total_price: number; // USD
   status: OrderStatus;
   due_date: string;
   created_at: string;
@@ -62,8 +63,6 @@ interface ServiceOrder {
 }
 
 /* ---------------- HELPERS ---------------- */
-const formatKES = (amount: number): string => `KES ${amount.toLocaleString()}`;
-
 const statusConfig: Record<OrderStatus, { label: string; className: string }> =
   {
     pending: {
@@ -148,17 +147,37 @@ export default function ServiceOrderDetailsPage(): JSX.Element | null {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // ---------- Currency ----------
+  const {
+    currency: localCurrency,
+    convert,
+    format,
+    loading: currencyLoading,
+  } = useLocalCurrency();
+
+  const payCurrency: "KES" | "USD" = localCurrency === "KES" ? "KES" : "USD";
+  const isKes = payCurrency === "KES";
+  const showLocalEstimate = !currencyLoading && localCurrency !== payCurrency;
+
+  const formatMoney = (usdAmount: number) => {
+    const amount = isKes ? convert(usdAmount) : usdAmount;
+    return `${payCurrency} ${amount.toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
+  };
+
   useEffect(() => {
     if (!orderId) return;
 
     const controller = new AbortController();
-    let isActive = true; // prevents state updates after abort / unmount
+    let isActive = true;
 
     const fetchOrder = async () => {
       try {
         setLoading(true);
         setError(null);
-        setOrder(null); // clear previous order while loading
+        setOrder(null);
 
         const res = await axiosInstance.get<ServiceOrder>(
           `/api/service-orders/${orderId}`,
@@ -171,7 +190,6 @@ export default function ServiceOrderDetailsPage(): JSX.Element | null {
       } catch (err) {
         if (!isActive) return;
 
-        // Ignore cancelled / aborted requests
         if (
           axios.isCancel(err) ||
           (err as Error).name === "CanceledError" ||
@@ -180,7 +198,6 @@ export default function ServiceOrderDetailsPage(): JSX.Element | null {
           return;
         }
 
-        // Real 404 → treat as "Order not found"
         if (axios.isAxiosError(err) && err.response?.status === 404) {
           setOrder(null);
           setError(null);
@@ -211,12 +228,10 @@ export default function ServiceOrderDetailsPage(): JSX.Element | null {
     );
   }, [order]);
 
-  /* ✅ Keep skeleton until the real backend response arrives */
   if (loading) {
     return <ServiceOrderDetailsSkeleton />;
   }
 
-  /* Error (network / 500 / etc.) */
   if (error) {
     return (
       <div className="min-h-[50vh] flex flex-col items-center justify-center gap-4 px-4">
@@ -233,7 +248,6 @@ export default function ServiceOrderDetailsPage(): JSX.Element | null {
     );
   }
 
-  /* Not Found — only after a completed request that returned no order */
   if (!order) {
     return (
       <div className="min-h-[50vh] flex flex-col items-center justify-center gap-3 px-4 text-center">
@@ -285,7 +299,12 @@ export default function ServiceOrderDetailsPage(): JSX.Element | null {
                 Total Amount
               </p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                {formatKES(order.total_price)}
+                {formatMoney(order.total_price)}
+                {showLocalEstimate && (
+                  <span className="block text-sm font-normal text-gray-400 dark:text-gray-500 mt-0.5">
+                    ≈ {format(order.total_price)}
+                  </span>
+                )}
               </p>
             </div>
 
@@ -403,7 +422,12 @@ export default function ServiceOrderDetailsPage(): JSX.Element | null {
                       {key.replace(/_/g, " ")}
                     </p>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                      {formatKES(phase.amount)}
+                      {formatMoney(phase.amount)}
+                      {showLocalEstimate && (
+                        <span className="block text-xs text-gray-400 dark:text-gray-500">
+                          ≈ {format(phase.amount)}
+                        </span>
+                      )}
                     </p>
                   </div>
 

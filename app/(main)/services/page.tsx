@@ -6,6 +6,7 @@ import Image from "next/image";
 import { axiosInstance } from "@/utils/axiosInstance";
 import TopNav from "@/components/ui/TopNav";
 import Footer from "@/components/ui/Footer";
+import { useLocalCurrency } from "@/hooks/useLocalCurrency";
 
 /* ---------------- TYPES ---------------- */
 
@@ -49,6 +50,7 @@ export default function ServicesPage(): JSX.Element {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [prices, setPrices] = useState<Record<string, any>>({});
+  const { format, loading: fxLoading } = useLocalCurrency();
 
   useEffect(() => {
     async function fetchServices(): Promise<void> {
@@ -198,9 +200,9 @@ export default function ServicesPage(): JSX.Element {
                         ) : (
                           <span />
                         )}
-                        {price && (
+                        {price != null && (
                           <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                            From KES {price.toLocaleString()}
+                            {fxLoading ? "..." : `From ${format(price)}`}
                           </div>
                         )}
                       </div>
