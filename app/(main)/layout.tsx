@@ -6,7 +6,7 @@ import {
   CustomerAuthProvider,
 } from "@/context/CustomerAuthContext";
 import AnalyticsTracker from "@/components/AnalyticsTracker";
-import { CurrencyProvider } from "@/context/CurrencyContext";
+
 function MainLayoutContent({ children }: { children: ReactNode }) {
   const { isAuthenticated: isCustomer } = useCustomerAuth();
 
@@ -26,12 +26,10 @@ function MainLayoutContent({ children }: { children: ReactNode }) {
 export default function MainLayout({ children }: { children: ReactNode }) {
   return (
     <CustomerAuthProvider>
-      <CurrencyProvider>
-        <Suspense fallback={null}>
-          <AnalyticsTracker />
-        </Suspense>
-        <MainLayoutContent>{children}</MainLayoutContent>
-      </CurrencyProvider>
+      <Suspense fallback={null}>
+        <AnalyticsTracker />
+      </Suspense>
+      <MainLayoutContent>{children}</MainLayoutContent>
     </CustomerAuthProvider>
   );
 }

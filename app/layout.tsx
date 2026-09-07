@@ -3,6 +3,7 @@ import { ReactNode } from "react";
 import ThemeProvider from "@/components/ThemeProvider";
 import "./globals.css";
 import ServiceWorker from "@/components/ServiceWorker";
+import { CurrencyProvider } from "@/context/CurrencyContext";
 
 export const metadata: Metadata = {
   title: "Maraspot Services",
@@ -24,9 +25,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body>
         <ServiceWorker />
         <ThemeProvider>
-          <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-white transition-colors duration-300">
-            <main className="flex-1">{children}</main>
-          </div>
+          <CurrencyProvider>
+            <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-white transition-colors duration-300">
+              <main className="flex-1">{children}</main>
+            </div>
+          </CurrencyProvider>
         </ThemeProvider>
       </body>
     </html>
