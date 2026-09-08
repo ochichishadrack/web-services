@@ -113,32 +113,20 @@ export default function PaymentComponent({
   const { getReferralCode } = useCustomerAuth();
   const referralCode = getReferralCode();
 
-  const {
-    currency: localCurrency,
-    convert,
-    format,
-    loading: currencyLoading,
-  } = useLocalCurrency();
+  const { currency: localCurrency, convert, format, loading: currencyLoading } = useLocalCurrency();
 
-  // Only KES and USD are supported by this Paystack account
-  const payCurrency: 'KES' | 'USD' = localCurrency === 'KES' ? 'KES' : 'USD';
-  const isKes = payCurrency === 'KES';
-  const showLocalEstimate = !currencyLoading && localCurrency !== payCurrency;
-  const showUnsupportedNotice = !currencyLoading && localCurrency !== 'KES' && localCurrency !== 'USD';
+  const isKesSupported = !currencyLoading && localCurrency === 'KES';
+  const isOtherCurrency = !currencyLoading && localCurrency !== 'KES';
 
   const extrasTotalUsd = selectedExtras.reduce((sum, e) => sum + e.price, 0);
-  const backendTotalUsd = selectedPackage.price + extrasTotalUsd; // always USD from DB
+  const backendTotalUsd = selectedPackage.price + extrasTotalUsd;
 
   const { phases, payable, discount } = calculatePhases(backendTotalUsd, option);
   const discountAmountUsd = Math.round(backendTotalUsd * discount);
 
-  // Convert USD → display currency (KES or USD)
-  const toDisplay = (usdAmount: number) =>
-    isKes ? convert(usdAmount) : usdAmount;
-
   const formatMoney = (usdAmount: number) => {
-    const amount = toDisplay(usdAmount);
-    return `${payCurrency} ${amount.toLocaleString(undefined, {
+    const amount = convert(usdAmount);
+    return `KES ${amount.toLocaleString(undefined, {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     })}`;
@@ -147,7 +135,14 @@ export default function PaymentComponent({
   /* ---------------- HANDLE PAYMENT ---------------- */
   const handlePay = async (): Promise<void> => {
     if (!accepted) {
-      alert('Accept terms first');
+      alert('Please accept the terms first.');
+      return;
+    }
+
+    if (!isKesSupported) {
+      alert(
+        'Online payments are currently available only in Kenyan Shillings (KES). Please contact support.'
+      );
       return;
     }
 
@@ -184,7 +179,6 @@ export default function PaymentComponent({
         };
       });
 
-      // Always send the USD amount. Backend converts to KES when currency === "KES"
       const payload = {
         service_id: orderPayload.service_id,
         package_id: orderPayload.package_id,
@@ -192,8 +186,8 @@ export default function PaymentComponent({
         extras_ids: orderPayload.extras_ids,
         phase: option,
         payment_type: 'service',
-        amount: payable,               // USD major units
-        currency: payCurrency,         // "KES" or "USD"
+        amount: payable,
+        currency: 'KES',
         email: customer.email,
         requirements: cleanedRequirements,
         referral_code: referralCode,
@@ -215,7 +209,7 @@ export default function PaymentComponent({
     } catch (err: unknown) {
       console.error(err);
       const message =
-        err instanceof Error ? err.message : 'Failed to initialize payment. Check console.';
+        err instanceof Error ? err.message : 'Failed to initialize payment. Please try again.';
       alert(message);
     } finally {
       setLoading(false);
@@ -224,247 +218,249 @@ export default function PaymentComponent({
 
   /* ---------------- UI ---------------- */
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 px-4 py-6 sm:py-8 flex justify-center transition-colors">
-      <div className="w-full max-w-2xl lg:max-w-3xl bg-white dark:bg-gray-900 rounded-3xl shadow-2xl overflow-hidden transition-colors">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 px-4 py-6 sm:py-10 flex justify-center transition-colors">
+      <div className="w-full max-w-2xl lg:max-w-3xl bg-white dark:bg-gray-900 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden transition-colors">
         {/* HEADER */}
-        <div className="bg-black dark:bg-white text-white dark:text-black p-5 sm:p-6 text-center transition-colors">
-          <h1 className="text-xl sm:text-2xl font-bold">Contract Payment Plan</h1>
+        <div className="bg-gray-950 dark:bg-white text-white dark:text-black px-6 py-6 sm:px-8 sm:py-7 text-center">
+          <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">
+            Contract Payment Plan
+          </h1>
+          <p className="text-sm text-gray-300 dark:text-gray-600 mt-1.5">
+            Secure phased payments for your project
+          </p>
         </div>
 
-        <div className="p-4 sm:p-6 space-y-5 sm:space-y-6">
-          {/* KES NOTICE */}
-          {isKes && !currencyLoading && (
-            <div className="flex items-start gap-2.5 rounded-xl border border-blue-200 dark:border-blue-800/50 bg-blue-50 dark:bg-blue-900/20 p-3.5 text-xs sm:text-sm text-blue-800 dark:text-blue-300">
-              <Info className="w-4 h-4 mt-0.5 shrink-0" />
-              <span>Amounts below are shown and charged in Kenyan Shillings (KES).</span>
-            </div>
-          )}
-
-          {/* UNSUPPORTED LOCAL CURRENCY NOTICE */}
-          {showUnsupportedNotice && (
-            <div className="rounded-xl border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/20 p-4 sm:p-5 space-y-4">
-              <div className="flex items-start gap-2.5">
-                <Info className="w-5 h-5 mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
-                <div className="space-y-1.5">
-                  <p className="text-sm font-medium text-amber-900 dark:text-amber-200">
-                    USD payments only for your region
+        <div className="p-5 sm:p-8 space-y-6 sm:space-y-7">
+          {/* ========== NON-KES NOTICE ========== */}
+          {isOtherCurrency && (
+            <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40 p-6 sm:p-7 space-y-6">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center shrink-0">
+                  <Info className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                </div>
+                <div className="space-y-2.5">
+                  <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+                    Online payments are currently available in Kenya only
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                    Automated checkout is supported exclusively in{' '}
+                    <strong className="text-gray-800 dark:text-gray-200">
+                      Kenyan Shillings (KES)
+                    </strong>
+                    . Your region uses{' '}
+                    <strong className="text-gray-800 dark:text-gray-200">{localCurrency}</strong>,
+                    which is not yet enabled for online payment.
                   </p>
-                  <p className="text-xs sm:text-sm text-amber-800/90 dark:text-amber-300/90 leading-relaxed">
-                    Online payments are currently available only in <strong>USD</strong> for
-                    customers in your country. All amounts below will be charged in US Dollars.
-                    An approximate conversion into your local currency is shown for reference.
+                  <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                    Please contact our support team to complete this order. We will arrange a
+                    suitable payment method for your location.
                   </p>
                 </div>
               </div>
 
-              <div className="rounded-lg bg-white/70 dark:bg-gray-900/40 border border-amber-100 dark:border-amber-800/40 px-3.5 py-3">
-                <p className="text-[11px] uppercase tracking-wide text-amber-700/80 dark:text-amber-400/80 mb-1">
-                  Approximate local equivalent
+              {/* Amount to be paid */}
+              <div className="rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 px-5 py-4">
+                <p className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">
+                  Amount to be paid
                 </p>
-                <p className="text-base sm:text-lg font-semibold text-amber-950 dark:text-amber-100">
+                <p className="text-xl font-semibold text-gray-900 dark:text-gray-50">
                   {format(backendTotalUsd)}
                 </p>
-                <p className="text-[11px] text-amber-700/70 dark:text-amber-400/70 mt-1">
-                  Based on current exchange rates · Final charge will be in USD
-                </p>
               </div>
 
-              <div className="pt-1 border-t border-amber-200/60 dark:border-amber-800/40">
-                <p className="text-xs text-amber-800/80 dark:text-amber-300/80 mb-2.5">
-                  Need assistance with payment or currency options?
-                </p>
-                <div className="flex flex-col sm:flex-row gap-2.5">
-                  <a
-                    href="https://wa.me/254700000000" // ← replace with your real number
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-lg bg-[#25D366] hover:bg-[#20bd5a] text-white text-sm font-medium transition shadow-sm"
-                  >
-                    <WhatsAppIcon className="w-4 h-4" />
-                    Chat on WhatsApp
-                  </a>
-                  <a
-                    href="mailto:support@yourdomain.com" // ← replace with your real email
-                    className="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-lg border border-amber-300 dark:border-amber-700 bg-white dark:bg-gray-900 text-amber-900 dark:text-amber-200 text-sm font-medium hover:bg-amber-100/50 dark:hover:bg-amber-900/30 transition"
-                  >
-                    <Mail className="w-4 h-4" />
-                    Email Support
-                  </a>
-                </div>
+              {/* Professional contact links */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <a
+                  href="https://wa.me/254113388120"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2.5 flex-1 px-4 py-3 rounded-xl bg-[#25D366] hover:bg-[#1da851] text-white text-sm font-medium transition shadow-sm"
+                >
+                  <WhatsAppIcon className="w-4 h-4" />
+                  Chat on WhatsApp
+                </a>
+                <a
+                  href="mailto:maraspot.ke@gmail.com"
+                  className="inline-flex items-center justify-center gap-2.5 flex-1 px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+                >
+                  <Mail className="w-4 h-4" />
+                  Send Email
+                </a>
               </div>
             </div>
           )}
 
-          {/* SERVICE CARD */}
-          <div className="relative overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 sm:p-5 shadow-sm">
-            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
-              <div>
-                <p className="text-xs uppercase text-gray-500 dark:text-gray-400">Service</p>
-                <h2 className="font-semibold text-gray-900 dark:text-gray-100 text-base sm:text-lg">
-                  {selectedPackage.name}
-                </h2>
-              </div>
+          {/* ========== KES SUPPORTED FLOW (no notice) ========== */}
+          {isKesSupported && (
+            <>
+              {/* Service Card */}
+              <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 shadow-sm">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                  <div>
+                    <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                      Selected Package
+                    </p>
+                    <h2 className="font-semibold text-gray-900 dark:text-gray-100 text-lg mt-0.5">
+                      {selectedPackage.name}
+                    </h2>
+                  </div>
 
-              <div className="sm:text-right">
-                <p className="text-xs text-gray-500 dark:text-gray-400">Contract Value</p>
-                <div className="mt-1 inline-block bg-gray-900 dark:bg-gray-100 text-white dark:text-black px-3 py-2 rounded-xl text-sm font-semibold">
-                  {formatMoney(backendTotalUsd)}
-                  {showLocalEstimate && (
-                    <span className="block text-[11px] font-normal opacity-70 mt-0.5">
-                      ≈ {format(backendTotalUsd)}
-                    </span>
-                  )}
+                  <div className="sm:text-right">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Contract Value</p>
+                    <div className="mt-1.5 inline-flex items-center bg-gray-950 dark:bg-white text-white dark:text-black px-3.5 py-2 rounded-xl text-sm font-semibold">
+                      {formatMoney(backendTotalUsd)}
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
 
-          {/* PHASES */}
-          <div className="space-y-3 sm:space-y-4">
-            <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-              Project Milestones
-            </h2>
+              {/* Phases */}
+              <div className="space-y-3">
+                <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                  Project Milestones
+                </h2>
 
-            <PhaseBox
-              title="Phase 1"
-              percent="20%"
-              amountLabel={formatMoney(phases.phase1.amount)}
-              localEstimate={showLocalEstimate ? format(phases.phase1.amount) : null}
-              description="Covers onboarding, planning, design direction, and technical project setup."
-            />
-
-            <PhaseBox
-              title="Phase 2"
-              percent="60%"
-              amountLabel={formatMoney(phases.phase2.amount)}
-              localEstimate={showLocalEstimate ? format(phases.phase2.amount) : null}
-              description="Execution of core design, development, integrations, and system functionality."
-            />
-
-            <PhaseBox
-              title="Phase 3"
-              percent="20%"
-              amountLabel={formatMoney(phases.phase3.amount)}
-              localEstimate={showLocalEstimate ? format(phases.phase3.amount) : null}
-              description="Final revisions, testing, deployment, and full project handover."
-            />
-          </div>
-
-          {/* PAYMENT OPTIONS */}
-          <div className="space-y-3">
-            <h2 className="font-semibold flex items-center gap-2 text-gray-900 dark:text-gray-100">
-              <BadgePercent className="w-4 h-4" /> Payment Options
-            </h2>
-
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              Please select preferred payment option to continue
-            </p>
-
-            <OptionCard
-              label="Phase 1 Deposit"
-              desc="Secure project initiation"
-              badge="20%"
-              value="phase1"
-              option={option}
-              setOption={setOption}
-            />
-
-            <OptionCard
-              label="Phase 1 + Phase 2"
-              desc="Advance payment discount applied"
-              badge="Save 2%"
-              value="phase1_2"
-              option={option}
-              setOption={setOption}
-            />
-
-            <OptionCard
-              label="Full Project Payment"
-              desc="Maximum contract savings"
-              badge="Save 8%"
-              value="full"
-              option={option}
-              setOption={setOption}
-            />
-          </div>
-
-          {/* TERMS */}
-          <div className="border-t border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 pt-4 space-y-4">
-            <button
-              onClick={() => setShowContract(true)}
-              className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:underline"
-            >
-              <FileText className="w-4 h-4" /> View Service Payment Agreement
-            </button>
-
-            <label className="flex items-start gap-3 text-sm bg-gray-50 dark:bg-gray-800 p-3 rounded-xl border border-gray-200 dark:border-gray-700">
-              <input
-                type="checkbox"
-                checked={accepted}
-                onChange={(e) => setAccepted(e.target.checked)}
-                className="mt-1"
-              />
-              <span>
-                I confirm that I have reviewed and accepted the phased payment terms and contractual
-                service agreement.
-              </span>
-            </label>
-          </div>
-
-          {/* SUMMARY + BUTTONS */}
-          <div className="w-full mt-4 md:mt-6">
-            <div className="flex justify-between items-center mb-3">
-              <span className="text-sm text-gray-500 dark:text-gray-400">Amount Payable</span>
-              <span className="font-bold text-xl md:text-2xl text-gray-900 dark:text-gray-100 text-right">
-                {formatMoney(payable)}
-                {showLocalEstimate && (
-                  <span className="block text-xs font-normal text-gray-400 dark:text-gray-500">
-                    ≈ {format(payable)}
-                  </span>
-                )}
-              </span>
-            </div>
-
-            {discountAmountUsd > 0 && (
-              <div className="flex justify-between items-center mb-3">
-                <span className="text-sm text-green-500">Discount Applied</span>
-                <span className="text-green-500 font-semibold">
-                  {formatMoney(discountAmountUsd)}
-                </span>
+                <PhaseBox
+                  title="Phase 1"
+                  percent="20%"
+                  amountLabel={formatMoney(phases.phase1.amount)}
+                  description="Onboarding, planning, design direction, and technical project setup."
+                />
+                <PhaseBox
+                  title="Phase 2"
+                  percent="60%"
+                  amountLabel={formatMoney(phases.phase2.amount)}
+                  description="Core design, development, integrations, and system functionality."
+                />
+                <PhaseBox
+                  title="Phase 3"
+                  percent="20%"
+                  amountLabel={formatMoney(phases.phase3.amount)}
+                  description="Final revisions, testing, deployment, and full project handover."
+                />
               </div>
-            )}
 
-            <div className="flex flex-col sm:flex-row gap-3 mt-2">
-              <button
-                onClick={onClose}
-                className="flex-1 py-3 px-5 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition"
-              >
-                Back to Checkout
-              </button>
+              {/* Payment Options */}
+              <div className="space-y-3">
+                <h2 className="font-semibold flex items-center gap-2 text-gray-900 dark:text-gray-100">
+                  <BadgePercent className="w-4 h-4" />
+                  Payment Options
+                </h2>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Select your preferred payment option to continue
+                </p>
 
-              <button
-                disabled={!accepted || loading}
-                onClick={handlePay}
-                className={`flex-1 py-3 px-5 rounded-xl font-semibold flex items-center justify-center gap-2 transition shadow-md
-                ${
-                  accepted
-                    ? 'bg-orange-600 text-white hover:bg-orange-700 active:scale-[0.97]'
-                    : 'bg-gray-300 dark:bg-gray-700 text-gray-600 cursor-not-allowed'
-                }`}
-              >
-                {loading ? (
-                  <Loader className="w-4 h-4 animate-spin" />
-                ) : (
-                  <ShieldCheck className="w-4 h-4" />
+                <OptionCard
+                  label="Phase 1 Deposit"
+                  desc="Secure project initiation"
+                  badge="20%"
+                  value="phase1"
+                  option={option}
+                  setOption={setOption}
+                />
+                <OptionCard
+                  label="Phase 1 + Phase 2"
+                  desc="Advance payment discount applied"
+                  badge="Save 2%"
+                  value="phase1_2"
+                  option={option}
+                  setOption={setOption}
+                />
+                <OptionCard
+                  label="Full Project Payment"
+                  desc="Maximum contract savings"
+                  badge="Save 8%"
+                  value="full"
+                  option={option}
+                  setOption={setOption}
+                />
+              </div>
+
+              {/* Terms */}
+              <div className="border-t border-gray-200 dark:border-gray-800 pt-5 space-y-4">
+                <button
+                  onClick={() => setShowContract(true)}
+                  className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  <FileText className="w-4 h-4" />
+                  View Service Payment Agreement
+                </button>
+
+                <label className="flex items-start gap-3 text-sm bg-gray-50 dark:bg-gray-800/60 p-4 rounded-xl border border-gray-200 dark:border-gray-700 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={accepted}
+                    onChange={(e) => setAccepted(e.target.checked)}
+                    className="mt-0.5 w-4 h-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
+                  />
+                  <span className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                    I confirm that I have reviewed and accepted the phased payment terms and
+                    contractual service agreement.
+                  </span>
+                </label>
+              </div>
+
+              {/* Summary + Actions */}
+              <div className="space-y-4 pt-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-500 dark:text-gray-400">Amount Payable</span>
+                  <span className="font-bold text-xl sm:text-2xl text-gray-900 dark:text-gray-100">
+                    {formatMoney(payable)}
+                  </span>
+                </div>
+
+                {discountAmountUsd > 0 && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-emerald-600 dark:text-emerald-400">
+                      Discount Applied
+                    </span>
+                    <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
+                      − {formatMoney(discountAmountUsd)}
+                    </span>
+                  </div>
                 )}
-                {loading ? 'Processing...' : 'Pay Now'}
-              </button>
-            </div>
 
-            <p className="text-[11px] text-gray-400 dark:text-gray-500 text-center mt-2">
-              Secure payment protected by encrypted processing.
-            </p>
-          </div>
+                <div className="flex flex-col sm:flex-row gap-3 pt-1">
+                  <button
+                    onClick={onClose}
+                    className="flex-1 py-3 px-5 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition font-medium"
+                  >
+                    Back to Checkout
+                  </button>
+
+                  <button
+                    disabled={!accepted || loading}
+                    onClick={handlePay}
+                    className={`flex-1 py-3 px-5 rounded-xl font-semibold flex items-center justify-center gap-2 transition shadow-sm
+                    ${
+                      accepted
+                        ? 'bg-orange-600 text-white hover:bg-orange-700 active:scale-[0.98]'
+                        : 'bg-gray-200 dark:bg-gray-700 text-gray-500 cursor-not-allowed'
+                    }`}
+                  >
+                    {loading ? (
+                      <Loader className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <ShieldCheck className="w-4 h-4" />
+                    )}
+                    {loading ? 'Processing...' : 'Pay Now'}
+                  </button>
+                </div>
+
+                <p className="text-[11px] text-gray-400 dark:text-gray-500 text-center">
+                  Secure payment protected by encrypted processing.
+                </p>
+              </div>
+            </>
+          )}
+
+          {/* Loading currency state */}
+          {currencyLoading && (
+            <div className="py-16 flex flex-col items-center gap-3 text-gray-400">
+              <Loader className="w-6 h-6 animate-spin" />
+              <p className="text-sm">Detecting your currency...</p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -479,36 +475,20 @@ interface PhaseBoxProps {
   title: string;
   percent: string;
   amountLabel: string;
-  localEstimate: string | null;
   description: string;
 }
 
-function PhaseBox({
-  title,
-  percent,
-  amountLabel,
-  localEstimate,
-  description,
-}: PhaseBoxProps): JSX.Element {
+function PhaseBox({ title, percent, amountLabel, description }: PhaseBoxProps): JSX.Element {
   return (
-    <div className="border border-gray-200 dark:border-gray-800 rounded-xl p-4 bg-white dark:bg-gray-900 shadow-sm hover:shadow-md transition">
+    <div className="border border-gray-200 dark:border-gray-800 rounded-xl p-4 bg-white dark:bg-gray-900 shadow-sm">
       <div className="flex justify-between items-center">
-        <h3 className="font-semibold text-base text-gray-900 dark:text-gray-100">{title}</h3>
-        <span className="text-xs bg-green-100 dark:bg-green-900 text-gray-600 dark:text-green-300 px-2 py-1 rounded-full">
+        <h3 className="font-semibold text-gray-900 dark:text-gray-100">{title}</h3>
+        <span className="text-xs font-medium bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 px-2.5 py-1 rounded-full">
           {percent}
         </span>
       </div>
-
-      <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">{description}</p>
-
-      <p className="text-sm text-gray-600 dark:text-gray-300 font-bold mt-3">
-        {amountLabel}
-        {localEstimate && (
-          <span className="block text-xs font-normal text-gray-400 dark:text-gray-500">
-            ≈ {localEstimate}
-          </span>
-        )}
-      </p>
+      <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 leading-relaxed">{description}</p>
+      <p className="text-sm font-bold text-gray-900 dark:text-gray-100 mt-3">{amountLabel}</p>
     </div>
   );
 }
@@ -537,8 +517,8 @@ function OptionCard({
       className={`flex items-center justify-between p-4 border rounded-xl cursor-pointer transition
       ${
         active
-          ? 'border-black dark:border-white bg-gray-50 dark:bg-gray-800 shadow-sm'
-          : 'hover:border-gray-400 dark:hover:border-gray-600'
+          ? 'border-gray-900 dark:border-white bg-gray-50 dark:bg-gray-800 shadow-sm'
+          : 'border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500'
       }`}
     >
       <div className="flex items-start gap-3">
@@ -550,10 +530,10 @@ function OptionCard({
         />
         <div>
           <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{label}</p>
-          <p className="text-xs text-gray-600 dark:text-gray-400">{desc}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{desc}</p>
         </div>
       </div>
-      <span className="text-xs bg-black dark:bg-white text-white dark:text-black px-2 py-1 rounded-full">
+      <span className="text-xs font-medium bg-gray-950 dark:bg-white text-white dark:text-black px-2.5 py-1 rounded-full shrink-0">
         {badge}
       </span>
     </label>
@@ -601,47 +581,33 @@ function ContractModal({ onClose }: ContractModalProps): JSX.Element {
           </h3>
 
           <ul className="space-y-3">
-            <li className="flex gap-3">
-              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-orange-100 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400 flex items-center justify-center text-xs font-bold">
-                1
-              </span>
-              <div>
-                <p className="font-medium text-gray-800 dark:text-gray-100">
-                  Project Initiation — 20%
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                  Covers project scoping, requirements gathering, and kickoff.
-                </p>
-              </div>
-            </li>
-
-            <li className="flex gap-3">
-              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-orange-100 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400 flex items-center justify-center text-xs font-bold">
-                2
-              </span>
-              <div>
-                <p className="font-medium text-gray-800 dark:text-gray-100">
-                  Design & Development — 60%
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                  Covers UI/UX design, development, integrations, and testing.
-                </p>
-              </div>
-            </li>
-
-            <li className="flex gap-3">
-              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-orange-100 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400 flex items-center justify-center text-xs font-bold">
-                3
-              </span>
-              <div>
-                <p className="font-medium text-gray-800 dark:text-gray-100">
-                  Final Delivery & Launch — 20%
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                  Payable upon successful deployment, handover, and client approval.
-                </p>
-              </div>
-            </li>
+            {[
+              {
+                n: 1,
+                title: 'Project Initiation — 20%',
+                desc: 'Covers project scoping, requirements gathering, and kickoff.',
+              },
+              {
+                n: 2,
+                title: 'Design & Development — 60%',
+                desc: 'Covers UI/UX design, development, integrations, and testing.',
+              },
+              {
+                n: 3,
+                title: 'Final Delivery & Launch — 20%',
+                desc: 'Payable upon successful deployment, handover, and client approval.',
+              },
+            ].map((item) => (
+              <li key={item.n} className="flex gap-3">
+                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-orange-100 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400 flex items-center justify-center text-xs font-bold">
+                  {item.n}
+                </span>
+                <div>
+                  <p className="font-medium text-gray-800 dark:text-gray-100">{item.title}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{item.desc}</p>
+                </div>
+              </li>
+            ))}
           </ul>
         </div>
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { Info, Mail } from "lucide-react";
+import { Info, Mail, Loader2 } from "lucide-react";
 import { axiosInstance } from "@/utils/axiosInstance";
 import { useLocalCurrency } from "@/hooks/useLocalCurrency";
 
@@ -25,7 +25,7 @@ interface OrderResponse {
   extras: Extra[];
   phases: Record<
     "phase1" | "phase2" | "phase3",
-    { amount: number; paid: boolean } // amounts in USD
+    { amount: number; paid: boolean }
   >;
 }
 
@@ -64,7 +64,7 @@ export default function PaymentPage() {
   const phaseParam = (searchParams.get("phase") ?? "full") as PhaseKey;
 
   const [order, setOrder] = useState<OrderResponse | null>(null);
-  const [amountUsd, setAmountUsd] = useState<number | null>(null); // always store USD
+  const [amountUsd, setAmountUsd] = useState<number | null>(null);
   const [loadingAmount, setLoadingAmount] = useState(true);
   const [hasFetched, setHasFetched] = useState(false);
   const [loadingPayment, setLoadingPayment] = useState(false);
@@ -77,23 +77,16 @@ export default function PaymentPage() {
     loading: currencyLoading,
   } = useLocalCurrency();
 
-  // Only KES and USD are supported
-  const payCurrency: "KES" | "USD" = localCurrency === "KES" ? "KES" : "USD";
-  const isKes = payCurrency === "KES";
-  const showLocalEstimate = !currencyLoading && localCurrency !== payCurrency;
-  const showUnsupportedNotice =
-    !currencyLoading && localCurrency !== "KES" && localCurrency !== "USD";
+  // Payments are supported in KES only
+  const isKesSupported = !currencyLoading && localCurrency === "KES";
+  const isOtherCurrency = !currencyLoading && localCurrency !== "KES";
 
   const backendPhase = mapPhaseForBackend(phaseParam);
   const isLoading = loadingAmount || !hasFetched;
 
-  // Convert USD → display currency
-  const toDisplay = (usdAmount: number) =>
-    isKes ? convert(usdAmount) : usdAmount;
-
   const formatMoney = (usdAmount: number) => {
-    const amount = toDisplay(usdAmount);
-    return `${payCurrency} ${amount.toLocaleString(undefined, {
+    const amount = convert(usdAmount);
+    return `KES ${amount.toLocaleString(undefined, {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     })}`;
@@ -125,7 +118,7 @@ export default function PaymentPage() {
             ?.filter((e) => e.enabled)
             .reduce((sum, e) => sum + e.price, 0) ?? 0;
 
-        const baseTotal = orderData.total_price + extrasTotal; // USD
+        const baseTotal = orderData.total_price + extrasTotal;
 
         if (backendPhase === "full") {
           setAmountUsd(baseTotal);
@@ -167,12 +160,17 @@ export default function PaymentPage() {
   const handlePay = async () => {
     if (amountUsd === null) return;
 
+    if (!isKesSupported) {
+      setError(
+        "Online payments are currently available only in Kenyan Shillings (KES). Please contact support.",
+      );
+      return;
+    }
+
     try {
       setLoadingPayment(true);
       setError(null);
 
-      // Always send the USD major-unit amount.
-      // Backend will convert to KES when currency === "KES".
       const payload = {
         order_id: order?.id ?? null,
         service_id: order?.service_id ?? null,
@@ -181,8 +179,8 @@ export default function PaymentPage() {
         extras_ids:
           order?.extras?.filter((e) => e.enabled).map((e) => e.id) ?? [],
         phase: backendPhase,
-        amount: amountUsd, // USD major units (not subunits)
-        currency: payCurrency, // "KES" or "USD"
+        amount: amountUsd,
+        currency: "KES",
         callback_url: `${window.location.origin}/payment/verify`,
       };
 
@@ -213,7 +211,7 @@ export default function PaymentPage() {
   /* ---------------- UI ---------------- */
   if (!orderId) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 transition-colors">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
         <div className="text-red-600 dark:text-red-400 font-semibold text-base">
           Invalid order ID
         </div>
@@ -222,175 +220,174 @@ export default function PaymentPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center px-4 py-8 transition-colors">
-      <div className="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-6 space-y-5 border border-gray-100 dark:border-gray-700 transition-colors">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center px-4 py-10 transition-colors">
+      <div className="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden transition-colors">
         {/* Header */}
-        <div className="text-center space-y-2">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+        <div className="px-6 py-6 text-center border-b border-gray-100 dark:border-gray-800">
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100 tracking-tight">
             Complete Payment
           </h1>
-          <p className="text-gray-500 dark:text-gray-400 text-sm">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
             Secure checkout for your service
           </p>
         </div>
 
-        {/* KES Notice */}
-        {isKes && !currencyLoading && (
-          <div className="flex items-start gap-2 rounded-xl border border-blue-200 dark:border-blue-800/50 bg-blue-50 dark:bg-blue-900/20 p-3 text-xs text-blue-800 dark:text-blue-300">
-            <Info className="w-4 h-4 mt-0.5 shrink-0" />
-            <span>Amount is shown and charged in Kenyan Shillings (KES).</span>
-          </div>
-        )}
-
-        {/* Unsupported local currency notice */}
-        {showUnsupportedNotice && (
-          <div className="rounded-xl border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/20 p-4 space-y-3">
-            <div className="flex items-start gap-2">
-              <Info className="w-4 h-4 mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-amber-900 dark:text-amber-200">
-                  USD payments only for your region
-                </p>
-                <p className="text-xs text-amber-800/90 dark:text-amber-300/90 leading-relaxed">
-                  We currently only accept payment in <strong>USD</strong>. An
-                  approximate conversion into your local currency is shown for
-                  reference.
-                </p>
+        <div className="p-6 space-y-5">
+          {/* ========== NON-KES NOTICE ========== */}
+          {isOtherCurrency && (
+            <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40 p-5 space-y-5">
+              <div className="flex items-start gap-3.5">
+                <div className="w-9 h-9 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center shrink-0">
+                  <Info className="w-4.5 h-4.5 text-gray-700 dark:text-gray-300" />
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                    Online payments are currently available in Kenya only
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                    Automated checkout is supported exclusively in{" "}
+                    <strong className="text-gray-800 dark:text-gray-200">
+                      Kenyan Shillings (KES)
+                    </strong>
+                    . Your region uses{" "}
+                    <strong className="text-gray-800 dark:text-gray-200">
+                      {localCurrency}
+                    </strong>
+                    , which is not yet enabled for online payment.
+                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                    Please contact our support team to complete this order. We
+                    will arrange a suitable payment method for your location.
+                  </p>
+                </div>
               </div>
-            </div>
 
-            {amountUsd !== null && (
-              <div className="rounded-lg bg-white/70 dark:bg-gray-900/40 border border-amber-100 dark:border-amber-800/40 px-3 py-2.5">
-                <p className="text-[11px] uppercase tracking-wide text-amber-700/80 dark:text-amber-400/80">
-                  Approximate local equivalent
-                </p>
-                <p className="text-base font-semibold text-amber-950 dark:text-amber-100">
-                  {format(amountUsd)}
-                </p>
-              </div>
-            )}
+              {/* Amount to be paid */}
+              {amountUsd !== null && (
+                <div className="rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 px-4 py-3.5">
+                  <p className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">
+                    Amount to be paid
+                  </p>
+                  <p className="text-lg font-semibold text-gray-900 dark:text-gray-50">
+                    {format(amountUsd)}
+                  </p>
+                </div>
+              )}
 
-            <div className="pt-1 border-t border-amber-200/60 dark:border-amber-800/40">
-              <p className="text-xs text-amber-800/80 dark:text-amber-300/80 mb-2">
-                Need help?
-              </p>
-              <div className="flex flex-col sm:flex-row gap-2">
+              {/* Contact links */}
+              <div className="flex flex-col sm:flex-row gap-2.5">
                 <a
-                  href="https://wa.me/254700000000" // ← replace with real number
+                  href="https://wa.me/254113388120"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-[#25D366] hover:bg-[#20bd5a] text-white text-sm font-medium transition"
+                  className="inline-flex items-center justify-center gap-2 flex-1 px-4 py-2.5 rounded-xl bg-[#25D366] hover:bg-[#1da851] text-white text-sm font-medium transition shadow-sm"
                 >
                   <WhatsAppIcon className="w-4 h-4" />
-                  WhatsApp
+                  Chat on WhatsApp
                 </a>
                 <a
-                  href="mailto:support@yourdomain.com" // ← replace with real email
-                  className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-amber-300 dark:border-amber-700 bg-white dark:bg-gray-900 text-amber-900 dark:text-amber-200 text-sm font-medium hover:bg-amber-100/50 dark:hover:bg-amber-900/30 transition"
+                  href="mailto:maraspot.ke@gmail.com"
+                  className="inline-flex items-center justify-center gap-2 flex-1 px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition"
                 >
                   <Mail className="w-4 h-4" />
-                  Email
+                  Send Email
                 </a>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Payment Info */}
-        <div className="space-y-3">
-          <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 flex flex-col transition-colors">
-            <span className="text-xs font-medium text-gray-400 dark:text-gray-300 uppercase tracking-wide">
-              Payment Type
-            </span>
-            <span className="mt-1 text-sm font-semibold text-gray-900 dark:text-gray-100">
-              {phaseLabel}
-            </span>
-          </div>
-
-          <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 flex flex-col transition-colors">
-            <span className="text-xs font-medium text-gray-400 dark:text-gray-300 uppercase tracking-wide">
-              Amount
-            </span>
-
-            <div className="mt-2 min-h-[28px] flex items-center">
-              {isLoading ? (
-                <div className="flex items-center gap-2.5">
-                  <svg
-                    className="h-5 w-5 animate-spin text-orange-500"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    />
-                  </svg>
-                  <span className="text-sm text-gray-400 dark:text-gray-500">
-                    Loading amount…
+          {/* ========== KES SUPPORTED FLOW (no notice) ========== */}
+          {isKesSupported && (
+            <>
+              {/* Payment Info */}
+              <div className="space-y-3">
+                <div className="p-4 bg-gray-50 dark:bg-gray-800/60 rounded-xl border border-gray-200 dark:border-gray-700">
+                  <span className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">
+                    Payment Type
                   </span>
+                  <p className="mt-1 text-sm font-semibold text-gray-900 dark:text-gray-100">
+                    {phaseLabel}
+                  </p>
                 </div>
-              ) : amountUsd !== null ? (
-                <div>
-                  <span className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                    {formatMoney(amountUsd)}
+
+                <div className="p-4 bg-gray-50 dark:bg-gray-800/60 rounded-xl border border-gray-200 dark:border-gray-700">
+                  <span className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">
+                    Amount Payable
                   </span>
-                  {showLocalEstimate && (
-                    <span className="block text-xs text-gray-400 dark:text-gray-500 mt-0.5">
-                      ≈ {format(amountUsd)}
-                    </span>
-                  )}
+
+                  <div className="mt-2 min-h-[28px] flex items-center">
+                    {isLoading ? (
+                      <div className="flex items-center gap-2.5 text-gray-400">
+                        <Loader2 className="h-5 w-5 animate-spin text-orange-500" />
+                        <span className="text-sm">Loading amount…</span>
+                      </div>
+                    ) : amountUsd !== null ? (
+                      <span className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                        {formatMoney(amountUsd)}
+                      </span>
+                    ) : (
+                      <span className="text-sm text-gray-400">Unavailable</span>
+                    )}
+                  </div>
                 </div>
-              ) : (
-                <span className="text-sm text-gray-400 dark:text-gray-300">
-                  Unavailable
-                </span>
+              </div>
+
+              {/* Error */}
+              {error && (
+                <div className="text-sm text-red-600 dark:text-red-400 font-medium text-center">
+                  {error}
+                </div>
               )}
+
+              {/* Buttons */}
+              <div className="space-y-2.5 pt-1">
+                <button
+                  type="button"
+                  onClick={handlePay}
+                  disabled={loadingPayment || isLoading || amountUsd === null}
+                  className="w-full h-11 bg-orange-600 text-white font-semibold rounded-xl hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+                >
+                  {loadingPayment && (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  )}
+                  {loadingPayment ? "Redirecting…" : "Proceed to Pay"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => router.back()}
+                  disabled={loadingPayment}
+                  className="w-full h-10 text-gray-700 dark:text-gray-300 font-medium rounded-xl border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+              </div>
+
+              <p className="text-[11px] text-center text-gray-400 dark:text-gray-500">
+                Securely processed via Paystack
+              </p>
+            </>
+          )}
+
+          {/* Loading currency */}
+          {currencyLoading && (
+            <div className="py-12 flex flex-col items-center gap-3 text-gray-400">
+              <Loader2 className="w-6 h-6 animate-spin" />
+              <p className="text-sm">Detecting your currency...</p>
             </div>
-          </div>
+          )}
+
+          {/* Non-KES: still show cancel */}
+          {isOtherCurrency && (
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="w-full h-10 text-gray-700 dark:text-gray-300 font-medium rounded-xl border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+            >
+              Go Back
+            </button>
+          )}
         </div>
-
-        {/* Error */}
-        {error && (
-          <div className="text-sm text-red-600 dark:text-red-400 font-medium text-center">
-            {error}
-          </div>
-        )}
-
-        {/* Buttons */}
-        <div className="space-y-2">
-          <button
-            type="button"
-            onClick={handlePay}
-            disabled={loadingPayment || isLoading || amountUsd === null}
-            className="w-full h-11 bg-orange-600 text-white font-semibold rounded-lg hover:bg-orange-700 disabled:opacity-50 transition"
-          >
-            {loadingPayment ? "Redirecting…" : "Proceed to Pay"}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => router.back()}
-            disabled={loadingPayment}
-            className="w-full h-10 text-gray-700 dark:text-gray-200 font-medium rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition disabled:opacity-50"
-          >
-            Cancel
-          </button>
-        </div>
-
-        {/* Footer */}
-        <p className="text-xs text-center text-gray-400 dark:text-gray-500 transition-colors">
-          Securely processed via Paystack
-        </p>
       </div>
     </div>
   );
