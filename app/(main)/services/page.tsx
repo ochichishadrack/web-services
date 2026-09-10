@@ -202,7 +202,16 @@ export default function ServicesPage(): JSX.Element {
                         )}
                         {price != null && (
                           <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                            {fxLoading ? "..." : `From ${format(price)}`}
+                            {fxLoading ? (
+                              "..."
+                            ) : (
+                              <>
+                                <span className="font-normal text-gray-500 dark:text-gray-400 text-xs">
+                                  From{" "}
+                                </span>
+                                {format(price)}
+                              </>
+                            )}
                           </div>
                         )}
                       </div>

@@ -12,7 +12,6 @@ import Footer from "@/components/ui/Footer";
 import Portfolio from "@/components/ui/Portfolio";
 import { useLocalCurrency } from "@/hooks/useLocalCurrency";
 
-
 /* ---------------- TYPES ---------------- */
 
 interface ServiceMedia {
@@ -167,16 +166,16 @@ export default function HomePage(): JSX.Element {
       <section
         className="relative h-[90vh] flex items-center justify-center text-center text-white"
         style={{
-          backgroundImage: `url('https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8ZGV2ZWxvcGVyfGVufDB8fDB8fHww')`,
+          backgroundImage: `url('https://images.unsplash.com/photo-1536148935331-408321065b18?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjR8fGNvZGluZ3xlbnwwfHwwfHx8MA%3D%3D')`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       >
         {/* Dark overlay for readability */}
-        <div className="absolute inset-0 bg-black/60" />
+        <div className="absolute inset-0 bg-black/50" />
 
         <div className="relative z-10 max-w-3xl px-6">
-          <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
+          <h1 className="text-5xl md:text-6xl font-bold leading-tight mb-6">
             Websites That <span className="text-orange-500">Drive Growth</span>
           </h1>
 
@@ -209,9 +208,9 @@ export default function HomePage(): JSX.Element {
           <div className="w-16 h-1 bg-orange-500 mx-auto mb-8 rounded-full" />
 
           <p className="text-base md:text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
-            We help ambitious businesses turn their online presence into a
-            growth engine — through thoughtfully designed websites and
-            high-performance web applications that convert visitors into
+            We partner with ambitious businesses to turn their online presence
+            into a growth engine by crafting high-performance websites and web
+            applications engineered to convert visitors into loyal, lasting
             customers.
           </p>
         </div>
@@ -313,9 +312,18 @@ export default function HomePage(): JSX.Element {
                           <span />
                         )}
 
-                           {price != null && (
+                        {price != null && (
                           <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                            {fxLoading ? "..." : `From ${format(price)}`}
+                            {fxLoading ? (
+                              "..."
+                            ) : (
+                              <>
+                                <span className="font-normal text-gray-500 dark:text-gray-400 text-xs">
+                                  From{" "}
+                                </span>
+                                {format(price)}
+                              </>
+                            )}
                           </div>
                         )}
                       </div>
