@@ -114,9 +114,9 @@ export default function ServicesPage(): JSX.Element {
           </h2>
 
           <p className="text-sm sm:text-base md:text-lg text-white/85 max-w-xl mx-auto leading-relaxed">
-            From high-converting websites to custom web apps — we build digital
-            experiences that attract customers, streamline operations, and grow
-            your business.
+            We build digital experiences, from high-converting websites to
+            custom web applications, that attract customers, streamline
+            operations, and drive business growth.
           </p>
         </div>
       </section>
