@@ -40,7 +40,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-14 grid grid-cols-1 md:grid-cols-4 gap-10 text-sm md:text-base">
         {/* About */}
         <div className="space-y-3">
-          <h4 className="text-lg font-semibold text-white tracking-tight">Web Services</h4>
+          <h4 className="text-lg font-semibold text-white tracking-tight">Mara Devs</h4>
           <p className="text-gray-400 leading-relaxed">
             We deliver modern, responsive, and scalable web solutions tailored for your business.
           </p>

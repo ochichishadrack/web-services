@@ -4,7 +4,7 @@ import { JSX, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { axiosInstance } from "@/utils/axiosInstance";
-import TopNav from "@/components/ui/TopNav";
+import TopNav from "@/components/navigation/TopNav";
 import Footer from "@/components/ui/Footer";
 import { useLocalCurrency } from "@/hooks/useLocalCurrency";
 

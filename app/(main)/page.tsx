@@ -7,9 +7,8 @@ import { useCustomerAuth } from "@/context/CustomerAuthContext";
 import { getApiBaseUrl } from "@/api/api";
 import { useRouter } from "next/navigation";
 import { axiosInstance } from "@/utils/axiosInstance";
-import TopNav from "@/components/ui/TopNav";
+import TopNav from "@/components/navigation/TopNav";
 import Footer from "@/components/ui/Footer";
-import Portfolio from "@/components/ui/Portfolio";
 import { useLocalCurrency } from "@/hooks/useLocalCurrency";
 
 /* ---------------- TYPES ---------------- */
@@ -176,12 +175,13 @@ export default function HomePage(): JSX.Element {
 
         <div className="relative z-10 max-w-3xl px-6">
           <h1 className="text-5xl md:text-6xl font-bold leading-tight mb-6">
-            Websites That <span className="text-orange-500">Drive Growth</span>
+            We Build Websites That{" "}
+            <span className="text-orange-500">Drive Growth</span>
           </h1>
 
           <p className="text-lg md:text-xl mb-8 text-gray-200">
-            We design and build high-performance websites that convert visitors
-            into customers and help your business scale with confidence.
+            Let's design and build high-performing website that converts and
+            helps your business scale with confidence.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -387,7 +387,7 @@ export default function HomePage(): JSX.Element {
           </div>
         </div>
       )}
-      <Portfolio />
+
       <Footer />
     </div>
   );

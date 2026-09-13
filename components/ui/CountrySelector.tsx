@@ -59,18 +59,21 @@ export default function CountrySelector() {
 
   return (
     <div ref={containerRef} className="relative">
+      {/* Minimal Trigger - only flag + code + icon */}
       <button
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-haspopup="listbox"
-        className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:border-orange-400 hover:text-orange-500 dark:hover:text-orange-400 transition-all"
+        className="flex items-center gap-1.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-orange-500 dark:hover:text-orange-400 transition-colors"
       >
         {flag ? (
-          <img src={flag} alt={country} className="w-6 h-4 rounded-xs object-cover" />
+          <img src={flag} alt={country} className="w-5 h-3.5 object-cover rounded-[2px]" />
         ) : (
-          <span className="w-4 h-4 rounded-sm bg-gray-200 dark:bg-gray-700" />
+          <span className="w-5 h-3.5 rounded-[2px] bg-gray-200 dark:bg-gray-700" />
         )}
+
         <span className="tracking-wide">{country}</span>
+
         <ChevronDown
           className={`w-3.5 h-3.5 text-gray-400 transition-transform ${open ? 'rotate-180' : ''}`}
         />
@@ -115,15 +118,14 @@ export default function CountrySelector() {
                         : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'
                     }`}
                 >
-                  {c.flag ? (
-                    <img
-                      src={c.flag}
-                      alt={c.code}
-                      className="w-5 h-5 rounded-xm object-cover shrink-0"
-                    />
-                  ) : (
-                    <span className="w-5 h-5 rounded-sm bg-gray-200 dark:bg-gray-700 shrink-0" />
-                  )}
+                  <div className="w-6 h-5 rounded-[4px] border border-gray-200 dark:border-gray-600 overflow-hidden shrink-0">
+                    {c.flag ? (
+                      <img src={c.flag} alt={c.code} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-gray-200 dark:bg-gray-700" />
+                    )}
+                  </div>
+
                   <span className="flex-1 truncate">{c.name || c.code}</span>
                   <span className="text-xs text-gray-400">{c.currency}</span>
                   {isSelected && <Check className="w-4 h-4 text-orange-500 shrink-0" />}
