@@ -35,7 +35,7 @@ export default function PaymentVerifyClient() {
     const interval = setInterval(async () => {
       try {
         const res = await axiosInstance.get(
-          `/api/paystack/verify/${reference}`,
+          `/api/paystack_global/verify/${reference}`,
         );
 
         if (res.data.status === "success") {
