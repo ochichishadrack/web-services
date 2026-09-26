@@ -77,16 +77,28 @@ export default function PaymentPage() {
     loading: currencyLoading,
   } = useLocalCurrency();
 
-  // Payments are supported in KES only
-  const isKesSupported = !currencyLoading && localCurrency === "KES";
-  const isOtherCurrency = !currencyLoading && localCurrency !== "KES";
+  // Kenya → KES, everyone else → USD
+  const isKenya = !currencyLoading && localCurrency === "KES";
+  const paymentCurrency = isKenya ? "KES" : "USD";
 
   const backendPhase = mapPhaseForBackend(phaseParam);
-  const isLoading = loadingAmount || !hasFetched;
+  const isLoading = loadingAmount || !hasFetched || currencyLoading;
 
   const formatMoney = (usdAmount: number) => {
-    const amount = convert(usdAmount);
-    return `KES ${amount.toLocaleString(undefined, {
+    if (isKenya) {
+      // Convert USD → KES and show with KES
+      if (typeof format === "function") {
+        return format(usdAmount);
+      }
+      const amount = convert(usdAmount);
+      return `KES ${amount.toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`;
+    }
+
+    // Non-Kenya: always show USD (no conversion)
+    return `USD ${usdAmount.toLocaleString(undefined, {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     })}`;
@@ -160,13 +172,6 @@ export default function PaymentPage() {
   const handlePay = async () => {
     if (amountUsd === null) return;
 
-    if (!isKesSupported) {
-      setError(
-        "Online payments are currently available only in Kenyan Shillings (KES). Please contact support.",
-      );
-      return;
-    }
-
     try {
       setLoadingPayment(true);
       setError(null);
@@ -179,8 +184,8 @@ export default function PaymentPage() {
         extras_ids:
           order?.extras?.filter((e) => e.enabled).map((e) => e.id) ?? [],
         phase: backendPhase,
-        amount: amountUsd,
-        currency: "KES",
+        amount: amountUsd, // always send USD amount to backend
+        currency: paymentCurrency, // KES for Kenya, USD for everyone else
         callback_url: `${window.location.origin}/payment/verify`,
       };
 
@@ -188,7 +193,7 @@ export default function PaymentPage() {
       formData.append("payload_json", JSON.stringify(payload));
 
       const res = await axiosInstance.post<InitializeResponse>(
-        "/api/paystack/initialize",
+        "/api/paystack_global/initialize",
         formData,
         { headers: { "Content-Type": "multipart/form-data" } },
       );
@@ -233,73 +238,17 @@ export default function PaymentPage() {
         </div>
 
         <div className="p-6 space-y-5">
-          {/* ========== NON-KES NOTICE ========== */}
-          {isOtherCurrency && (
-            <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40 p-5 space-y-5">
-              <div className="flex items-start gap-3.5">
-                <div className="w-9 h-9 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center shrink-0">
-                  <Info className="w-4.5 h-4.5 text-gray-700 dark:text-gray-300" />
-                </div>
-                <div className="space-y-2">
-                  <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                    Online payments are currently available in Kenya only
-                  </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                    Automated checkout is supported exclusively in{" "}
-                    <strong className="text-gray-800 dark:text-gray-200">
-                      Kenyan Shillings (KES)
-                    </strong>
-                    . Your region uses{" "}
-                    <strong className="text-gray-800 dark:text-gray-200">
-                      {localCurrency}
-                    </strong>
-                    , which is not yet enabled for online payment.
-                  </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                    Please contact our support team to complete this order. We
-                    will arrange a suitable payment method for your location.
-                  </p>
-                </div>
-              </div>
-
-              {/* Amount to be paid */}
-              {amountUsd !== null && (
-                <div className="rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 px-4 py-3.5">
-                  <p className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">
-                    Amount to be paid
-                  </p>
-                  <p className="text-lg font-semibold text-gray-900 dark:text-gray-50">
-                    {format(amountUsd)}
-                  </p>
-                </div>
-              )}
-
-              {/* Contact links */}
-              <div className="flex flex-col sm:flex-row gap-2.5">
-                <a
-                  href="https://wa.me/254113388120"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 flex-1 px-4 py-2.5 rounded-xl bg-[#25D366] hover:bg-[#1da851] text-white text-sm font-medium transition shadow-sm"
-                >
-                  <WhatsAppIcon className="w-4 h-4" />
-                  Chat on WhatsApp
-                </a>
-                <a
-                  href="mailto:maraspot.ke@gmail.com"
-                  className="inline-flex items-center justify-center gap-2 flex-1 px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition"
-                >
-                  <Mail className="w-4 h-4" />
-                  Send Email
-                </a>
-              </div>
+          {/* Loading currency */}
+          {currencyLoading && (
+            <div className="py-12 flex flex-col items-center gap-3 text-gray-400">
+              <Loader2 className="w-6 h-6 animate-spin" />
+              <p className="text-sm">Detecting your currency...</p>
             </div>
           )}
 
-          {/* ========== KES SUPPORTED FLOW (no notice) ========== */}
-          {isKesSupported && (
+          {/* Payment flow (KES or USD) */}
+          {!currencyLoading && (
             <>
-              {/* Payment Info */}
               <div className="space-y-3">
                 <div className="p-4 bg-gray-50 dark:bg-gray-800/60 rounded-xl border border-gray-200 dark:border-gray-700">
                   <span className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">
@@ -312,7 +261,7 @@ export default function PaymentPage() {
 
                 <div className="p-4 bg-gray-50 dark:bg-gray-800/60 rounded-xl border border-gray-200 dark:border-gray-700">
                   <span className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">
-                    Amount Payable
+                    Amount Payable ({paymentCurrency})
                   </span>
 
                   <div className="mt-2 min-h-[28px] flex items-center">
@@ -330,16 +279,25 @@ export default function PaymentPage() {
                     )}
                   </div>
                 </div>
+
+                {/* Optional note for non-Kenya users */}
+                {!isKenya && (
+                  <div className="flex items-start gap-2.5 rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/30 px-3.5 py-3">
+                    <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
+                    <p className="text-xs text-blue-700 dark:text-blue-300 leading-relaxed">
+                      You are paying in <strong>USD</strong>. Online payments in
+                      other local currencies are not available yet.
+                    </p>
+                  </div>
+                )}
               </div>
 
-              {/* Error */}
               {error && (
                 <div className="text-sm text-red-600 dark:text-red-400 font-medium text-center">
                   {error}
                 </div>
               )}
 
-              {/* Buttons */}
               <div className="space-y-2.5 pt-1">
                 <button
                   type="button"
@@ -350,7 +308,9 @@ export default function PaymentPage() {
                   {loadingPayment && (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   )}
-                  {loadingPayment ? "Redirecting…" : "Proceed to Pay"}
+                  {loadingPayment
+                    ? "Redirecting…"
+                    : `Proceed to Pay (${paymentCurrency})`}
                 </button>
 
                 <button
@@ -364,28 +324,9 @@ export default function PaymentPage() {
               </div>
 
               <p className="text-[11px] text-center text-gray-400 dark:text-gray-500">
-                Securely processed via Paystack
+                Securely processed via Paystack · {paymentCurrency}
               </p>
             </>
-          )}
-
-          {/* Loading currency */}
-          {currencyLoading && (
-            <div className="py-12 flex flex-col items-center gap-3 text-gray-400">
-              <Loader2 className="w-6 h-6 animate-spin" />
-              <p className="text-sm">Detecting your currency...</p>
-            </div>
-          )}
-
-          {/* Non-KES: still show cancel */}
-          {isOtherCurrency && (
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="w-full h-10 text-gray-700 dark:text-gray-300 font-medium rounded-xl border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition"
-            >
-              Go Back
-            </button>
           )}
         </div>
       </div>

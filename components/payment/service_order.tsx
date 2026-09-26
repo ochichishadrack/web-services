@@ -1,7 +1,7 @@
 'use client';
 
 import { JSX, useState } from 'react';
-import { FileText, ShieldCheck, BadgePercent, Loader, Info, Mail } from 'lucide-react';
+import { FileText, ShieldCheck, BadgePercent, Loader, Info } from 'lucide-react';
 import { axiosInstance } from '@/utils/axiosInstance';
 import { useCustomerAuth } from '@/context/CustomerAuthContext';
 import { useLocalCurrency } from '@/hooks/useLocalCurrency';
@@ -89,15 +89,6 @@ function calculatePhases(total: number, option: PaymentOption) {
   return { phases, payable, discount };
 }
 
-/* ---------------- WHATSAPP ICON ---------------- */
-function WhatsAppIcon({ className = 'w-4 h-4' }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
-      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.435 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-    </svg>
-  );
-}
-
 /* ---------------- COMPONENT ---------------- */
 export default function PaymentComponent({
   customer,
@@ -115,8 +106,9 @@ export default function PaymentComponent({
 
   const { currency: localCurrency, convert, format, loading: currencyLoading } = useLocalCurrency();
 
-  const isKesSupported = !currencyLoading && localCurrency === 'KES';
-  const isOtherCurrency = !currencyLoading && localCurrency !== 'KES';
+  // Kenya → KES, everyone else → USD
+  const isKenya = !currencyLoading && localCurrency === 'KES';
+  const paymentCurrency = isKenya ? 'KES' : 'USD';
 
   const extrasTotalUsd = selectedExtras.reduce((sum, e) => sum + e.price, 0);
   const backendTotalUsd = selectedPackage.price + extrasTotalUsd;
@@ -125,8 +117,20 @@ export default function PaymentComponent({
   const discountAmountUsd = Math.round(backendTotalUsd * discount);
 
   const formatMoney = (usdAmount: number) => {
-    const amount = convert(usdAmount);
-    return `KES ${amount.toLocaleString(undefined, {
+    if (isKenya) {
+      // Convert USD → KES
+      if (typeof format === 'function') {
+        return format(usdAmount);
+      }
+      const amount = convert(usdAmount);
+      return `KES ${amount.toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`;
+    }
+
+    // Non-Kenya: always USD
+    return `USD ${usdAmount.toLocaleString(undefined, {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     })}`;
@@ -139,13 +143,6 @@ export default function PaymentComponent({
       return;
     }
 
-    if (!isKesSupported) {
-      alert(
-        'Online payments are currently available only in Kenyan Shillings (KES). Please contact support.'
-      );
-      return;
-    }
-
     setLoading(true);
 
     try {
@@ -153,7 +150,10 @@ export default function PaymentComponent({
 
       const requirementsArray = Array.isArray(orderPayload.requirements)
         ? orderPayload.requirements
-        : Object.entries(orderPayload.requirements).map(([field, value]) => ({ field, value }));
+        : Object.entries(orderPayload.requirements).map(([field, value]) => ({
+            field,
+            value,
+          }));
 
       const cleanedRequirements = requirementsArray.map((r) => {
         const files: File[] = [];
@@ -186,8 +186,8 @@ export default function PaymentComponent({
         extras_ids: orderPayload.extras_ids,
         phase: option,
         payment_type: 'service',
-        amount: payable,
-        currency: 'KES',
+        amount: payable, // always USD amount
+        currency: paymentCurrency, // KES for Kenya, USD for others
         email: customer.email,
         requirements: cleanedRequirements,
         referral_code: referralCode,
@@ -196,7 +196,7 @@ export default function PaymentComponent({
 
       formData.append('payload_json', JSON.stringify(payload));
 
-      const res = await axiosInstance.post('/api/paystack/initialize', formData);
+      const res = await axiosInstance.post('/api/paystack_global/initialize', formData);
 
       const { authorization_url, reference } = res.data;
 
@@ -231,67 +231,16 @@ export default function PaymentComponent({
         </div>
 
         <div className="p-5 sm:p-8 space-y-6 sm:space-y-7">
-          {/* ========== NON-KES NOTICE ========== */}
-          {isOtherCurrency && (
-            <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40 p-6 sm:p-7 space-y-6">
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center shrink-0">
-                  <Info className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-                </div>
-                <div className="space-y-2.5">
-                  <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
-                    Online payments are currently available in Kenya only
-                  </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                    Automated checkout is supported exclusively in{' '}
-                    <strong className="text-gray-800 dark:text-gray-200">
-                      Kenyan Shillings (KES)
-                    </strong>
-                    . Your region uses{' '}
-                    <strong className="text-gray-800 dark:text-gray-200">{localCurrency}</strong>,
-                    which is not yet enabled for online payment.
-                  </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                    Please contact our support team to complete this order. We will arrange a
-                    suitable payment method for your location.
-                  </p>
-                </div>
-              </div>
-
-              {/* Amount to be paid */}
-              <div className="rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 px-5 py-4">
-                <p className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">
-                  Amount to be paid
-                </p>
-                <p className="text-xl font-semibold text-gray-900 dark:text-gray-50">
-                  {format(backendTotalUsd)}
-                </p>
-              </div>
-
-              {/* Professional contact links */}
-              <div className="flex flex-col sm:flex-row gap-3">
-                <a
-                  href="https://wa.me/254113388120"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2.5 flex-1 px-4 py-3 rounded-xl bg-[#25D366] hover:bg-[#1da851] text-white text-sm font-medium transition shadow-sm"
-                >
-                  <WhatsAppIcon className="w-4 h-4" />
-                  Chat on WhatsApp
-                </a>
-                <a
-                  href="mailto:maraspot.ke@gmail.com"
-                  className="inline-flex items-center justify-center gap-2.5 flex-1 px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition"
-                >
-                  <Mail className="w-4 h-4" />
-                  Send Email
-                </a>
-              </div>
+          {/* Loading currency */}
+          {currencyLoading && (
+            <div className="py-16 flex flex-col items-center gap-3 text-gray-400">
+              <Loader className="w-6 h-6 animate-spin" />
+              <p className="text-sm">Detecting your currency...</p>
             </div>
           )}
 
-          {/* ========== KES SUPPORTED FLOW (no notice) ========== */}
-          {isKesSupported && (
+          {/* Payment flow (KES or USD) */}
+          {!currencyLoading && (
             <>
               {/* Service Card */}
               <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 shadow-sm">
@@ -306,13 +255,26 @@ export default function PaymentComponent({
                   </div>
 
                   <div className="sm:text-right">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Contract Value</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Contract Value ({paymentCurrency})
+                    </p>
                     <div className="mt-1.5 inline-flex items-center bg-gray-950 dark:bg-white text-white dark:text-black px-3.5 py-2 rounded-xl text-sm font-semibold">
                       {formatMoney(backendTotalUsd)}
                     </div>
                   </div>
                 </div>
               </div>
+
+              {/* Note for non-Kenya users */}
+              {!isKenya && (
+                <div className="flex items-start gap-2.5 rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/30 px-3.5 py-3">
+                  <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
+                  <p className="text-xs text-blue-700 dark:text-blue-300 leading-relaxed">
+                    You are paying in <strong>USD</strong>. Online payments in other local
+                    currencies are not available yet.
+                  </p>
+                </div>
+              )}
 
               {/* Phases */}
               <div className="space-y-3">
@@ -403,7 +365,9 @@ export default function PaymentComponent({
               {/* Summary + Actions */}
               <div className="space-y-4 pt-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-500 dark:text-gray-400">Amount Payable</span>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                    Amount Payable ({paymentCurrency})
+                  </span>
                   <span className="font-bold text-xl sm:text-2xl text-gray-900 dark:text-gray-100">
                     {formatMoney(payable)}
                   </span>
@@ -443,23 +407,15 @@ export default function PaymentComponent({
                     ) : (
                       <ShieldCheck className="w-4 h-4" />
                     )}
-                    {loading ? 'Processing...' : 'Pay Now'}
+                    {loading ? 'Processing...' : `Pay Now (${paymentCurrency})`}
                   </button>
                 </div>
 
                 <p className="text-[11px] text-gray-400 dark:text-gray-500 text-center">
-                  Secure payment protected by encrypted processing.
+                  Secure payment protected by encrypted processing · {paymentCurrency}
                 </p>
               </div>
             </>
-          )}
-
-          {/* Loading currency state */}
-          {currencyLoading && (
-            <div className="py-16 flex flex-col items-center gap-3 text-gray-400">
-              <Loader className="w-6 h-6 animate-spin" />
-              <p className="text-sm">Detecting your currency...</p>
-            </div>
           )}
         </div>
       </div>
