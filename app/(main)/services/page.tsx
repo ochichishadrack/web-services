@@ -92,7 +92,7 @@ export default function ServicesPage(): JSX.Element {
       <section className="relative h-[22rem] md:h-[28rem] flex items-center justify-center text-center text-white overflow-hidden">
         {/* Background Image */}
         <Image
-          src="https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8d2ViJTIwZGV2ZWxvcGVyfGVufDB8fDB8fHww"
+          src="/s-hero.avif"
           alt="Web services hero"
           fill
           priority
