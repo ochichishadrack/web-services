@@ -60,15 +60,6 @@ export default function MobileNav({ activePage }: MobileNavProps) {
       <div className="ml-auto flex items-center gap-1">
         <CountrySelector />
 
-        {!authLoading && isAuthenticated && (
-          <Link
-            href="/notifications"
-            className="px-2 py-1.5 text-sm text-gray-600 dark:text-gray-300 hover:text-orange-500 transition-colors"
-          >
-            Notifications
-          </Link>
-        )}
-
         {/* Menu trigger */}
         <button
           onClick={() => setMenuOpen((prev) => !prev)}
