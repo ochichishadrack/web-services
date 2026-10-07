@@ -170,10 +170,10 @@ export default function HomePage(): JSX.Element {
           </h1>
 
           <p className="text-lg md:text-xl mb-8 text-zinc-600 dark:text-zinc-300">
-            Let&apos;s design and build you high-performing, SEO ready website
-            that converts and help your business scale with confidence.
+            Let&apos;s design and build you a polished, high-performing,
+            SEO-ready website that converts and helps your business scale with
+            confidence.
           </p>
-
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/services"
