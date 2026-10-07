@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { MoreVertical } from 'lucide-react';
+import { MoreVertical, LogIn, LogOut } from 'lucide-react';
 import { useCustomerAuth } from '@/context/CustomerAuthContext';
 import { usePathname } from 'next/navigation';
 import CountrySelector from '@/components/ui/CountrySelector';
@@ -69,21 +69,22 @@ export default function MobileNav({ activePage }: MobileNavProps) {
           </Link>
         )}
 
-        {/* 3 vertical dots */}
+        {/* Menu trigger */}
         <button
           onClick={() => setMenuOpen((prev) => !prev)}
           className="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           aria-label="Open menu"
+          aria-expanded={menuOpen}
         >
           <MoreVertical className="w-5 h-5" />
         </button>
       </div>
 
-      {/* ========== SMALL TOP-RIGHT DIALOG (WhatsApp style) ========== */}
+      {/* Dropdown menu */}
       {menuOpen && (
         <div
-          className="absolute top-full right-0 mt-1 z-[9999]
-            w-52
+          className="absolute top-full right-0 mt-2 z-[9999]
+            w-56
             bg-white dark:bg-gray-900
             border border-gray-200 dark:border-gray-700
             rounded-xl shadow-xl
@@ -110,7 +111,7 @@ export default function MobileNav({ activePage }: MobileNavProps) {
               );
             })}
 
-            {/* Account link when logged in */}
+            {/* Profile link when logged in */}
             {!authLoading && isAuthenticated && (
               <Link
                 href="/account"
@@ -134,13 +135,14 @@ export default function MobileNav({ activePage }: MobileNavProps) {
                   <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                     {customer.first_name} {customer.last_name}
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate mb-2">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate mb-3">
                     {customer.email}
                   </p>
                   <button
                     onClick={handleSignOut}
-                    className="w-full text-left text-sm text-red-600 dark:text-red-400 hover:underline py-1"
+                    className="flex items-center gap-2 w-full text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg px-2.5 py-2 -mx-1 transition-colors"
                   >
+                    <LogOut className="w-4 h-4 shrink-0" />
                     Log Out
                   </button>
                 </div>
@@ -148,8 +150,9 @@ export default function MobileNav({ activePage }: MobileNavProps) {
                 <Link
                   href={loginHref}
                   onClick={() => setMenuOpen(false)}
-                  className="block px-4 py-2.5 text-sm font-medium text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 >
+                  <LogIn className="w-4 h-4 shrink-0" />
                   Sign In
                 </Link>
               )}
