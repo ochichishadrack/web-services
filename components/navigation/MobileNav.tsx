@@ -123,12 +123,6 @@ export default function MobileNav({ activePage }: MobileNavProps) {
             <div className="border-t border-gray-100 dark:border-gray-800">
               {isAuthenticated && customer ? (
                 <div className="px-4 py-3">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                    {customer.first_name} {customer.last_name}
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate mb-3">
-                    {customer.email}
-                  </p>
                   <button
                     onClick={handleSignOut}
                     className="flex items-center gap-2 w-full text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg px-2.5 py-2 -mx-1 transition-colors"
