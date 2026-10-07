@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { Menu, X, LogIn, LogOut } from 'lucide-react';
+import { MoreVertical } from 'lucide-react';
 import { useCustomerAuth } from '@/context/CustomerAuthContext';
 import { usePathname } from 'next/navigation';
 import CountrySelector from '@/components/ui/CountrySelector';
@@ -15,6 +15,7 @@ export default function MobileNav({ activePage }: MobileNavProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const { isAuthenticated, loading: authLoading, customer, logout } = useCustomerAuth();
   const pathname = usePathname();
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const navItems = [
     { key: 'home', label: 'Home', href: '/' },
@@ -29,16 +30,18 @@ export default function MobileNav({ activePage }: MobileNavProps) {
     setMenuOpen(false);
   }, [pathname]);
 
-  // Lock body scroll
+  // Close on outside click
   useEffect(() => {
-    if (menuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
     };
+
+    if (menuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [menuOpen]);
 
   const handleSignOut = async () => {
@@ -47,140 +50,113 @@ export default function MobileNav({ activePage }: MobileNavProps) {
   };
 
   return (
-    <>
-      {/* ========== MOBILE TOP BAR ========== */}
-      <div className="flex md:hidden items-center w-full">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setMenuOpen((prev) => !prev)}
-            className="p-2 -ml-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-          >
-            {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+    <div className="flex md:hidden items-center w-full relative" ref={menuRef}>
+      {/* Brand */}
+      <Link href="/" className="font-semibold text-lg tracking-tight text-gray-900 dark:text-white">
+        MARA DEVS
+      </Link>
 
+      {/* Right side controls */}
+      <div className="ml-auto flex items-center gap-1">
+        <CountrySelector />
+
+        {!authLoading && isAuthenticated && (
           <Link
-            href="/"
-            className="font-semibold text-lg tracking-tight text-gray-900 dark:text-white"
+            href="/notifications"
+            className="px-2 py-1.5 text-sm text-gray-600 dark:text-gray-300 hover:text-orange-500 transition-colors"
           >
-            MARA DEVS
+            Notifications
           </Link>
-        </div>
+        )}
 
-        <div className="ml-auto flex items-center gap-1.5">
-          <CountrySelector />
-          {!authLoading && isAuthenticated && (
-            <Link
-              href="/notifications"
-              className="p-2 text-gray-600 dark:text-gray-300 hover:text-orange-500"
-            >
-              Notifications
-            </Link>
-          )}
-        </div>
+        {/* 3 vertical dots */}
+        <button
+          onClick={() => setMenuOpen((prev) => !prev)}
+          className="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          aria-label="Open menu"
+        >
+          <MoreVertical className="w-5 h-5" />
+        </button>
       </div>
 
-      {/* ========== BACKDROP ========== */}
+      {/* ========== SMALL TOP-RIGHT DIALOG (WhatsApp style) ========== */}
       {menuOpen && (
         <div
-          className="fixed inset-0 z-[9998] bg-black/40 md:hidden"
-          onClick={() => setMenuOpen(false)}
-        />
-      )}
+          className="absolute top-full right-0 mt-1 z-[9999]
+            w-52
+            bg-white dark:bg-gray-900
+            border border-gray-200 dark:border-gray-700
+            rounded-xl shadow-xl
+            overflow-hidden
+            animate-in fade-in zoom-in-95 duration-150"
+        >
+          <nav className="py-1.5">
+            {navItems.map((item) => {
+              const isActive = activePage === item.key;
 
-      {/* ========== TOP DROPDOWN PANEL ========== */}
-      <div
-        className={`fixed top-0 left-0 right-0 z-[9999] md:hidden
-          bg-white dark:bg-gray-900
-          border-b border-gray-200 dark:border-gray-800
-          shadow-xl
-          transform transition-transform duration-300 ease-out
-          ${menuOpen ? 'translate-y-0' : '-translate-y-full'}`}
-      >
-        {/* Close bar */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-800">
-          <span className="font-semibold text-gray-900 dark:text-white">Menu</span>
-          <button
-            onClick={() => setMenuOpen(false)}
-            className="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            aria-label="Close menu"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+              return (
+                <Link
+                  key={item.key}
+                  href={item.href}
+                  onClick={() => setMenuOpen(false)}
+                  className={`block px-4 py-2.5 text-sm transition-colors ${
+                    isActive
+                      ? 'bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 font-medium'
+                      : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
 
-        {/* Nav links */}
-        <nav className="px-3 py-3 space-y-1">
-          {navItems.map((item) => {
-            const isActive = activePage === item.key;
-
-            return (
+            {/* Account link when logged in */}
+            {!authLoading && isAuthenticated && (
               <Link
-                key={item.key}
-                href={item.href}
+                href="/account"
                 onClick={() => setMenuOpen(false)}
-                className={`block px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                  isActive
-                    ? 'bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400'
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                className={`block px-4 py-2.5 text-sm transition-colors ${
+                  activePage === 'account'
+                    ? 'bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 font-medium'
+                    : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
                 }`}
               >
-                {item.label}
+                Profile
               </Link>
-            );
-          })}
+            )}
+          </nav>
 
-          {/* Account link when logged in */}
-          {!authLoading && isAuthenticated && (
-            <Link
-              href="/account"
-              onClick={() => setMenuOpen(false)}
-              className={`block px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                activePage === 'account'
-                  ? 'bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400'
-                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
-              }`}
-            >
-              Profile
-            </Link>
-          )}
-        </nav>
-
-        {/* ========== BOTTOM SECTION ========== */}
-        {!authLoading && (
-          <div className="border-t border-gray-200 dark:border-gray-800">
-            {isAuthenticated && customer ? (
-              <div className="p-4 space-y-3">
-                <div className="min-w-0">
+          {/* Auth section */}
+          {!authLoading && (
+            <div className="border-t border-gray-100 dark:border-gray-800">
+              {isAuthenticated && customer ? (
+                <div className="px-4 py-3">
                   <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                     {customer.first_name} {customer.last_name}
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate mb-2">
                     {customer.email}
                   </p>
+                  <button
+                    onClick={handleSignOut}
+                    className="w-full text-left text-sm text-red-600 dark:text-red-400 hover:underline py-1"
+                  >
+                    Log Out
+                  </button>
                 </div>
-
-                <button
-                  onClick={handleSignOut}
-                  className="flex items-center justify-center w-full px-4 py-2.5 rounded-xl text-sm font-medium border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
-                >
-                  Log Out
-                </button>
-              </div>
-            ) : (
-              <div className="p-4">
+              ) : (
                 <Link
                   href={loginHref}
                   onClick={() => setMenuOpen(false)}
-                  className="flex items-center justify-center w-full px-4 py-3 rounded-xl text-sm font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 transition-all"
+                  className="block px-4 py-2.5 text-sm font-medium text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 >
                   Sign In
                 </Link>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    </>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
