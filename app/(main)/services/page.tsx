@@ -33,9 +33,9 @@ interface Service {
 
 function SkeletonCard(): JSX.Element {
   return (
-    <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl overflow-hidden animate-pulse">
-      <div className="relative aspect-4/3 bg-gray-100 dark:bg-gray-800" />
-      <div className="p-3 md:p-4 space-y-2">
+    <div className="h-full bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl overflow-hidden animate-pulse flex flex-col">
+      <div className="relative aspect-4/3 bg-gray-100 dark:bg-gray-800 shrink-0" />
+      <div className="p-3 md:p-4 space-y-2 flex-1">
         <div className="h-4 bg-gray-100 dark:bg-gray-800 rounded w-4/5" />
         <div className="h-3 bg-gray-100 dark:bg-gray-800 rounded w-2/5" />
         <div className="h-3 bg-gray-100 dark:bg-gray-800 rounded w-1/4" />
@@ -88,11 +88,10 @@ export default function ServicesPage(): JSX.Element {
       {/* Top Navigation */}
       <TopNav activePage="services" />
 
-      {/* Hero Section */}
-      <section className="relative flex items-center justify-center text-center overflow-hidden bg-white dark:bg-gray-950 py-16 md:py-20">
-        {/* Content */}
+      {/* Hero Section — slightly different bg for distinction */}
+      <section className="relative flex items-center justify-center text-center overflow-hidden bg-gray-50 dark:bg-gray-900 py-16 md:py-20 border-b border-gray-100 dark:border-gray-800">
         <div className="relative z-10 px-4 max-w-3xl mx-auto">
-          <span className="inline-block mb-4 px-3 py-1 text-xs font-medium tracking-wider uppercase bg-gray-100 dark:bg-white/10 rounded-full border border-gray-200 dark:border-white/20 text-gray-600 dark:text-gray-300">
+          <span className="inline-block mb-4 px-3 py-1 text-xs font-medium tracking-wider uppercase bg-white dark:bg-white/10 rounded-full border border-gray-200 dark:border-white/20 text-gray-600 dark:text-gray-300">
             Our Services
           </span>
 
@@ -106,10 +105,10 @@ export default function ServicesPage(): JSX.Element {
       </section>
 
       {/* Services Grid */}
-      <main className=" mx-auto px-4 md:px-6 py-8 md:py-12">
+      <main className="mx-auto px-4 md:px-6 py-8 md:py-12">
         {/* Loading */}
         {loading && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 items-stretch">
             {Array.from({ length: 8 }).map((_, i) => (
               <SkeletonCard key={i} />
             ))}
@@ -125,7 +124,7 @@ export default function ServicesPage(): JSX.Element {
 
         {/* Data */}
         {!loading && hasServices && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 items-stretch">
             {services.map((service) => {
               const coverMedia =
                 service.media?.find((m: ServiceMedia) => m.is_cover) || {};
@@ -138,11 +137,11 @@ export default function ServicesPage(): JSX.Element {
                 <Link
                   key={service.id}
                   href={`/services/${service.id}`}
-                  className="group block"
+                  className="group block h-full"
                 >
-                  <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl overflow-hidden transition hover:shadow-md hover:border-gray-200 dark:hover:border-gray-700">
+                  <div className="h-full flex flex-col bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl overflow-hidden transition hover:shadow-md hover:border-gray-200 dark:hover:border-gray-700">
                     {/* MEDIA */}
-                    <div className="relative w-full aspect-4/3 bg-gray-100 dark:bg-gray-800 overflow-hidden">
+                    <div className="relative w-full aspect-4/3 bg-gray-100 dark:bg-gray-800 overflow-hidden shrink-0">
                       {hasVideo ? (
                         <video
                           src={coverMedia.video_url ?? undefined}
@@ -166,8 +165,8 @@ export default function ServicesPage(): JSX.Element {
                       )}
                     </div>
 
-                    {/* CONTENT */}
-                    <div className="p-4 space-y-2">
+                    {/* CONTENT — grows to fill remaining height */}
+                    <div className="p-4 flex flex-col flex-1 space-y-2">
                       <h2 className="text-sm md:text-base font-semibold text-gray-900 dark:text-white line-clamp-2 leading-snug">
                         {service.title}
                       </h2>
@@ -176,7 +175,7 @@ export default function ServicesPage(): JSX.Element {
                         {service.subcategory ? ` / ${service.subcategory}` : ""}
                       </p>
 
-                      <div className="flex items-center justify-between pt-1">
+                      <div className="flex items-center justify-between pt-1 mt-auto">
                         {service.is_featured ? (
                           <span className="text-[11px] font-medium bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2.5 py-1 rounded-md">
                             Featured
