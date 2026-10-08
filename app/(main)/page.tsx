@@ -67,7 +67,7 @@ export default function HomePage(): JSX.Element {
   };
 
   // FORCE 3 COL ON REAL DESKTOP WIDTHS
-  const gridClass = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6";
+  const gridClass = "grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-3";
 
   useEffect(() => {
     async function fetchServices(): Promise<void> {
@@ -206,9 +206,11 @@ export default function HomePage(): JSX.Element {
       </section>
 
       {/* FEATURED */}
-      <main className="max-w-7xl mx-auto w-full px-4 md:px-6 py-12 min-h-[70vh]">
+      <main className=" mx-auto w-full px-4 md:px-6 py-12 min-h-[70vh]">
         <div className="flex items-center justify-between mb-10">
-          <h2 className="text-2xl md:text-3xl font-bold">Featured Services</h2>
+          <h2 className="text-xl md:text-2xl font-semibold">
+            Featured Services
+          </h2>
 
           <Link
             href="/services"
@@ -251,7 +253,7 @@ export default function HomePage(): JSX.Element {
                   href={`/services/${service.id}`}
                   className="group block h-full"
                 >
-                  <div className="h-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl overflow-hidden transition hover:shadow-md">
+                  <div className="h-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden transition hover:shadow-md">
                     <div className="relative w-full aspect-4/3 bg-gray-100 dark:bg-gray-800 overflow-hidden">
                       {hasVideo ? (
                         <video
