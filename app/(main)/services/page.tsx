@@ -105,10 +105,10 @@ export default function ServicesPage(): JSX.Element {
       </section>
 
       {/* Services Grid */}
-      <main className="mx-auto px-4 md:px-6 py-8 md:py-12">
+      <main className="mx-auto max-w-9xl px-4 md:px-6 py-8 md:py-12">
         {/* Loading */}
         {loading && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 items-stretch">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2  items-stretch">
             {Array.from({ length: 8 }).map((_, i) => (
               <SkeletonCard key={i} />
             ))}

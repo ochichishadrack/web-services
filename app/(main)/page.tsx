@@ -206,7 +206,7 @@ export default function HomePage(): JSX.Element {
       </section>
 
       {/* FEATURED */}
-      <main className=" mx-auto w-full px-4 md:px-6 py-12 min-h-[70vh]">
+      <main className=" mx-auto max-w-9xl w-full px-4 md:px-6 py-12 min-h-[70vh]">
         <div className="flex items-center justify-between mb-10">
           <h2 className="text-xl md:text-2xl font-bold">Featured Services</h2>
 
