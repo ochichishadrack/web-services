@@ -109,7 +109,7 @@ export default function ServicesPage(): JSX.Element {
       <main className=" mx-auto px-4 md:px-6 py-8 md:py-12">
         {/* Loading */}
         {loading && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
             {Array.from({ length: 8 }).map((_, i) => (
               <SkeletonCard key={i} />
             ))}
@@ -125,7 +125,7 @@ export default function ServicesPage(): JSX.Element {
 
         {/* Data */}
         {!loading && hasServices && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
             {services.map((service) => {
               const coverMedia =
                 service.media?.find((m: ServiceMedia) => m.is_cover) || {};

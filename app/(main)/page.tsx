@@ -67,7 +67,7 @@ export default function HomePage(): JSX.Element {
   };
 
   // FORCE 3 COL ON REAL DESKTOP WIDTHS
-  const gridClass = "grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-1";
+  const gridClass = "grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-2";
 
   useEffect(() => {
     async function fetchServices(): Promise<void> {
