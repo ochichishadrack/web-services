@@ -89,7 +89,7 @@ export default function ServicesPage(): JSX.Element {
       <TopNav activePage="services" />
 
       {/* Hero Section — slightly different bg for distinction */}
-      <section className="relative flex items-center justify-center text-center overflow-hidden bg-gray-50 dark:bg-gray-950/70 py-16 md:py-20 border-b border-gray-100 dark:border-gray-800">
+      <section className="relative flex items-center justify-center text-center overflow-hidden bg-gray-50 dark:bg-gray-900/70 py-16 md:py-20 border-b border-gray-100 dark:border-gray-800">
         <div className="relative z-10 px-4 max-w-3xl mx-auto">
           <span className="inline-block mb-4 px-3 py-1 text-xs font-medium tracking-wider uppercase bg-white dark:bg-white/10 rounded-full border border-gray-200 dark:border-white/20 text-gray-600 dark:text-gray-300">
             Our Services
