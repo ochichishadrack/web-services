@@ -67,7 +67,8 @@ export default function HomePage(): JSX.Element {
   };
 
   // FORCE 3 COL ON REAL DESKTOP WIDTHS
-  const gridClass = "grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-2";
+  const gridClass =
+    "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2";
 
   useEffect(() => {
     async function fetchServices(): Promise<void> {
@@ -206,7 +207,7 @@ export default function HomePage(): JSX.Element {
       </section>
 
       {/* FEATURED */}
-      <main className=" mx-auto max-w-9xl w-full px-4 md:px-6 py-12 min-h-[70vh]">
+      <main className=" mx-auto max-w-11 w-full px-4 md:px-6 py-12 min-h-[70vh]">
         <div className="flex items-center justify-between mb-10">
           <h2 className="text-xl md:text-2xl font-bold">Featured Services</h2>
 
