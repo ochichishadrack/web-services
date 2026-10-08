@@ -89,43 +89,30 @@ export default function ServicesPage(): JSX.Element {
       <TopNav activePage="services" />
 
       {/* Hero Section */}
-      <section className="relative h-[22rem] md:h-[28rem] flex items-center justify-center text-center text-white overflow-hidden">
-        {/* Background Image */}
-        <Image
-          src="/s-hero.avif"
-          alt="Web services hero"
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover scale-105"
-        />
-
-        {/* Darker gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/65 to-black/80" />
+      <section className="relative h-[22rem] md:h-[28rem] flex items-center justify-center text-center overflow-hidden bg-zinc-100 dark:bg-zinc-950">
+        {/* Subtle gradient wash */}
+        <div className="absolute inset-0 bg-gradient-to-b from-zinc-200/80 via-transparent to-zinc-200/60 dark:from-zinc-900/80 dark:via-transparent dark:to-zinc-900/60" />
 
         {/* Content */}
         <div className="relative z-10 px-4 max-w-3xl mx-auto">
-          <span className="inline-block mb-4 px-3 py-1 text-xs font-medium tracking-wider uppercase bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
+          <span className="inline-block mb-4 px-3 py-1 text-xs font-medium tracking-wider uppercase bg-zinc-200/70 dark:bg-white/10 backdrop-blur-sm rounded-full border border-zinc-300/60 dark:border-white/20 text-zinc-700 dark:text-zinc-200">
             Our Services
           </span>
 
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-4 leading-tight">
-            Web Solutions That <span className="text-white">Drive Results</span>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-4 leading-tight text-zinc-900 dark:text-white">
+            Web Solutions That{" "}
+            <span className="text-orange-600 dark:text-orange-400">
+              Drive Results
+            </span>
           </h2>
-
-          <p className="text-sm sm:text-base md:text-lg text-white/85 max-w-xl mx-auto leading-relaxed">
-            We build digital experiences, from high-converting websites to
-            custom web applications, that attract customers, streamline
-            operations, and drive business growth.
-          </p>
         </div>
       </section>
 
       {/* Services Grid */}
-      <main className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
+      <main className=" mx-auto px-4 md:px-6 py-8 md:py-12">
         {/* Loading */}
         {loading && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 md:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1">
             {Array.from({ length: 8 }).map((_, i) => (
               <SkeletonCard key={i} />
             ))}
