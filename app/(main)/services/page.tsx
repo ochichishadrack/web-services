@@ -89,17 +89,14 @@ export default function ServicesPage(): JSX.Element {
       <TopNav activePage="services" />
 
       {/* Hero Section */}
-      <section className="relative h-[22rem] md:h-[28rem] flex items-center justify-center text-center overflow-hidden bg-zinc-100 dark:bg-zinc-950">
-        {/* Subtle gradient wash */}
-        <div className="absolute inset-0 bg-gradient-to-b from-zinc-200/80 via-transparent to-zinc-200/60 dark:from-zinc-900/80 dark:via-transparent dark:to-zinc-900/60" />
-
+      <section className="relative flex items-center justify-center text-center overflow-hidden bg-white dark:bg-gray-950 py-16 md:py-20">
         {/* Content */}
         <div className="relative z-10 px-4 max-w-3xl mx-auto">
-          <span className="inline-block mb-4 px-3 py-1 text-xs font-medium tracking-wider uppercase bg-zinc-200/70 dark:bg-white/10 backdrop-blur-sm rounded-full border border-zinc-300/60 dark:border-white/20 text-zinc-700 dark:text-zinc-200">
+          <span className="inline-block mb-4 px-3 py-1 text-xs font-medium tracking-wider uppercase bg-gray-100 dark:bg-white/10 rounded-full border border-gray-200 dark:border-white/20 text-gray-600 dark:text-gray-300">
             Our Services
           </span>
 
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-4 leading-tight text-zinc-900 dark:text-white">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight text-gray-900 dark:text-white">
             Web Solutions That{" "}
             <span className="text-orange-600 dark:text-orange-400">
               Drive Results
