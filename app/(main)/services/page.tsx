@@ -7,6 +7,7 @@ import { axiosInstance } from "@/utils/axiosInstance";
 import TopNav from "@/components/navigation/TopNav";
 import Footer from "@/components/ui/Footer";
 import { useLocalCurrency } from "@/hooks/useLocalCurrency";
+import { ChevronDown } from "lucide-react";
 
 /* ---------------- TYPES ---------------- */
 
@@ -29,6 +30,8 @@ interface Service {
   media?: ServiceMedia[];
 }
 
+type PriceSort = "default" | "asc" | "desc";
+
 /* ---------------- SKELETON CARD ---------------- */
 
 function SkeletonCard(): JSX.Element {
@@ -44,6 +47,45 @@ function SkeletonCard(): JSX.Element {
   );
 }
 
+/* ---------------- FILTER SELECT ---------------- */
+
+function FilterSelect({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  options: { value: string; label: string }[];
+}): JSX.Element {
+  return (
+    <div className="relative">
+      <label className="sr-only">{label}</label>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="appearance-none pl-3.5 pr-9 py-2 text-sm font-medium
+          bg-white dark:bg-gray-900
+          border border-gray-200 dark:border-gray-700
+          rounded-xl
+          text-gray-700 dark:text-gray-200
+          hover:border-gray-300 dark:hover:border-gray-600
+          focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500
+          transition-colors cursor-pointer min-w-[9.5rem]"
+      >
+        {options.map((opt) => (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
+      </select>
+      <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
+    </div>
+  );
+}
+
 /* ---------------- COMPONENT ---------------- */
 
 export default function ServicesPage(): JSX.Element {
@@ -51,6 +93,9 @@ export default function ServicesPage(): JSX.Element {
   const [loading, setLoading] = useState(true);
   const [prices, setPrices] = useState<Record<string, any>>({});
   const { format, loading: fxLoading } = useLocalCurrency();
+
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [priceSort, setPriceSort] = useState<PriceSort>("default");
 
   useEffect(() => {
     async function fetchServices(): Promise<void> {
@@ -81,14 +126,62 @@ export default function ServicesPage(): JSX.Element {
     fetchPrices();
   }, []);
 
+  const categories = useMemo(() => {
+    const set = new Set(
+      services.map((s) => s.category).filter(Boolean) as string[],
+    );
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [services]);
+
+  const getPrice = (serviceId: string): number | null => {
+    const priceData = prices[serviceId];
+    if (!priceData) return null;
+    const value = priceData?.basic ?? priceData?.min ?? null;
+    return typeof value === "number" ? value : null;
+  };
+
+  const filteredServices = useMemo(() => {
+    let list = [...services];
+
+    if (categoryFilter !== "all") {
+      list = list.filter((s) => s.category === categoryFilter);
+    }
+
+    if (priceSort === "asc" || priceSort === "desc") {
+      list.sort((a, b) => {
+        const pa = getPrice(a.id);
+        const pb = getPrice(b.id);
+        // Push items without price to the end
+        if (pa == null && pb == null) return 0;
+        if (pa == null) return 1;
+        if (pb == null) return -1;
+        return priceSort === "asc" ? pa - pb : pb - pa;
+      });
+    }
+
+    return list;
+  }, [services, categoryFilter, priceSort, prices]);
+
   const hasServices = useMemo(() => services.length > 0, [services]);
+  const hasFiltered = filteredServices.length > 0;
+
+  const categoryOptions = [
+    { value: "all", label: "All categories" },
+    ...categories.map((c) => ({ value: c, label: c })),
+  ];
+
+  const priceOptions = [
+    { value: "default", label: "Sort by price" },
+    { value: "asc", label: "Price: Low to High" },
+    { value: "desc", label: "Price: High to Low" },
+  ];
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950 transition-colors">
       {/* Top Navigation */}
       <TopNav activePage="services" />
 
-      {/* Hero Section — slightly different bg for distinction */}
+      {/* Hero Section */}
       <section className="relative flex items-center justify-center text-center overflow-hidden bg-gray-50 dark:bg-gray-900/70 py-16 md:py-20 border-b border-gray-100 dark:border-gray-800">
         <div className="relative z-10 px-4 max-w-3xl mx-auto">
           <span className="inline-block mb-4 px-3 py-1 text-xs font-medium tracking-wider uppercase bg-white dark:bg-white/10 rounded-full border border-gray-200 dark:border-white/20 text-gray-600 dark:text-gray-300">
@@ -105,33 +198,67 @@ export default function ServicesPage(): JSX.Element {
       </section>
 
       {/* Services Grid */}
-      <main className="mx-auto max-w-11xl  px-4 md:px-6 py-8 md:py-12">
+      <main className="mx-auto max-w-11xl px-4 md:px-6 py-8 md:py-12">
+        {/* Filters — top right */}
+        {!loading && hasServices && (
+          <div className="flex flex-wrap items-center justify-end gap-2.5 mb-6">
+            <FilterSelect
+              label="Filter by category"
+              value={categoryFilter}
+              onChange={setCategoryFilter}
+              options={categoryOptions}
+            />
+            <FilterSelect
+              label="Sort by price"
+              value={priceSort}
+              onChange={(v) => setPriceSort(v as PriceSort)}
+              options={priceOptions}
+            />
+          </div>
+        )}
+
         {/* Loading */}
         {loading && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2  items-stretch">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 items-stretch">
             {Array.from({ length: 8 }).map((_, i) => (
               <SkeletonCard key={i} />
             ))}
           </div>
         )}
 
-        {/* Empty */}
+        {/* Empty — no services at all */}
         {!loading && !hasServices && (
           <div className="min-h-[40vh] flex items-center justify-center text-gray-500 dark:text-gray-400">
             No services available.
           </div>
         )}
 
+        {/* Empty — filters match nothing */}
+        {!loading && hasServices && !hasFiltered && (
+          <div className="min-h-[30vh] flex flex-col items-center justify-center gap-3 text-gray-500 dark:text-gray-400">
+            <p>No services match your filters.</p>
+            <button
+              type="button"
+              onClick={() => {
+                setCategoryFilter("all");
+                setPriceSort("default");
+              }}
+              className="text-sm font-medium text-orange-600 dark:text-orange-400 hover:underline"
+            >
+              Clear filters
+            </button>
+          </div>
+        )}
+
         {/* Data */}
-        {!loading && hasServices && (
+        {!loading && hasFiltered && (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 items-stretch">
-            {services.map((service) => {
+            {filteredServices.map((service) => {
               const coverMedia =
                 service.media?.find((m: ServiceMedia) => m.is_cover) || {};
               const hasVideo = !!coverMedia.video_url;
               const hasImage = !!coverMedia.image_url || !!service.cover_image;
-              const priceData = prices[service.id];
-              const price = priceData?.basic ?? priceData?.min ?? null;
+              const price = getPrice(service.id);
 
               return (
                 <Link
@@ -165,7 +292,7 @@ export default function ServicesPage(): JSX.Element {
                       )}
                     </div>
 
-                    {/* CONTENT — grows to fill remaining height */}
+                    {/* CONTENT */}
                     <div className="p-4 flex flex-col flex-1 space-y-2">
                       <h2 className="text-sm md:text-base font-semibold text-gray-900 dark:text-white line-clamp-2 leading-snug">
                         {service.title}
