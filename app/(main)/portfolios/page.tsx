@@ -186,16 +186,15 @@ export default function PortfolioPage() {
                 Portfolio
               </p>
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-gray-900 dark:text-white leading-[1.15]">
-                Selected work that{" "}
+                Selected work built and shipped by{" "}
                 <span className="text-orange-600 dark:text-orange-400">
-                  scales businesses
+                  Mara Devs
                 </span>
               </h1>
               <p className="mt-4 text-base sm:text-lg text-gray-600 dark:text-zinc-400 leading-relaxed max-w-xl">
-                A curated selection of production systems we have shipped — from
-                high-converting marketing sites and e-commerce platforms to
-                full-stack SaaS, school ERPs, clinic portals, and industry-grade
-                web applications built for growth.
+                A curated selection of production systems we have delivered for
+                clients across multiple countries — engineered for performance,
+                reliability, and lasting business impact.
               </p>
             </div>
 
