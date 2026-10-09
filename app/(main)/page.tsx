@@ -198,10 +198,10 @@ export default function HomePage(): JSX.Element {
           <div className="w-16 h-1 bg-orange-500 mx-auto mb-8 rounded-full" />
 
           <p className="text-base md:text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
-            We partner with ambitious businesses to turn their online presence
-            into a growth engine by crafting high-performance websites and web
-            applications engineered to convert visitors into loyal, lasting
-            customers.
+            We partner with ambitious businesses, startups, and organisations to
+            turn their online presence into a growth engine — crafting
+            high-performing websites and web applications that reflect their
+            brand and drive measurable results.
           </p>
         </div>
       </section>
