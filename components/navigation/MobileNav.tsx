@@ -20,6 +20,7 @@ export default function MobileNav({ activePage }: MobileNavProps) {
   const navItems = [
     { key: 'home', label: 'Home', href: '/' },
     { key: 'services', label: 'Services', href: '/services' },
+    { key: 'portfolios', label: 'Our Portfolio', href: '/portfolios' },
     { key: 'projects', label: 'Projects', href: '/projects' },
   ];
 

@@ -223,11 +223,6 @@ export default function PortfolioDetailPage({
                           sizes="96px"
                         />
                       )}
-                      {m.is_primary && (
-                        <span className="absolute left-1 top-1 rounded bg-orange-600 px-1 py-px text-[8px] font-bold uppercase text-white">
-                          Primary
-                        </span>
-                      )}
                       <span className="absolute bottom-1 right-1 rounded bg-black/50 p-0.5 text-white">
                         {m.media_type === "video" ? (
                           <Film className="h-3 w-3" />
@@ -341,25 +336,28 @@ export default function PortfolioDetailPage({
         </div>
       </article>
 
+      {/* Compact bottom CTA */}
       <section className="border-t border-gray-100 dark:border-zinc-800">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 py-12 text-center">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-            Want something similar?
-          </h2>
-          <p className="mt-2 text-sm text-gray-500 dark:text-zinc-400">
-            Let’s build a high-performing site or system for your business.
-          </p>
-          <div className="mt-5 flex flex-wrap justify-center gap-3">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 py-7 sm:py-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
+              Want something similar?
+            </h2>
+            <p className="mt-0.5 text-sm text-gray-500 dark:text-zinc-400">
+              SaaS, e-commerce, ERPs, and custom systems — built for growth.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2.5 shrink-0">
             <Link
               href="/services"
-              className="inline-flex items-center gap-1.5 rounded-xl bg-orange-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-orange-700 transition"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-700 transition"
             >
               View services
               <ArrowUpRight className="h-4 w-4" />
             </Link>
             <a
               href="mailto:maraspot.ke@gmail.com"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-700 hover:border-orange-300 hover:text-orange-600 transition dark:border-zinc-700 dark:text-zinc-300"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 hover:border-orange-300 hover:text-orange-600 transition dark:border-zinc-700 dark:text-zinc-300"
             >
               Get a quote
             </a>

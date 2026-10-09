@@ -30,68 +30,50 @@ interface PortfolioListResponse {
 type ViewMode = "grid" | "list";
 type SortKey = "newest" | "featured" | "title";
 
-const CATEGORY_META: Record<string, { label: string; color: string }> = {
-  marketplace: {
-    label: "Marketplace",
-    color: "bg-violet-500/15 text-violet-600 dark:text-violet-400",
-  },
-  ecommerce: {
-    label: "E-commerce",
-    color: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400",
-  },
-  real_estate: {
-    label: "Real Estate",
-    color: "bg-sky-500/15 text-sky-600 dark:text-sky-400",
-  },
-  hospital: {
-    label: "Hospital",
-    color: "bg-rose-500/15 text-rose-600 dark:text-rose-400",
-  },
-  clinic: {
-    label: "Clinic",
-    color: "bg-pink-500/15 text-pink-600 dark:text-pink-400",
-  },
-  pharmacy: {
-    label: "Pharmacy",
-    color: "bg-teal-500/15 text-teal-600 dark:text-teal-400",
-  },
-  fitness: {
-    label: "Fitness",
-    color: "bg-orange-500/15 text-orange-600 dark:text-orange-400",
-  },
-  events: {
-    label: "Events",
-    color: "bg-amber-500/15 text-amber-600 dark:text-amber-400",
-  },
-  travel: {
-    label: "Travel",
-    color: "bg-cyan-500/15 text-cyan-600 dark:text-cyan-400",
-  },
-  "Programming & Tech": {
-    label: "Programming & Tech",
-    color: "bg-indigo-500/15 text-indigo-600 dark:text-indigo-400",
-  },
-  website: {
-    label: "Website",
-    color: "bg-blue-500/15 text-blue-600 dark:text-blue-400",
-  },
-  saas: {
-    label: "SaaS",
-    color: "bg-fuchsia-500/15 text-fuchsia-600 dark:text-fuchsia-400",
-  },
+/** Optional display labels — categories themselves come only from the API */
+const CATEGORY_LABELS: Record<string, string> = {
+  marketplace: "Marketplace",
+  ecommerce: "E-commerce",
+  real_estate: "Real Estate",
+  hospital: "Hospital",
+  clinic: "Clinic",
+  pharmacy: "Pharmacy",
+  fitness: "Fitness",
+  events: "Events",
+  travel: "Travel",
+  "Programming & Tech": "Programming & Tech",
+  website: "Website",
+  saas: "SaaS",
 };
+
+const CATEGORY_COLORS: Record<string, string> = {
+  marketplace: "bg-violet-500/15 text-violet-600 dark:text-violet-400",
+  ecommerce: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400",
+  real_estate: "bg-sky-500/15 text-sky-600 dark:text-sky-400",
+  hospital: "bg-rose-500/15 text-rose-600 dark:text-rose-400",
+  clinic: "bg-pink-500/15 text-pink-600 dark:text-pink-400",
+  pharmacy: "bg-teal-500/15 text-teal-600 dark:text-teal-400",
+  fitness: "bg-orange-500/15 text-orange-600 dark:text-orange-400",
+  events: "bg-amber-500/15 text-amber-600 dark:text-amber-400",
+  travel: "bg-cyan-500/15 text-cyan-600 dark:text-cyan-400",
+  "Programming & Tech": "bg-indigo-500/15 text-indigo-600 dark:text-indigo-400",
+  website: "bg-blue-500/15 text-blue-600 dark:text-blue-400",
+  saas: "bg-fuchsia-500/15 text-fuchsia-600 dark:text-fuchsia-400",
+};
+
+function categoryLabel(cat: string) {
+  return CATEGORY_LABELS[cat] ?? cat.replace(/_/g, " ");
+}
 
 function categoryBadge(cat?: string | null) {
   if (!cat) return null;
-  const meta = CATEGORY_META[cat] ?? {
-    label: cat.replace(/_/g, " "),
-    color: "bg-gray-500/15 text-gray-600 dark:text-gray-400",
-  };
+  const color =
+    CATEGORY_COLORS[cat] ?? "bg-gray-500/15 text-gray-600 dark:text-gray-400";
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold tracking-wide capitalize ${meta.color}`}
+      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold tracking-wide capitalize ${color}`}
     >
-      {meta.label}
+      {categoryLabel(cat)}
     </span>
   );
 }
@@ -177,11 +159,15 @@ export default function PortfolioPage() {
     return list;
   }, [items, search, sort]);
 
+  /** Only categories that exist on loaded portfolios — never hardcoded extras */
   const categories = useMemo(() => {
     const set = new Set<string>();
-    items.forEach((p) => p.category && set.add(p.category));
-    Object.keys(CATEGORY_META).forEach((k) => set.add(k));
-    return Array.from(set).sort();
+    items.forEach((p) => {
+      if (p.category?.trim()) set.add(p.category.trim());
+    });
+    return Array.from(set).sort((a, b) =>
+      categoryLabel(a).localeCompare(categoryLabel(b)),
+    );
   }, [items]);
 
   return (
@@ -192,7 +178,7 @@ export default function PortfolioPage() {
         <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-orange-400/20 blur-3xl dark:bg-orange-500/10" />
         <div className="absolute -bottom-16 -left-16 h-56 w-56 rounded-full bg-orange-300/15 blur-3xl dark:bg-orange-600/10" />
 
-        <div className="relative mx-auto max-w-6xl px-4 sm:px-6 pt-16 pb-14 sm:pt-20 sm:pb-16">
+        <div className="relative mx-auto max-w-6xl px-4 sm:px-6 pt-14 pb-12 sm:pt-16 sm:pb-14">
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
             <div className="max-w-2xl">
               <p className="inline-flex items-center gap-1.5 rounded-full border border-orange-200/80 bg-orange-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-orange-600 dark:border-orange-500/30 dark:bg-orange-500/10 dark:text-orange-400 mb-4">
@@ -200,15 +186,16 @@ export default function PortfolioPage() {
                 Portfolio
               </p>
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-gray-900 dark:text-white leading-[1.15]">
-                Projects that{" "}
+                Selected work that{" "}
                 <span className="text-orange-600 dark:text-orange-400">
-                  drive growth
+                  scales businesses
                 </span>
               </h1>
               <p className="mt-4 text-base sm:text-lg text-gray-600 dark:text-zinc-400 leading-relaxed max-w-xl">
-                High-performance websites and web applications engineered for
-                conversion — e-commerce, real estate, school systems, clinics,
-                and more.
+                A curated selection of production systems we have shipped — from
+                high-converting marketing sites and e-commerce platforms to
+                full-stack SaaS, school ERPs, clinic portals, and industry-grade
+                web applications built for growth.
               </p>
             </div>
 
@@ -270,7 +257,7 @@ export default function PortfolioPage() {
                 <option value="all">All categories</option>
                 {categories.map((c) => (
                   <option key={c} value={c}>
-                    {CATEGORY_META[c]?.label ?? c.replace(/_/g, " ")}
+                    {categoryLabel(c)}
                   </option>
                 ))}
               </select>
@@ -390,34 +377,33 @@ export default function PortfolioPage() {
         )}
       </section>
 
-      {/* CTA */}
+      {/* Compact CTA */}
       <section className="border-t border-gray-100 dark:border-zinc-800">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 py-14 sm:py-16">
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-orange-600 to-orange-500 px-6 py-12 sm:px-12 sm:py-14 text-center text-white shadow-xl shadow-orange-500/20 dark:from-orange-600 dark:to-orange-700">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.15),transparent_50%)]" />
-            <div className="relative">
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                Ready to build something that converts?
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8 sm:py-10">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-600 to-orange-500 px-5 py-6 sm:px-8 sm:py-7 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-white shadow-lg shadow-orange-500/15 dark:from-orange-600 dark:to-orange-700">
+            <div>
+              <h2 className="text-lg sm:text-xl font-bold tracking-tight">
+                Ready to ship your next product?
               </h2>
-              <p className="mt-3 max-w-lg mx-auto text-orange-50/90 text-sm sm:text-base">
-                From polished marketing sites to full-stack systems —
-                e-commerce, school ERPs, clinics, real estate, and more.
+              <p className="mt-1 text-sm text-orange-50/90 max-w-md">
+                SaaS platforms, e-commerce, ERPs, and custom web systems —
+                engineered for performance and conversion.
               </p>
-              <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-                <Link
-                  href="/services"
-                  className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-orange-700 shadow-sm hover:bg-orange-50 transition"
-                >
-                  View services
-                  <ArrowUpRight className="h-4 w-4" />
-                </Link>
-                <a
-                  href="mailto:maraspot.ke@gmail.com"
-                  className="inline-flex items-center gap-2 rounded-xl border border-white/40 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur hover:bg-white/20 transition"
-                >
-                  Get a quote
-                </a>
-              </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+              <Link
+                href="/services"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-orange-700 shadow-sm hover:bg-orange-50 transition"
+              >
+                View services
+                <ArrowUpRight className="h-4 w-4" />
+              </Link>
+              <a
+                href="mailto:maraspot.ke@gmail.com"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-white/40 bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur hover:bg-white/20 transition"
+              >
+                Get a quote
+              </a>
             </div>
           </div>
         </div>
@@ -515,7 +501,7 @@ function ProjectCard({ project }: { project: PortfolioListOut }) {
 
 function ProjectRow({ project }: { project: PortfolioListOut }) {
   const cover = coverOf(project);
-  const href = `/portfolio/${project.slug || project.id}`;
+  const href = `/portfolios/${project.slug || project.id}`;
 
   return (
     <li className="group flex flex-col sm:flex-row overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:border-orange-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-orange-500/40">
