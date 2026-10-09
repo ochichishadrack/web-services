@@ -3,32 +3,29 @@
 import { JSX, useState, FormEvent, useMemo, useCallback } from "react";
 import DynamicTopNav from "@/components/ui/DynamicTopNav";
 import {
-  Mail,
-  Phone,
-  MapPin,
   Clock,
   Send,
   CheckCircle2,
   Loader2,
   X,
+  MessageSquare,
+  FileText,
+  LifeBuoy,
 } from "lucide-react";
-import { useCustomerAuth } from "@/context/CustomerAuthContext"; // ← adjust path if needed
+import { useCustomerAuth } from "@/context/CustomerAuthContext";
 
 const WHATSAPP_NUMBER = "254113388120";
 const CONTACT_EMAIL = "maraspot.ke@gmail.com";
 const TIMEZONE = "Africa/Nairobi";
 
-/** Business hours in EAT (Africa/Nairobi) — adhered to strictly */
-const BUSINESS_HOURS: Record<
-  number, // 0 = Sunday … 6 = Saturday
-  { open: number; close: number } | null // minutes from midnight, null = closed
-> = {
-  0: { open: 10 * 60, close: 16 * 60 }, // Sunday 10:00 – 16:00
-  1: { open: 9 * 60, close: 18 * 60 }, // Monday
-  2: { open: 9 * 60, close: 18 * 60 }, // Tuesday
-  3: { open: 9 * 60, close: 18 * 60 }, // Wednesday
-  4: { open: 9 * 60, close: 18 * 60 }, // Thursday
-  5: { open: 9 * 60, close: 18 * 60 }, // Friday
+/** Business hours in EAT (Africa/Nairobi) */
+const BUSINESS_HOURS: Record<number, { open: number; close: number } | null> = {
+  0: { open: 10 * 60, close: 16 * 60 }, // Sunday
+  1: { open: 9 * 60, close: 18 * 60 },
+  2: { open: 9 * 60, close: 18 * 60 },
+  3: { open: 9 * 60, close: 18 * 60 },
+  4: { open: 9 * 60, close: 18 * 60 },
+  5: { open: 9 * 60, close: 18 * 60 },
   6: null, // Saturday closed
 };
 
@@ -39,9 +36,6 @@ function getNairobiParts(date = new Date()) {
     hour: "numeric",
     minute: "numeric",
     hour12: false,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
   });
 
   const parts = formatter.formatToParts(date);
@@ -62,7 +56,7 @@ function getNairobiParts(date = new Date()) {
   const minute = parseInt(get("minute"), 10);
   const minutes = hour * 60 + minute;
 
-  return { day, minutes, hour, minute };
+  return { day, minutes };
 }
 
 function formatTime(minutesFromMidnight: number) {
@@ -82,7 +76,6 @@ function getBusinessStatus() {
       isOpen: true,
       nextAvailable: null as string | null,
       shortMessage: null as string | null,
-      reopenTimeLabel: null as string | null,
     };
   }
 
@@ -112,7 +105,6 @@ function getBusinessStatus() {
           isOpen: false,
           nextAvailable: `We reopen today at ${formatTime(schedule.open)}.`,
           shortMessage,
-          reopenTimeLabel: formatTime(schedule.open),
         };
       }
       continue;
@@ -135,7 +127,6 @@ function getBusinessStatus() {
       isOpen: false,
       nextAvailable: `We reopen ${dayName} at ${formatTime(schedule.open)}.`,
       shortMessage: offset === 1 ? "tomorrow" : dayName,
-      reopenTimeLabel: formatTime(schedule.open),
     };
   }
 
@@ -143,7 +134,6 @@ function getBusinessStatus() {
     isOpen: false,
     nextAvailable: "Please check our business hours and try again later.",
     shortMessage: "later",
-    reopenTimeLabel: null,
   };
 }
 
@@ -160,7 +150,6 @@ function WhatsAppIcon({ className }: { className?: string }) {
   );
 }
 
-/** Closed-hours dialog */
 function ClosedDialog({
   open,
   onClose,
@@ -189,13 +178,11 @@ function ClosedDialog({
       aria-modal="true"
       aria-labelledby="closed-dialog-title"
     >
-      {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
 
-      {/* Panel */}
       <div className="relative w-full max-w-md rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-xl p-6 sm:p-7">
         <button
           type="button"
@@ -246,7 +233,7 @@ function ClosedDialog({
                 ) : (
                   <>
                     <Send className="w-4 h-4" />
-                    Continue to send message
+                    Continue to send
                   </>
                 )}
               </button>
@@ -281,6 +268,29 @@ function ClosedDialog({
   );
 }
 
+const INQUIRY_TYPES = [
+  {
+    id: "inquiry",
+    label: "General inquiry",
+    icon: MessageSquare,
+    description: "Questions about services or process",
+  },
+  {
+    id: "quote",
+    label: "Request a quote",
+    icon: FileText,
+    description: "Get pricing for a project",
+  },
+  {
+    id: "support",
+    label: "Support",
+    icon: LifeBuoy,
+    description: "Help with an existing project or order",
+  },
+] as const;
+
+type InquiryType = (typeof INQUIRY_TYPES)[number]["id"];
+
 export default function ContactPage(): JSX.Element {
   const { customer, isAuthenticated, loading: authLoading } = useCustomerAuth();
 
@@ -288,6 +298,7 @@ export default function ContactPage(): JSX.Element {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState("");
+  const [inquiryType, setInquiryType] = useState<InquiryType>("inquiry");
   const [closedDialog, setClosedDialog] = useState<{
     open: boolean;
     mode: "form" | "whatsapp";
@@ -315,18 +326,22 @@ export default function ContactPage(): JSX.Element {
     window.open(WHATSAPP_URL, "_blank", "noopener,noreferrer");
   }, [WHATSAPP_URL]);
 
-  /** Actual API send — used both when open and when user chooses “Continue to send” */
   async function sendMessage() {
     if (!customer) return;
 
     setLoading(true);
     setError(null);
 
+    const typeLabel =
+      INQUIRY_TYPES.find((t) => t.id === inquiryType)?.label ?? "Inquiry";
+
     const payload = {
       name: fullName || "Customer",
       email: customer.email,
-      message,
+      message: `[${typeLabel}]\n\n${message}`,
       phone: customer.phone_number_primary || undefined,
+      subject: typeLabel,
+      type: inquiryType,
     };
 
     try {
@@ -360,7 +375,6 @@ export default function ContactPage(): JSX.Element {
     e.preventDefault();
     if (!customer) return;
 
-    // Strictly respect business hours — show dialog first
     if (!isOpen) {
       setClosedDialog({ open: true, mode: "form" });
       return;
@@ -378,259 +392,221 @@ export default function ContactPage(): JSX.Element {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <DynamicTopNav title="Contact Us" />
+      <DynamicTopNav title="Contact" />
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-8 space-y-8">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-10 space-y-8">
         {/* Hero */}
         <div className="text-center space-y-3">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
-            Get in Touch
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+            How can we help?
           </h1>
-          <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 max-w-xl mx-auto leading-relaxed">
-            Have a question about services, orders, or pricing? Our team is
-            ready to help you.
+          <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 max-w-md mx-auto leading-relaxed">
+            Reach out for a project inquiry, a tailored quote, or support on an
+            existing engagement. We typically respond within one business day.
           </p>
-        </div>
 
-        {/* Grid */}
-        <div className="grid gap-6 lg:grid-cols-5">
-          {/* Left — Info */}
-          <div className="lg:col-span-2 space-y-4">
-            {/* Contact info */}
-            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-5 sm:p-6 shadow-sm space-y-5">
-              <h3 className="text-base font-semibold text-gray-900 dark:text-white">
-                Contact Information
-              </h3>
-
-              <div className="space-y-4">
-                <a
-                  href={`mailto:${CONTACT_EMAIL}`}
-                  className="flex items-start gap-3 group"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-900/30 flex items-center justify-center shrink-0">
-                    <Mail className="w-4 h-4 text-orange-600 dark:text-orange-400" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-400 dark:text-gray-500">
-                      Email
-                    </p>
-                    <p className="text-sm font-medium text-gray-800 dark:text-gray-200 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition">
-                      {CONTACT_EMAIL}
-                    </p>
-                  </div>
-                </a>
-
-                <a
-                  href="tel:+254113388120"
-                  className="flex items-start gap-3 group"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-900/30 flex items-center justify-center shrink-0">
-                    <Phone className="w-4 h-4 text-orange-600 dark:text-orange-400" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-400 dark:text-gray-500">
-                      Phone
-                    </p>
-                    <p className="text-sm font-medium text-gray-800 dark:text-gray-200 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition">
-                      +254 113 388120
-                    </p>
-                  </div>
-                </a>
-
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-900/30 flex items-center justify-center shrink-0">
-                    <MapPin className="w-4 h-4 text-orange-600 dark:text-orange-400" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-400 dark:text-gray-500">
-                      Location
-                    </p>
-                    <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
-                      Nairobi, Kenya
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Business hours */}
-            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-5 sm:p-6 shadow-sm">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-900/30 flex items-center justify-center shrink-0">
-                  <Clock className="w-4 h-4 text-orange-600 dark:text-orange-400" />
-                </div>
-                <h3 className="text-base font-semibold text-gray-900 dark:text-white">
-                  Business Hours
-                </h3>
-              </div>
-
-              <div className="space-y-2.5 text-sm text-gray-600 dark:text-gray-400">
-                <div className="flex justify-between gap-4">
-                  <span>Monday — Friday</span>
-                  <span className="font-medium text-gray-800 dark:text-gray-200">
-                    9:00 AM — 6:00 PM
-                  </span>
-                </div>
-                <div className="flex justify-between gap-4">
-                  <span>Saturday</span>
-                  <span className="font-medium text-gray-800 dark:text-gray-200">
-                    Closed
-                  </span>
-                </div>
-                <div className="flex justify-between gap-4">
-                  <span>Sunday</span>
-                  <span className="font-medium text-gray-800 dark:text-gray-200">
-                    10:00 AM — 4:00 PM
-                  </span>
-                </div>
-              </div>
-
-              {/* Live status badge */}
-              <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
-                {isOpen ? (
-                  <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    Currently open
-                  </p>
-                ) : (
-                  <p className="text-sm text-amber-600 dark:text-amber-400">
-                    Currently closed · {nextAvailable}
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Right — Form */}
-          <div className="lg:col-span-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-5 sm:p-7 shadow-sm">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Send a Message
-            </h3>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              {authLoading
-                ? "Checking your account…"
-                : isAuthenticated
-                  ? "Your message will be sent using your account details."
-                  : "Please log in to send a message."}
-            </p>
-
-            {authLoading ? (
-              <div className="mt-12 flex flex-col items-center justify-center py-10 gap-3">
-                <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Loading…
-                </p>
-              </div>
-            ) : !isAuthenticated ? (
-              <div className="mt-10 text-center py-8">
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                  You need to be signed in to send a message.
-                </p>
-                <a
-                  href={`/login?callbackUrl=${encodeURIComponent("/contact")}`}
-                  className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold transition"
-                >
-                  Sign in
-                </a>
-              </div>
-            ) : sent ? (
-              <div className="mt-10 flex flex-col items-center justify-center text-center py-8">
-                <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center mb-4">
-                  <CheckCircle2 className="w-7 h-7 text-emerald-500" />
-                </div>
-                <p className="text-base font-semibold text-gray-900 dark:text-white">
-                  Message sent successfully
-                </p>
-                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                  We’ll respond to your email as soon as possible.
-                </p>
-                <button
-                  onClick={() => setSent(false)}
-                  className="mt-5 text-sm font-medium text-orange-600 dark:text-orange-400 hover:underline"
-                >
-                  Send another message
-                </button>
-              </div>
+          {/* Live status */}
+          <div className="pt-1">
+            {isOpen ? (
+              <p className="inline-flex items-center gap-2 text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                Currently open · Mon–Fri 9AM–6PM EAT
+              </p>
             ) : (
-              <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-                <div className="rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700 px-4 py-3 text-sm">
-                  <p className="text-gray-500 dark:text-gray-400 text-xs mb-1">
-                    Sending as
-                  </p>
-                  <p className="font-medium text-gray-900 dark:text-white">
-                    {fullName || "Customer"}
-                  </p>
-                  <p className="text-gray-600 dark:text-gray-300">
-                    {customer?.email}
-                  </p>
-                  {customer?.phone_number_primary && (
-                    <p className="text-gray-600 dark:text-gray-300">
-                      {customer.phone_number_primary}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                    Message
-                  </label>
-                  <textarea
-                    required
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    rows={5}
-                    placeholder="How can we help you?"
-                    className="
-                      w-full px-4 py-3 rounded-xl
-                      border border-gray-200 dark:border-gray-700
-                      bg-white dark:bg-gray-950
-                      text-gray-900 dark:text-white
-                      placeholder:text-gray-400
-                      focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500
-                      transition resize-none
-                    "
-                  />
-                </div>
-
-                {error && (
-                  <p className="text-sm text-red-600 dark:text-red-400">
-                    {error}
-                  </p>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={loading || !message.trim()}
-                  className={`
-                    w-full py-3.5 rounded-xl font-semibold text-sm
-                    flex items-center justify-center gap-2
-                    transition
-                    ${
-                      loading || !message.trim()
-                        ? "bg-orange-300 dark:bg-orange-800/50 text-white cursor-not-allowed"
-                        : "bg-orange-500 hover:bg-orange-600 text-white shadow-sm shadow-orange-500/20"
-                    }
-                  `}
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Sending…
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-4 h-4" />
-                      Send as {fullName || "me"}
-                    </>
-                  )}
-                </button>
-              </form>
+              <p className="text-sm text-amber-600 dark:text-amber-400">
+                Currently closed · {nextAvailable}
+              </p>
             )}
           </div>
         </div>
+
+        {/* Form card */}
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-5 sm:p-8 shadow-sm">
+          {authLoading ? (
+            <div className="flex flex-col items-center justify-center py-16 gap-3">
+              <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Loading…
+              </p>
+            </div>
+          ) : !isAuthenticated ? (
+            <div className="text-center py-12">
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-5 max-w-xs mx-auto">
+                Sign in to send an inquiry, request a quote, or get support.
+              </p>
+              <a
+                href={`/login?callbackUrl=${encodeURIComponent("/contact")}`}
+                className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold transition"
+              >
+                Sign in
+              </a>
+            </div>
+          ) : sent ? (
+            <div className="flex flex-col items-center justify-center text-center py-12">
+              <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center mb-4">
+                <CheckCircle2 className="w-7 h-7 text-emerald-500" />
+              </div>
+              <p className="text-base font-semibold text-gray-900 dark:text-white">
+                Message sent successfully
+              </p>
+              <p className="mt-1.5 text-sm text-gray-500 dark:text-gray-400 max-w-xs">
+                We’ll reply to {customer?.email} as soon as possible.
+              </p>
+              <button
+                type="button"
+                onClick={() => setSent(false)}
+                className="mt-6 text-sm font-medium text-orange-600 dark:text-orange-400 hover:underline"
+              >
+                Send another message
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Inquiry type */}
+              <div>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                  What do you need?
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  {INQUIRY_TYPES.map((type) => {
+                    const Icon = type.icon;
+                    const selected = inquiryType === type.id;
+                    return (
+                      <button
+                        key={type.id}
+                        type="button"
+                        onClick={() => setInquiryType(type.id)}
+                        className={`
+                          flex flex-col items-start gap-1.5 rounded-xl border px-3.5 py-3 text-left transition
+                          ${
+                            selected
+                              ? "border-orange-400 bg-orange-50 ring-2 ring-orange-400/20 dark:border-orange-500/60 dark:bg-orange-500/10 dark:ring-orange-500/20"
+                              : "border-gray-200 bg-gray-50/80 hover:border-gray-300 dark:border-gray-700 dark:bg-gray-800/40 dark:hover:border-gray-600"
+                          }
+                        `}
+                      >
+                        <Icon
+                          className={`w-4 h-4 ${selected ? "text-orange-600 dark:text-orange-400" : "text-gray-400"}`}
+                        />
+                        <span
+                          className={`text-sm font-semibold ${selected ? "text-orange-700 dark:text-orange-300" : "text-gray-800 dark:text-gray-200"}`}
+                        >
+                          {type.label}
+                        </span>
+                        <span className="text-[11px] leading-snug text-gray-500 dark:text-gray-400">
+                          {type.description}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Sending as */}
+              <div className="rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700 px-4 py-3 text-sm">
+                <p className="text-gray-500 dark:text-gray-400 text-xs mb-1">
+                  Sending as
+                </p>
+                <p className="font-medium text-gray-900 dark:text-white">
+                  {fullName || "Customer"}
+                </p>
+                <p className="text-gray-600 dark:text-gray-300">
+                  {customer?.email}
+                </p>
+                {customer?.phone_number_primary && (
+                  <p className="text-gray-600 dark:text-gray-300">
+                    {customer.phone_number_primary}
+                  </p>
+                )}
+              </div>
+
+              {/* Message */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                  Message
+                </label>
+                <textarea
+                  required
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  rows={5}
+                  placeholder={
+                    inquiryType === "quote"
+                      ? "Describe your project, timeline, and any requirements…"
+                      : inquiryType === "support"
+                        ? "Describe the issue or what you need help with…"
+                        : "How can we help you?"
+                  }
+                  className="
+                    w-full px-4 py-3 rounded-xl
+                    border border-gray-200 dark:border-gray-700
+                    bg-white dark:bg-gray-950
+                    text-gray-900 dark:text-white
+                    placeholder:text-gray-400
+                    focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500
+                    transition resize-none
+                  "
+                />
+              </div>
+
+              {error && (
+                <p className="text-sm text-red-600 dark:text-red-400">
+                  {error}
+                </p>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading || !message.trim()}
+                className={`
+                  w-full py-3.5 rounded-xl font-semibold text-sm
+                  flex items-center justify-center gap-2
+                  transition
+                  ${
+                    loading || !message.trim()
+                      ? "bg-orange-300 dark:bg-orange-800/50 text-white cursor-not-allowed"
+                      : "bg-orange-500 hover:bg-orange-600 text-white shadow-sm shadow-orange-500/20"
+                  }
+                `}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Sending…
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    {inquiryType === "quote"
+                      ? "Request quote"
+                      : inquiryType === "support"
+                        ? "Submit support request"
+                        : "Send inquiry"}
+                  </>
+                )}
+              </button>
+
+              <p className="text-center text-xs text-gray-400 dark:text-gray-500">
+                Or email{" "}
+                <a
+                  href={`mailto:${CONTACT_EMAIL}`}
+                  className="text-orange-600 dark:text-orange-400 hover:underline"
+                >
+                  {CONTACT_EMAIL}
+                </a>
+              </p>
+            </form>
+          )}
+        </div>
+
+        {/* Hours footnote */}
+        <p className="text-center text-xs text-gray-400 dark:text-gray-500">
+          Mon–Fri 9:00 AM – 6:00 PM · Sunday 10:00 AM – 4:00 PM · Saturday
+          closed · Africa/Nairobi
+        </p>
       </div>
 
-      {/* Floating WhatsApp button */}
+      {/* Floating WhatsApp */}
       <a
         href={WHATSAPP_URL}
         target="_blank"
@@ -659,7 +635,6 @@ export default function ContactPage(): JSX.Element {
         <WhatsAppIcon className="w-7 h-7" />
       </a>
 
-      {/* Closed-hours dialog */}
       <ClosedDialog
         open={closedDialog.open}
         mode={closedDialog.mode}
