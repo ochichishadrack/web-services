@@ -3,6 +3,18 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   output: "standalone",
 
+  // Allowed origins for cross-origin requests in development
+  // (Next.js 15+)
+  allowedDevOrigins: [
+    "localhost:3000",
+    "localhost:3003",
+    "127.0.0.1:3000",
+    "127.0.0.1:3003",
+    // add your real domains, e.g.:
+    // "app.maraspot.com",
+    // "*.maraspot.com",
+  ],
+
   images: {
     remotePatterns: [
       {
@@ -21,6 +33,11 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "source.unsplash.com",
       },
+      // add more image hosts if needed, e.g. MinIO:
+      // {
+      //   protocol: "https",
+      //   hostname: "minio.maraspot.com",
+      // },
     ],
   },
 };

@@ -3,7 +3,9 @@ FROM node:22-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-COPY package.json package-lock.json* yarn.lock* pnpm-lock.yaml* ./
+# Include pnpm-workspace.yaml so allowBuilds is available
+COPY package.json package-lock.json* yarn.lock* pnpm-lock.yaml* pnpm-workspace.yaml* ./
+
 RUN \
   if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
   elif [ -f package-lock.json ]; then npm ci; \
@@ -18,6 +20,11 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
+
+# Required by next.config (API_URL for proxy / other env vars)
+ARG API_URL
+ENV API_URL=$API_URL
+
 RUN \
   if [ -f yarn.lock ]; then yarn build; \
   elif [ -f package-lock.json ]; then npm run build; \
@@ -32,21 +39,22 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+RUN addgroup --system --gid 1001 nodejs \
+  && adduser --system --uid 1001 nextjs
 
 COPY --from=builder /app/public ./public
 
-# Set the correct permission for prerender cache
-RUN mkdir .next
-RUN chown nextjs:nodejs .next
+RUN mkdir .next && chown nextjs:nodejs .next
 
-# Automatically leverage output traces to reduce image size
+# Standalone output (requires output: "standalone" in next.config)
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
 
 EXPOSE 3003
+
+ENV PORT=3003
+ENV HOSTNAME="0.0.0.0"
 
 CMD ["node", "server.js"]
