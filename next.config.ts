@@ -10,9 +10,8 @@ const nextConfig: NextConfig = {
     "localhost:3003",
     "127.0.0.1:3000",
     "127.0.0.1:3003",
-    // add your real domains, e.g.:
-    // "app.maraspot.com",
-    // "*.maraspot.com",
+    "app.maraspot.com",
+    "*.maraspot.com",
   ],
 
   images: {
@@ -20,6 +19,14 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "res.cloudinary.com",
+      },
+      {
+        protocol: "https",
+        hostname: "minio.maraspot.com",
+      },
+           {
+        protocol: "https",
+        hostname: "dash.maraspot.com",
       },
       {
         protocol: "https",
