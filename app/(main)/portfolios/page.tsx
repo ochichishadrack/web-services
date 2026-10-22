@@ -175,36 +175,6 @@ export default function PortfolioPage() {
   return (
     <div className="min-h-screen bg-white text-gray-900 dark:bg-zinc-950 dark:text-zinc-100 transition-colors">
       <TopNav activePage="portfolio" />
-      <section className="relative overflow-hidden border-b border-gray-100 dark:border-zinc-800/80">
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-50 via-white to-white dark:from-orange-950/30 dark:via-zinc-950 dark:to-zinc-950 pointer-events-none" />
-        <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-orange-400/20 blur-3xl dark:bg-orange-500/10" />
-        <div className="absolute -bottom-16 -left-16 h-56 w-56 rounded-full bg-orange-300/15 blur-3xl dark:bg-orange-600/10" />
-
-        <div className="relative mx-auto max-w-6xl px-4 sm:px-6 pt-14 pb-12 sm:pt-16 sm:pb-14">
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
-            <div className="flex flex-wrap items-center gap-3 shrink-0">
-              <div className="flex items-center gap-2 rounded-2xl border border-gray-200 bg-white/80 px-4 py-2.5 shadow-sm dark:border-zinc-700 dark:bg-zinc-900/80">
-                <Code2 className="h-4 w-4 text-orange-500" />
-                <div>
-                  <p className="text-lg font-bold leading-none tabular-nums">
-                    {total || "—"}
-                  </p>
-                  <p className="text-[10px] uppercase tracking-wide text-gray-500 dark:text-zinc-500">
-                    Projects
-                  </p>
-                </div>
-              </div>
-              <Link
-                href="/services"
-                className="inline-flex items-center gap-1.5 rounded-xl bg-orange-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-orange-700 transition dark:bg-orange-500 dark:hover:bg-orange-600"
-              >
-                Explore services
-                <ArrowUpRight className="h-4 w-4" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Toolbar */}
       <section className="sticky top-0 z-20 border-b border-gray-100 bg-white/90 backdrop-blur-md dark:border-zinc-800 dark:bg-zinc-950/90">

@@ -38,7 +38,6 @@ interface CurrencyContextValue extends CurrencyState {
 
 const STORAGE_KEY = "app_currency_v1";
 
-/** Public API origin for IP-based routes (browser → API, not Docker hop). */
 const PUBLIC_API_URL = (process.env.NEXT_PUBLIC_API_URL || "").replace(
   /\/$/,
   "",
@@ -49,7 +48,7 @@ const CurrencyContext = createContext<CurrencyContextValue | undefined>(
 );
 
 // -----------------------------------------------------
-// localStorage (only after user manually selects a country)
+// localStorage — only the country the user selected
 // -----------------------------------------------------
 
 function readStoredState(): CurrencyState | null {
@@ -97,18 +96,25 @@ function writeStoredState(state: CurrencyState) {
   }
 }
 
-function mapForMeResponse(data: Record<string, unknown>): CurrencyState {
-  const country = String(data.country ?? "").toUpperCase();
-  const currency = String(data.currency ?? "USD").toUpperCase();
-  const rate =
-    typeof data.rate === "number" && Number.isFinite(data.rate) ? data.rate : 1;
+function clearStoredState() {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // ignore
+  }
+}
 
+function mapForMeResponse(data: Record<string, unknown>): CurrencyState {
   return {
-    country,
+    country: String(data.country ?? "").toUpperCase(),
     countryName: (data.country_name as string | null) ?? null,
     flag: (data.flag as string | null) ?? null,
-    currency,
-    rate,
+    currency: String(data.currency ?? "USD").toUpperCase(),
+    rate:
+      typeof data.rate === "number" && Number.isFinite(data.rate)
+        ? data.rate
+        : 1,
     callingCode: (data.calling_code as string | null) ?? null,
   };
 }
@@ -122,32 +128,26 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   // ---------------------------------------------------
-  // IP detection — prefer public API URL so backend sees real client IP
+  // IP detection (used only when user has not selected a country)
   // ---------------------------------------------------
 
   const fetchFromServer = useCallback(async () => {
     setLoading(true);
 
     try {
-      // Browser → public API (real IP). Fallback to same-origin proxy if unset.
       const url = PUBLIC_API_URL
         ? `${PUBLIC_API_URL}/currency/for-me`
         : "/api/currency/for-me";
 
-      const res = PUBLIC_API_URL
-        ? await fetch(url, {
-            method: "GET",
-            credentials: "omit",
-            cache: "no-store",
-          })
-        : null;
-
       let data: Record<string, unknown>;
 
-      if (res) {
-        if (!res.ok) {
-          throw new Error(`for-me failed: ${res.status}`);
-        }
+      if (PUBLIC_API_URL) {
+        const res = await fetch(url, {
+          method: "GET",
+          credentials: "omit",
+          cache: "no-store",
+        });
+        if (!res.ok) throw new Error(`for-me failed: ${res.status}`);
         data = (await res.json()) as Record<string, unknown>;
       } else {
         const axiosRes = await axiosInstance.get("/api/currency/for-me");
@@ -155,13 +155,10 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
       }
 
       const next = mapForMeResponse(data);
-
-      if (!next.country) {
-        throw new Error("Backend returned no country");
-      }
+      if (!next.country) throw new Error("Backend returned no country");
 
       setState(next);
-      // Do not persist auto-detect — only user picks go to localStorage
+      // Auto-detect is NOT written to localStorage
     } catch (error) {
       console.error("Failed to fetch currency from backend:", error);
     } finally {
@@ -170,15 +167,58 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // ---------------------------------------------------
-  // Mount: always detect via backend (no hardcoded country)
+  // Init:
+  // 1. If user previously selected a country → use localStorage
+  // 2. Else → detect via backend IP
   // ---------------------------------------------------
 
   useEffect(() => {
-    void fetchFromServer();
+    const init = async () => {
+      const stored = readStoredState();
+
+      if (stored) {
+        setState(stored);
+        setLoading(false);
+
+        // Optionally refresh the rate in the background
+        try {
+          const ratesUrl = PUBLIC_API_URL
+            ? `${PUBLIC_API_URL}/currency/rates`
+            : "/api/currency/rates";
+
+          let rates: Record<string, number> = {};
+
+          if (PUBLIC_API_URL) {
+            const res = await fetch(ratesUrl, { cache: "no-store" });
+            const body = await res.json();
+            rates = body?.rates ?? {};
+          } else {
+            const res = await axiosInstance.get("/api/currency/rates");
+            rates = res.data?.rates ?? {};
+          }
+
+          const rate =
+            typeof rates[stored.currency] === "number"
+              ? rates[stored.currency]
+              : stored.rate;
+
+          const updated = { ...stored, rate };
+          setState(updated);
+          writeStoredState(updated);
+        } catch {
+          // keep stored rate
+        }
+        return;
+      }
+
+      await fetchFromServer();
+    };
+
+    void init();
   }, [fetchFromServer]);
 
   // ---------------------------------------------------
-  // User manually selects a country
+  // User selects a country → save to localStorage
   // ---------------------------------------------------
 
   const selectCountry = useCallback(async (country: Country) => {
@@ -192,6 +232,7 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
     };
 
     setState(optimistic);
+    writeStoredState(optimistic); // persist immediately
 
     try {
       const ratesUrl = PUBLIC_API_URL
@@ -215,19 +256,23 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
           ? rates[code]
           : 1;
 
-      const next: CurrencyState = {
-        ...optimistic,
-        rate,
-      };
-
+      const next: CurrencyState = { ...optimistic, rate };
       setState(next);
       writeStoredState(next);
     } catch (error) {
       console.error("Failed to fetch rate:", error);
-      setState(optimistic);
-      writeStoredState(optimistic);
+      // optimistic already stored
     }
   }, []);
+
+  // ---------------------------------------------------
+  // refresh = clear saved choice and re-detect from IP
+  // ---------------------------------------------------
+
+  const refresh = useCallback(async () => {
+    clearStoredState();
+    await fetchFromServer();
+  }, [fetchFromServer]);
 
   // ---------------------------------------------------
   // Helpers
@@ -270,7 +315,7 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
     convert,
     format,
     selectCountry,
-    refresh: fetchFromServer,
+    refresh,
   };
 
   return (
@@ -279,10 +324,6 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
     </CurrencyContext.Provider>
   );
 }
-
-// -----------------------------------------------------
-// Hook
-// -----------------------------------------------------
 
 export function useCurrency(): CurrencyContextValue {
   const ctx = useContext(CurrencyContext);
