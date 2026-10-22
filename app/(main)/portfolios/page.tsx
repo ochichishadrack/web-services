@@ -174,7 +174,7 @@ export default function PortfolioPage() {
 
   return (
     <div className="min-h-screen bg-white text-gray-900 dark:bg-zinc-950 dark:text-zinc-100 transition-colors">
-      <TopNav activePage="portfolio" />
+      <TopNav activePage="portfolios" />
 
       {/* Toolbar */}
       <section className="sticky top-0 z-20 border-b border-gray-100 bg-white/90 backdrop-blur-md dark:border-zinc-800 dark:bg-zinc-950/90">

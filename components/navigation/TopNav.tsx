@@ -4,7 +4,7 @@ import DesktopNav from './DesktopNav';
 import MobileNav from './MobileNav';
 
 interface TopNavProps {
-  activePage?: 'home' | 'services' | 'projects' | 'portfolio' | 'account' | 'notifications';
+  activePage?: 'home' | 'services' | 'projects' | 'portfolios' | 'account' | 'notifications';
 }
 
 export default function TopNav({ activePage = 'home' }: TopNavProps) {
