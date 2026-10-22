@@ -36,45 +36,28 @@ interface CurrencyContextValue extends CurrencyState {
 
 const STORAGE_KEY = "app_currency_v1";
 
-// Temporary placeholder only while the first request is in flight.
-// Never persisted and never treated as a real user preference.
-const INITIAL_STATE: CurrencyState = {
-  country: "",
-  countryName: null,
-  flag: null,
-  currency: "USD",
-  rate: 1,
-};
-
 const CurrencyContext = createContext<CurrencyContextValue | undefined>(
   undefined,
 );
 
 // -----------------------------------------------------
-// Read currency/country from localStorage
+// localStorage helpers (only used AFTER user selects a country)
 // -----------------------------------------------------
 
 function readStoredState(): CurrencyState | null {
-  if (typeof window === "undefined") {
-    return null;
-  }
+  if (typeof window === "undefined") return null;
 
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-
-    if (!raw) {
-      return null;
-    }
+    if (!raw) return null;
 
     const parsed = JSON.parse(raw);
 
-    // Country code and currency are required
     if (
-      !parsed ||
+      !parsed?.country ||
       typeof parsed.country !== "string" ||
-      !parsed.country.trim() ||
-      typeof parsed.currency !== "string" ||
-      !parsed.currency.trim()
+      !parsed.currency ||
+      typeof parsed.currency !== "string"
     ) {
       return null;
     }
@@ -94,24 +77,14 @@ function readStoredState(): CurrencyState | null {
   }
 }
 
-// -----------------------------------------------------
-// Save currency/country to localStorage
-// -----------------------------------------------------
-
 function writeStoredState(state: CurrencyState) {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  // Never persist an empty / incomplete state
-  if (!state.country || !state.currency) {
-    return;
-  }
+  if (typeof window === "undefined") return;
+  if (!state.country || !state.currency) return;
 
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch {
-    // localStorage may be disabled or full.
+    // ignore
   }
 }
 
@@ -120,11 +93,11 @@ function writeStoredState(state: CurrencyState) {
 // -----------------------------------------------------
 
 export function CurrencyProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<CurrencyState>(INITIAL_STATE);
+  const [state, setState] = useState<CurrencyState | null>(null);
   const [loading, setLoading] = useState(true);
 
   // ---------------------------------------------------
-  // Fetch currency based on user's IP (backend detection)
+  // Always fetch from backend (IP-based detection)
   // ---------------------------------------------------
 
   const fetchFromServer = useCallback(async () => {
@@ -134,62 +107,40 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
       const res = await axiosInstance.get("/api/currency/for-me");
 
       const next: CurrencyState = {
-        country: String(res.data?.country ?? "").toUpperCase(),
-        countryName: res.data?.country_name ?? null,
-        flag: res.data?.flag ?? null,
-        currency: String(res.data?.currency ?? "USD").toUpperCase(),
+        country: String(res.data.country).toUpperCase(),
+        countryName: res.data.country_name ?? null,
+        flag: res.data.flag ?? null,
+        currency: String(res.data.currency).toUpperCase(),
         rate:
-          typeof res.data?.rate === "number" && Number.isFinite(res.data.rate)
+          typeof res.data.rate === "number" && Number.isFinite(res.data.rate)
             ? res.data.rate
             : 1,
       };
 
-      // Only accept a real country code from the backend
-      if (!next.country) {
-        throw new Error("Backend returned no country code");
-      }
-
       setState(next);
-      writeStoredState(next);
+      // Do NOT write to localStorage here — only when user manually selects
     } catch (error) {
-      console.error("Failed to detect country/currency from IP:", error);
-      // Keep whatever is currently in state (or the temporary INITIAL_STATE)
+      console.error("Failed to fetch currency from backend:", error);
+      // No fallback — state stays null
     } finally {
       setLoading(false);
     }
   }, []);
 
   // ---------------------------------------------------
-  // Initialize currency
-  //
-  // 1. If user previously selected a country → use localStorage
-  // 2. Otherwise → always ask the backend (IP-based detection)
+  // On mount: always ask the backend
   // ---------------------------------------------------
 
   useEffect(() => {
-    const initializeCurrency = async () => {
-      const stored = readStoredState();
-
-      if (stored) {
-        // User has a saved preference – respect it
-        setState(stored);
-        setLoading(false);
-        return;
-      }
-
-      // First visit (or cleared storage) → detect via IP on the backend
-      await fetchFromServer();
-    };
-
-    void initializeCurrency();
+    void fetchFromServer();
   }, [fetchFromServer]);
 
   // ---------------------------------------------------
-  // Manually select a country
+  // User manually selects a country
   // ---------------------------------------------------
 
   const selectCountry = useCallback(async (country: Country) => {
-    const optimisticState: CurrencyState = {
+    const optimistic: CurrencyState = {
       country: country.code.toUpperCase(),
       countryName: country.name,
       flag: country.flag,
@@ -197,7 +148,7 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
       rate: 1,
     };
 
-    setState(optimisticState);
+    setState(optimistic);
 
     try {
       const res = await axiosInstance.get("/api/currency/rates");
@@ -208,70 +159,65 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
           : 1;
 
       const next: CurrencyState = {
-        country: country.code.toUpperCase(),
-        countryName: country.name,
-        flag: country.flag,
-        currency: country.currency.toUpperCase(),
+        ...optimistic,
         rate,
       };
 
       setState(next);
-      writeStoredState(next);
+      writeStoredState(next); // only persist after user choice
     } catch (error) {
-      console.error("Failed to fetch currency rate:", error);
-
-      const next: CurrencyState = {
-        ...optimisticState,
-        rate: 1,
-      };
-
-      setState(next);
-      writeStoredState(next);
+      console.error("Failed to fetch rate:", error);
+      setState(optimistic);
+      writeStoredState(optimistic);
     }
   }, []);
 
   // ---------------------------------------------------
-  // Convert USD → selected currency
+  // Helpers
   // ---------------------------------------------------
 
   const convert = useCallback(
     (usdAmount: number) => {
+      if (!state) return usdAmount;
       return usdAmount * state.rate;
     },
-    [state.rate],
+    [state],
   );
-
-  // ---------------------------------------------------
-  // Format currency
-  // ---------------------------------------------------
 
   const format = useCallback(
     (usdAmount: number) => {
+      if (!state) return String(usdAmount);
+
       try {
         return new Intl.NumberFormat(undefined, {
           style: "currency",
-          currency: state.currency || "USD",
+          currency: state.currency,
           currencyDisplay: "code",
           maximumFractionDigits: 0,
         }).format(convert(usdAmount));
       } catch {
-        return `${state.currency || "USD"} ${convert(usdAmount).toLocaleString()}`;
+        return `${state.currency} ${convert(usdAmount).toLocaleString()}`;
       }
     },
-    [state.currency, convert],
+    [state, convert],
   );
 
+  // While loading or if the request failed, expose safe defaults
+  const value: CurrencyContextValue = {
+    country: state?.country ?? "",
+    countryName: state?.countryName ?? null,
+    flag: state?.flag ?? null,
+    currency: state?.currency ?? "",
+    rate: state?.rate ?? 1,
+    loading,
+    convert,
+    format,
+    selectCountry,
+    refresh: fetchFromServer,
+  };
+
   return (
-    <CurrencyContext.Provider
-      value={{
-        ...state,
-        loading,
-        convert,
-        format,
-        selectCountry,
-        refresh: fetchFromServer,
-      }}
-    >
+    <CurrencyContext.Provider value={value}>
       {children}
     </CurrencyContext.Provider>
   );
