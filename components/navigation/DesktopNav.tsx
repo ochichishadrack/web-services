@@ -25,7 +25,7 @@ export default function DesktopNav({ activePage }: DesktopNavProps) {
   ];
 
   const loginHref = `/login?callbackUrl=${encodeURIComponent(pathname)}`;
-  const signupHref = `/signup?callbackUrl=${encodeURIComponent(pathname)}`;
+  const signupHref = `/register?callbackUrl=${encodeURIComponent(pathname)}`;
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {

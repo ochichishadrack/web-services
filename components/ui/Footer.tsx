@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Mail, Phone, MapPin, Linkedin, Github, Download } from 'lucide-react';
+import { Mail, Phone, MapPin, Download } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 export default function Footer() {
@@ -104,27 +104,12 @@ export default function Footer() {
           </ul>
         </div>
 
-        {/* Social */}
+        {/* Install App */}
         <div className="space-y-3">
-          <h5 className="font-semibold text-white">Follow Us</h5>
-          <div className="flex gap-4">
-            <Link
-              href="#"
-              className="w-9 h-9 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-gray-400 hover:text-orange-400 hover:border-orange-500/40 transition-all"
-            >
-              <Linkedin className="w-4 h-4" />
-            </Link>
-            <Link
-              href="#"
-              className="w-9 h-9 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-gray-400 hover:text-orange-400 hover:border-orange-500/40 transition-all"
-            >
-              <Github className="w-4 h-4" />
-            </Link>
-          </div>
           {showInstall && (
             <button
               onClick={handleInstallClick}
-              className="flex mt-5 items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm font-medium transition-colors shadow-lg shadow-orange-500/20"
+              className="flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm font-medium transition-colors shadow-lg shadow-orange-500/20"
             >
               <Download className="w-4 h-4" />
               Install App
