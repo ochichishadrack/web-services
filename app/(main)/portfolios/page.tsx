@@ -19,6 +19,8 @@ import {
 } from "lucide-react";
 import { axiosInstance } from "@/utils/axiosInstance";
 import type { PortfolioListOut, PortfolioMedia } from "@/types/portfolio";
+import TopNav from "@/components/navigation/TopNav";
+import Footer from "@/components/ui/Footer";
 
 interface PortfolioListResponse {
   total: number;
@@ -172,7 +174,7 @@ export default function PortfolioPage() {
 
   return (
     <div className="min-h-screen bg-white text-gray-900 dark:bg-zinc-950 dark:text-zinc-100 transition-colors">
-      {/* Hero */}
+      <TopNav activePage="portfolio" />
       <section className="relative overflow-hidden border-b border-gray-100 dark:border-zinc-800/80">
         <div className="absolute inset-0 bg-gradient-to-br from-orange-50 via-white to-white dark:from-orange-950/30 dark:via-zinc-950 dark:to-zinc-950 pointer-events-none" />
         <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-orange-400/20 blur-3xl dark:bg-orange-500/10" />
@@ -180,24 +182,6 @@ export default function PortfolioPage() {
 
         <div className="relative mx-auto max-w-6xl px-4 sm:px-6 pt-14 pb-12 sm:pt-16 sm:pb-14">
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
-            <div className="max-w-2xl">
-              <p className="inline-flex items-center gap-1.5 rounded-full border border-orange-200/80 bg-orange-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-orange-600 dark:border-orange-500/30 dark:bg-orange-500/10 dark:text-orange-400 mb-4">
-                <Layers className="h-3.5 w-3.5" />
-                Portfolio
-              </p>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-gray-900 dark:text-white leading-[1.15]">
-                Selected work built and shipped by{" "}
-                <span className="text-orange-600 dark:text-orange-400">
-                  Mara Devs
-                </span>
-              </h1>
-              <p className="mt-4 text-base sm:text-lg text-gray-600 dark:text-zinc-400 leading-relaxed max-w-xl">
-                A curated selection of production systems we have delivered for
-                clients across multiple countries — engineered for performance,
-                reliability, and lasting business impact.
-              </p>
-            </div>
-
             <div className="flex flex-wrap items-center gap-3 shrink-0">
               <div className="flex items-center gap-2 rounded-2xl border border-gray-200 bg-white/80 px-4 py-2.5 shadow-sm dark:border-zinc-700 dark:bg-zinc-900/80">
                 <Code2 className="h-4 w-4 text-orange-500" />
@@ -579,6 +563,7 @@ function ProjectRow({ project }: { project: PortfolioListOut }) {
           <ExternalLink className="h-3.5 w-3.5" />
         </Link>
       </div>
+      <Footer />
     </li>
   );
 }
