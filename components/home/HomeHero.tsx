@@ -21,7 +21,7 @@ export default function HomeHero(): JSX.Element {
 
         {/* Subheading */}
         <p className="mb-8 max-w-2xl text-lg text-zinc-600 md:text-xl dark:text-zinc-300">
-          We build or rebuild your website to be fast, secure and SEO-ready, easy to use on every
+          Build or rebuild your website to be fast, secure and SEO-ready, easy to use on every
           device, and ready to scale with your business.
         </p>
 
