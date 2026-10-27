@@ -166,20 +166,6 @@ export default function HomePage(): JSX.Element {
       {/* HERO */}
       <HomeHero />
 
-      {/* INTRO PARAGRAPH */}
-      <section className="bg-gray-50 dark:bg-gray-900 py-16 md:py-20">
-        <div className="max-w-3xl mx-auto px-6 text-center">
-          <div className="w-16 h-1 bg-orange-500 mx-auto mb-8 rounded-full" />
-
-          <p className="text-base md:text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
-            We partner with ambitious businesses, startups, and organisations to
-            turn their online presence into a growth engine — crafting
-            high-performing websites and web applications that reflect their
-            brand and drive measurable results.
-          </p>
-        </div>
-      </section>
-
       {/* FEATURED */}
       <main className=" mx-auto max-w-11xl w-full px-4 md:px-6 py-12 min-h-[70vh]">
         <div className="flex items-center justify-between mb-10">
