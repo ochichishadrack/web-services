@@ -19,6 +19,8 @@ import {
 } from "lucide-react";
 import { axiosInstance } from "@/utils/axiosInstance";
 import type { Portfolio, PortfolioMedia } from "@/types/portfolio";
+import TopNav from "@/components/navigation/TopNav";
+import Footer from "@/components/ui/Footer";
 
 export default function PortfolioDetailPage({
   params,
@@ -64,22 +66,29 @@ export default function PortfolioDetailPage({
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-zinc-950">
-        <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
+      <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-zinc-100">
+        <TopNav activePage="portfolios" />
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
+        </div>
       </div>
     );
   }
 
   if (error || !portfolio) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-white dark:bg-zinc-950 px-4">
-        <p className="text-gray-500 dark:text-zinc-400">Project not found.</p>
-        <Link
-          href="/portfolios"
-          className="text-sm font-semibold text-orange-600 hover:underline"
-        >
-          ← Back to portfolio
-        </Link>
+      <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-zinc-100">
+        <TopNav activePage="portfolios" />
+        <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-4">
+          <p className="text-gray-500 dark:text-zinc-400">Project not found.</p>
+          <Link
+            href="/portfolios"
+            className="text-sm font-semibold text-orange-600 hover:underline"
+          >
+            ← Back to portfolio
+          </Link>
+        </div>
+        <Footer />
       </div>
     );
   }
@@ -92,8 +101,10 @@ export default function PortfolioDetailPage({
   const features = portfolio.features || [];
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 dark:bg-zinc-950 dark:text-zinc-100 transition-colors">
-      <div className="border-b border-gray-100 dark:border-zinc-800">
+    <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-zinc-100 transition-colors">
+      <TopNav activePage="portfolios" />
+
+      <div className="border-b border-gray-200 dark:border-gray-800">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 py-4">
           <Link
             href="/portfolios"
@@ -171,7 +182,7 @@ export default function PortfolioDetailPage({
 
         {sortedMedia.length > 0 && (
           <section className="mt-10">
-            <div className="relative aspect-[16/9] overflow-hidden rounded-2xl border border-gray-200 bg-gray-100 dark:border-zinc-800 dark:bg-zinc-900 shadow-sm">
+            <div className="relative aspect-[16/9] overflow-hidden rounded-2xl border border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-zinc-900">
               {activeMedia ? (
                 activeMedia.media_type === "video" ? (
                   <video
@@ -204,7 +215,7 @@ export default function PortfolioDetailPage({
                       onClick={() => setActiveMedia(m)}
                       className={`relative h-16 w-24 shrink-0 overflow-hidden rounded-lg border-2 transition ${
                         activeMedia?.id === m.id
-                          ? "border-orange-500 ring-2 ring-orange-500/30"
+                          ? "border-orange-500"
                           : "border-transparent hover:border-gray-300 dark:hover:border-zinc-600"
                       }`}
                     >
@@ -295,7 +306,7 @@ export default function PortfolioDetailPage({
 
           <aside className="space-y-6">
             {techStack.length > 0 && (
-              <div className="rounded-2xl border border-gray-200 bg-gray-50/80 p-5 dark:border-zinc-800 dark:bg-zinc-900/80">
+              <div className="rounded-2xl border border-gray-200 p-5 dark:border-gray-800">
                 <h3 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-zinc-400 mb-3">
                   <Code2 className="h-3.5 w-3.5" />
                   Tech stack
@@ -304,7 +315,7 @@ export default function PortfolioDetailPage({
                   {techStack.map((t, i) => (
                     <span
                       key={i}
-                      className="rounded-lg border border-gray-200 bg-white px-2.5 py-1 text-xs font-medium text-gray-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
+                      className="rounded-lg border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-700 dark:border-zinc-700 dark:text-zinc-300"
                     >
                       {t}
                     </span>
@@ -318,7 +329,7 @@ export default function PortfolioDetailPage({
                 href={portfolio.live_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-orange-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-orange-700 transition dark:bg-orange-500 dark:hover:bg-orange-600"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-orange-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-orange-600"
               >
                 Visit live site
                 <ArrowUpRight className="h-4 w-4" />
@@ -337,33 +348,37 @@ export default function PortfolioDetailPage({
       </article>
 
       {/* Compact bottom CTA */}
-      <section className="border-t border-gray-100 dark:border-zinc-800">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 py-7 sm:py-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
-              Want something similar?
-            </h2>
-            <p className="mt-0.5 text-sm text-gray-500 dark:text-zinc-400">
-              SaaS, e-commerce, ERPs, and custom systems — built for growth.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2.5 shrink-0">
-            <Link
-              href="/services"
-              className="inline-flex items-center gap-1.5 rounded-xl bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-700 transition"
-            >
-              View services
-              <ArrowUpRight className="h-4 w-4" />
-            </Link>
-            <a
-              href="mailto:maraspot.ke@gmail.com"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 hover:border-orange-300 hover:text-orange-600 transition dark:border-zinc-700 dark:text-zinc-300"
-            >
-              Get a quote
-            </a>
+      <section>
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 py-7 sm:py-8">
+          <div className="flex flex-col gap-4 rounded-2xl border border-gray-200 px-5 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-8 dark:border-gray-800">
+            <div>
+              <h2 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-white">
+                Want something similar?
+              </h2>
+              <p className="mt-0.5 text-sm text-zinc-600 dark:text-zinc-400">
+                SaaS, e-commerce, ERPs, and custom systems — built for growth.
+              </p>
+            </div>
+            <div className="flex shrink-0 flex-wrap gap-2.5">
+              <Link
+                href="/services"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-orange-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-600"
+              >
+                View services
+                <ArrowUpRight className="h-4 w-4" />
+              </Link>
+              <a
+                href="mailto:maraspot.ke@gmail.com"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-900 transition hover:bg-zinc-100 dark:border-white/20 dark:text-white dark:hover:bg-white/10"
+              >
+                Get a quote
+              </a>
+            </div>
           </div>
         </div>
       </section>
+
+      <Footer />
     </div>
   );
 }

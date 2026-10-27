@@ -33,27 +33,26 @@ export default function Footer() {
   };
 
   return (
-    <footer className="relative bg-gradient-to-b from-zinc-950 via-zinc-950 to-black text-gray-300 mt-12 border-t border-zinc-800/80">
-      {/* Subtle top highlight line */}
-      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-orange-500/40 to-transparent" />
-
+    <footer className="relative mt-12 border-t border-gray-200 bg-white text-gray-700 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-14 grid grid-cols-1 md:grid-cols-4 gap-10 text-sm md:text-base">
         {/* About */}
         <div className="space-y-3">
-          <h4 className="text-lg font-semibold text-white tracking-tight">Mara Devs</h4>
-          <p className="text-gray-400 leading-relaxed">
+          <h4 className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-white">
+            Mara Devs
+          </h4>
+          <p className="leading-relaxed text-zinc-600 dark:text-gray-400">
             We deliver modern, responsive, and scalable web solutions tailored for your business.
           </p>
         </div>
 
         {/* Quick Links */}
         <div className="space-y-3">
-          <h5 className="font-semibold text-white">Quick Links</h5>
+          <h5 className="font-semibold text-zinc-900 dark:text-white">Quick Links</h5>
           <ul className="space-y-2">
             <li>
               <Link
                 href="/services"
-                className="text-gray-400 hover:text-orange-400 transition-colors"
+                className="text-zinc-600 hover:text-orange-500 dark:text-gray-400 dark:hover:text-orange-400 transition-colors"
               >
                 Services
               </Link>
@@ -61,7 +60,7 @@ export default function Footer() {
             <li>
               <Link
                 href="/projects"
-                className="text-gray-400 hover:text-orange-400 transition-colors"
+                className="text-zinc-600 hover:text-orange-500 dark:text-gray-400 dark:hover:text-orange-400 transition-colors"
               >
                 My Projects
               </Link>
@@ -69,7 +68,7 @@ export default function Footer() {
             <li>
               <Link
                 href="/account"
-                className="text-gray-400 hover:text-orange-400 transition-colors"
+                className="text-zinc-600 hover:text-orange-500 dark:text-gray-400 dark:hover:text-orange-400 transition-colors"
               >
                 Account
               </Link>
@@ -77,7 +76,7 @@ export default function Footer() {
             <li>
               <Link
                 href="/contact"
-                className="text-gray-400 hover:text-orange-400 transition-colors"
+                className="text-zinc-600 hover:text-orange-500 dark:text-gray-400 dark:hover:text-orange-400 transition-colors"
               >
                 Contact
               </Link>
@@ -87,18 +86,18 @@ export default function Footer() {
 
         {/* Contact */}
         <div className="space-y-3">
-          <h5 className="font-semibold text-white">Contact</h5>
+          <h5 className="font-semibold text-zinc-900 dark:text-white">Contact</h5>
           <ul className="space-y-2.5">
-            <li className="flex items-center gap-2.5 text-gray-400">
-              <Mail className="w-4 h-4 text-orange-500/80" />
+            <li className="flex items-center gap-2.5 text-zinc-600 dark:text-gray-400">
+              <Mail className="w-4 h-4 text-orange-500" />
               maraspot.ke@gmail.com
             </li>
-            <li className="flex items-center gap-2.5 text-gray-400">
-              <Phone className="w-4 h-4 text-orange-500/80" />
+            <li className="flex items-center gap-2.5 text-zinc-600 dark:text-gray-400">
+              <Phone className="w-4 h-4 text-orange-500" />
               +254 113 388 120
             </li>
-            <li className="flex items-center gap-2.5 text-gray-400">
-              <MapPin className="w-4 h-4 text-orange-500/80" />
+            <li className="flex items-center gap-2.5 text-zinc-600 dark:text-gray-400">
+              <MapPin className="w-4 h-4 text-orange-500" />
               Nairobi, Kenya
             </li>
           </ul>
@@ -109,7 +108,7 @@ export default function Footer() {
           {showInstall && (
             <button
               onClick={handleInstallClick}
-              className="flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm font-medium transition-colors shadow-lg shadow-orange-500/20"
+              className="flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm font-medium transition-colors"
             >
               <Download className="w-4 h-4" />
               Install App
@@ -119,8 +118,8 @@ export default function Footer() {
       </div>
 
       {/* Bottom */}
-      <div className="border-t border-zinc-800/80">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
+      <div className="border-t border-gray-200 dark:border-gray-800">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-zinc-500 dark:text-gray-500">
           <p>&copy; {new Date().getFullYear()} Maraspot. All rights reserved.</p>
         </div>
       </div>

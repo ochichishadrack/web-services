@@ -13,9 +13,7 @@ import {
   ExternalLink,
   Loader2,
   X,
-  Code2,
   Globe,
-  Layers,
 } from "lucide-react";
 import { axiosInstance } from "@/utils/axiosInstance";
 import type { PortfolioListOut, PortfolioMedia } from "@/types/portfolio";
@@ -173,11 +171,11 @@ export default function PortfolioPage() {
   }, [items]);
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 dark:bg-zinc-950 dark:text-zinc-100 transition-colors">
+    <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-zinc-100 transition-colors">
       <TopNav activePage="portfolios" />
 
       {/* Toolbar */}
-      <section className="sticky top-0 z-20 border-b border-gray-100 bg-white/90 backdrop-blur-md dark:border-zinc-800 dark:bg-zinc-950/90">
+      <section className="sticky top-16 z-20 border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 py-3.5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-zinc-500" />
@@ -331,29 +329,29 @@ export default function PortfolioPage() {
       </section>
 
       {/* Compact CTA */}
-      <section className="border-t border-gray-100 dark:border-zinc-800">
+      <section>
         <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8 sm:py-10">
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-600 to-orange-500 px-5 py-6 sm:px-8 sm:py-7 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-white shadow-lg shadow-orange-500/15 dark:from-orange-600 dark:to-orange-700">
+          <div className="flex flex-col gap-4 rounded-2xl border border-gray-200 px-5 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-8 sm:py-7 dark:border-gray-800">
             <div>
-              <h2 className="text-lg sm:text-xl font-bold tracking-tight">
+              <h2 className="text-lg font-bold tracking-tight text-zinc-900 sm:text-xl dark:text-white">
                 Ready to ship your next product?
               </h2>
-              <p className="mt-1 text-sm text-orange-50/90 max-w-md">
+              <p className="mt-1 max-w-md text-sm text-zinc-600 dark:text-zinc-400">
                 SaaS platforms, e-commerce, ERPs, and custom web systems —
                 engineered for performance and conversion.
               </p>
             </div>
-            <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+            <div className="flex shrink-0 flex-wrap items-center gap-2.5">
               <Link
                 href="/services"
-                className="inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-orange-700 shadow-sm hover:bg-orange-50 transition"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-orange-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-600"
               >
                 View services
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
               <a
                 href="mailto:maraspot.ke@gmail.com"
-                className="inline-flex items-center gap-1.5 rounded-xl border border-white/40 bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur hover:bg-white/20 transition"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-900 transition hover:bg-zinc-100 dark:border-white/20 dark:text-white dark:hover:bg-white/10"
               >
                 Get a quote
               </a>
@@ -361,6 +359,8 @@ export default function PortfolioPage() {
           </div>
         </div>
       </section>
+
+      <Footer />
     </div>
   );
 }
@@ -370,7 +370,7 @@ function ProjectCard({ project }: { project: PortfolioListOut }) {
   const href = `/portfolios/${project.slug || project.id}`;
 
   return (
-    <li className="group relative flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:border-orange-300 hover:shadow-lg hover:shadow-orange-500/10 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-orange-500/40">
+    <li className="group relative flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:border-orange-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-orange-500/40">
       <Link
         href={href}
         className="relative aspect-[16/10] overflow-hidden bg-gray-100 dark:bg-zinc-800"
@@ -401,7 +401,7 @@ function ProjectCard({ project }: { project: PortfolioListOut }) {
 
         <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
           {project.is_featured && (
-            <span className="inline-flex items-center gap-1 rounded-md bg-orange-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow">
+            <span className="inline-flex items-center gap-1 rounded-md bg-orange-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
               <Star className="h-3 w-3 fill-current" />
               Featured
             </span>
@@ -533,7 +533,6 @@ function ProjectRow({ project }: { project: PortfolioListOut }) {
           <ExternalLink className="h-3.5 w-3.5" />
         </Link>
       </div>
-      <Footer />
     </li>
   );
 }

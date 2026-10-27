@@ -15,10 +15,10 @@ export default function DynamicTopNav({ title, showBack = true }: DynamicTopNavP
   return (
     <header
       className="
-        sticky top-0 z-50 backdrop-blur-md 
-        bg-white/80 dark:bg-gray-900 
-        border-b border-gray-200/60 dark:border-gray-700/60 
-        px-3 py-2 flex items-center gap-3 shadow-sm
+        sticky top-0 z-50
+        bg-white dark:bg-gray-950
+        border-b border-gray-200 dark:border-gray-800
+        px-3 py-2 flex items-center gap-3
       "
     >
       {showBack && (
@@ -28,7 +28,7 @@ export default function DynamicTopNav({ title, showBack = true }: DynamicTopNavP
           className="
             p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800
             active:scale-95 transition flex items-center justify-center
-            focus:outline-none focus:ring-2 focus:ring-blue-500
+            focus:outline-none focus:ring-2 focus:ring-orange-500
           "
           aria-label="Go back"
         >

@@ -180,23 +180,6 @@ export default function ServicesPage(): JSX.Element {
     <div className="min-h-screen bg-white dark:bg-gray-950 transition-colors">
       {/* Top Navigation */}
       <TopNav activePage="services" />
-
-      {/* Hero Section */}
-      <section className="relative flex items-center justify-center text-center overflow-hidden bg-gray-50 dark:bg-gray-900/70 py-16 md:py-20 border-b border-gray-100 dark:border-gray-800">
-        <div className="relative z-10 px-4 max-w-3xl mx-auto">
-          <span className="inline-block mb-4 px-3 py-1 text-xs font-medium tracking-wider uppercase bg-white dark:bg-white/10 rounded-full border border-gray-200 dark:border-white/20 text-gray-600 dark:text-gray-300">
-            Our Services
-          </span>
-
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight text-gray-900 dark:text-white">
-            Web Solutions That{" "}
-            <span className="text-orange-600 dark:text-orange-400">
-              Drive Results
-            </span>
-          </h2>
-        </div>
-      </section>
-
       {/* Services Grid */}
       <main className="mx-auto max-w-11xl px-4 md:px-6 py-8 md:py-12">
         {/* Filters — top right */}
