@@ -8,6 +8,7 @@ import { getApiBaseUrl } from "@/api/api";
 import { useRouter } from "next/navigation";
 import { axiosInstance } from "@/utils/axiosInstance";
 import TopNav from "@/components/navigation/TopNav";
+import HomeHero from "@/components/home/HomeHero";
 import Footer from "@/components/ui/Footer";
 import { useLocalCurrency } from "@/hooks/useLocalCurrency";
 
@@ -163,35 +164,8 @@ export default function HomePage(): JSX.Element {
       <TopNav activePage="home" />
 
       {/* HERO */}
-      <section className="relative min-h-[85vh] flex items-center justify-center text-center bg-white dark:bg-gray-950">
-        <div className="relative z-10 max-w-3xl px-6 py-24">
-          <h1 className="text-5xl md:text-6xl font-bold leading-tight mb-6 text-zinc-900 dark:text-white">
-            We Build Websites That{" "}
-            <span className="text-orange-500">Drive Growth</span>
-          </h1>
+      <HomeHero />
 
-          <p className="text-lg md:text-xl mb-8 text-zinc-600 dark:text-zinc-300">
-            Let&apos;s design and build you a polished, high-performing,
-            SEO-ready website that converts and helps your business scale with
-            confidence.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/services"
-              className="px-6 py-3 bg-orange-500 text-white rounded-lg font-semibold hover:bg-orange-600 transition"
-            >
-              Explore Services
-            </Link>
-
-            <Link
-              href="/contact"
-              className="px-6 py-3 border border-zinc-300 dark:border-white/30 text-zinc-900 dark:text-white rounded-lg font-semibold hover:bg-zinc-100 dark:hover:bg-white/10 transition"
-            >
-              Get a Quote
-            </Link>
-          </div>
-        </div>
-      </section>
       {/* INTRO PARAGRAPH */}
       <section className="bg-gray-50 dark:bg-gray-900 py-16 md:py-20">
         <div className="max-w-3xl mx-auto px-6 text-center">
