@@ -63,24 +63,24 @@ export default function AccountManagement() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+      <div className="min-h-screen bg-gray-50 dark:bg-[#1f2228]">
         <DynamicTopNav title="Account Settings" />
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-pulse space-y-6">
-          <div className="h-8 w-48 bg-gray-200 dark:bg-gray-800 rounded-lg" />
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 sm:p-8 space-y-6">
+          <div className="h-8 w-48 bg-gray-200 dark:bg-[#272b33] rounded-lg" />
+          <div className="bg-white dark:bg-[#272b33] border border-gray-200 dark:border-[#343942] rounded-2xl p-6 sm:p-8 space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               {Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="space-y-2">
-                  <div className="h-4 w-24 bg-gray-200 dark:bg-gray-800 rounded" />
-                  <div className="h-11 w-full bg-gray-200 dark:bg-gray-800 rounded-xl" />
+                  <div className="h-4 w-24 bg-gray-200 dark:bg-[#343942] rounded" />
+                  <div className="h-11 w-full bg-gray-200 dark:bg-[#343942] rounded-xl" />
                 </div>
               ))}
             </div>
             <div className="space-y-2">
-              <div className="h-4 w-28 bg-gray-200 dark:bg-gray-800 rounded" />
-              <div className="h-11 w-full bg-gray-200 dark:bg-gray-800 rounded-xl" />
+              <div className="h-4 w-28 bg-gray-200 dark:bg-[#343942] rounded" />
+              <div className="h-11 w-full bg-gray-200 dark:bg-[#343942] rounded-xl" />
             </div>
-            <div className="h-12 w-full sm:w-48 bg-gray-200 dark:bg-gray-800 rounded-xl mt-2" />
+            <div className="h-12 w-full sm:w-48 bg-gray-200 dark:bg-[#343942] rounded-xl mt-2" />
           </div>
         </div>
       </div>
@@ -152,13 +152,13 @@ export default function AccountManagement() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#1f2228]">
       <DynamicTopNav title="Account Settings" />
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-[#272b33] border border-gray-200 dark:border-[#343942] rounded-2xl shadow-sm dark:shadow-black/20 overflow-hidden">
           {/* Header */}
-          <div className="px-6 sm:px-8 pt-7 pb-5 border-b border-gray-100 dark:border-gray-800">
+          <div className="px-6 sm:px-8 pt-7 pb-5 border-b border-gray-100 dark:border-[#343942]">
             <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
               Edit Account
             </h1>
@@ -221,7 +221,7 @@ export default function AccountManagement() {
                   ${
                     hasChanges && !saving
                       ? "bg-orange-500 hover:bg-orange-600 text-white shadow-sm shadow-orange-500/20"
-                      : "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed"
+                      : "bg-gray-100 dark:bg-[#2e333c] text-gray-400 dark:text-gray-500 cursor-not-allowed"
                   }
                 `}
               >
@@ -238,18 +238,18 @@ export default function AccountManagement() {
 
           {/* Secondary Actions */}
           <div className="px-6 sm:px-8 pb-6 sm:pb-8">
-            <div className="border-t border-gray-100 dark:border-gray-800 pt-6">
+            <div className="border-t border-gray-100 dark:border-[#343942] pt-6">
               <div className="flex flex-col sm:flex-row gap-3">
                 <Link
                   href="/change-password"
                   className="
                     flex items-center justify-center flex-1 py-3.5 rounded-xl
-                    bg-white dark:bg-gray-900
-                    border border-gray-200 dark:border-gray-700
+                    bg-white dark:bg-[#272b33]
+                    border border-gray-200 dark:border-[#3d434d]
                     text-gray-800 dark:text-gray-200
                     font-medium text-sm
-                    hover:bg-gray-50 dark:hover:bg-gray-800
-                    hover:border-gray-300 dark:hover:border-gray-600
+                    hover:bg-gray-50 dark:hover:bg-[#2e333c]
+                    hover:border-gray-300 dark:hover:border-[#4a515c]
                     transition
                   "
                 >
@@ -261,11 +261,11 @@ export default function AccountManagement() {
                   disabled={deleting}
                   className="
                     flex-1 py-3.5 rounded-xl
-                    bg-red-50 dark:bg-red-900/20
-                    border border-red-200 dark:border-red-800/50
+                    bg-red-50 dark:bg-red-500/10
+                    border border-red-200 dark:border-red-500/30
                     text-red-600 dark:text-red-400
                     font-medium text-sm
-                    hover:bg-red-100 dark:hover:bg-red-900/30
+                    hover:bg-red-100 dark:hover:bg-red-500/20
                     transition
                     disabled:opacity-60 disabled:cursor-not-allowed
                   "
@@ -306,11 +306,11 @@ function InputField({
         onChange={onChange}
         className="
           w-full px-4 py-3
-          bg-white dark:bg-gray-950
-          border border-gray-200 dark:border-gray-700
+          bg-white dark:bg-[#1f2228]
+          border border-gray-200 dark:border-[#3d434d]
           rounded-xl
           text-gray-900 dark:text-white
-          placeholder:text-gray-400
+          placeholder:text-gray-400 dark:placeholder:text-gray-500
           focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500
           transition
         "

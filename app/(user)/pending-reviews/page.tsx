@@ -30,14 +30,14 @@ interface Review {
 
 function SkeletonCard() {
   return (
-    <div className="flex items-center gap-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-4 sm:p-5 animate-pulse">
-      <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl bg-gray-200 dark:bg-gray-800 shrink-0" />
+    <div className="flex items-center gap-4 bg-white dark:bg-[#272b33] border border-gray-200 dark:border-[#343942] rounded-2xl p-4 sm:p-5 animate-pulse">
+      <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl bg-gray-200 dark:bg-[#343942] shrink-0" />
       <div className="flex-1 space-y-2.5 min-w-0">
-        <div className="h-5 w-2/3 bg-gray-200 dark:bg-gray-800 rounded" />
-        <div className="h-4 w-full bg-gray-200 dark:bg-gray-800 rounded" />
-        <div className="h-4 w-1/3 bg-gray-200 dark:bg-gray-800 rounded" />
+        <div className="h-5 w-2/3 bg-gray-200 dark:bg-[#343942] rounded" />
+        <div className="h-4 w-full bg-gray-200 dark:bg-[#343942] rounded" />
+        <div className="h-4 w-1/3 bg-gray-200 dark:bg-[#343942] rounded" />
       </div>
-      <div className="h-10 w-20 rounded-xl bg-gray-200 dark:bg-gray-800 shrink-0" />
+      <div className="h-10 w-20 rounded-xl bg-gray-200 dark:bg-[#343942] shrink-0" />
     </div>
   );
 }
@@ -87,10 +87,10 @@ export default function PendingReviewsPage() {
   /* Loading */
   if (loading || authLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+      <div className="min-h-screen bg-gray-50 dark:bg-[#1f2228]">
         <DynamicTopNav title="Pending Reviews" />
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-4">
-          <div className="h-20 rounded-2xl bg-gray-200 dark:bg-gray-800 animate-pulse" />
+          <div className="h-20 rounded-2xl bg-gray-200 dark:bg-[#272b33] animate-pulse" />
           <SkeletonCard />
           <SkeletonCard />
           <SkeletonCard />
@@ -102,7 +102,7 @@ export default function PendingReviewsPage() {
   /* Error */
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+      <div className="min-h-screen bg-gray-50 dark:bg-[#1f2228]">
         <DynamicTopNav title="Pending Reviews" />
         <div className="min-h-[50vh] flex flex-col items-center justify-center gap-4 px-4">
           <p className="text-red-600 dark:text-red-400 font-medium text-center">
@@ -122,10 +122,10 @@ export default function PendingReviewsPage() {
   /* Empty */
   if (reviews.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+      <div className="min-h-screen bg-gray-50 dark:bg-[#1f2228]">
         <DynamicTopNav title="Pending Reviews" />
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-16 text-center">
-          <div className="mx-auto w-16 h-16 rounded-2xl bg-orange-50 dark:bg-orange-900/30 flex items-center justify-center mb-5">
+          <div className="mx-auto w-16 h-16 rounded-2xl bg-orange-50 dark:bg-orange-500/15 flex items-center justify-center mb-5">
             <Star className="w-8 h-8 text-orange-500 dark:text-orange-400" />
           </div>
           <h2 className="text-xl font-bold text-gray-900 dark:text-white">
@@ -141,14 +141,14 @@ export default function PendingReviewsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#1f2228]">
       <DynamicTopNav title="Pending Reviews" />
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-6">
         {/* Header */}
-        <div className="bg-white dark:bg-gray-900 rounded-2xl p-5 sm:p-6 border border-gray-200 dark:border-gray-800 shadow-sm">
+        <div className="bg-white dark:bg-[#272b33] rounded-2xl p-5 sm:p-6 border border-gray-200 dark:border-[#343942] shadow-sm dark:shadow-black/20">
           <div className="flex items-start gap-4">
-            <div className="w-11 h-11 rounded-xl bg-orange-50 dark:bg-orange-900/30 flex items-center justify-center shrink-0">
+            <div className="w-11 h-11 rounded-xl bg-orange-50 dark:bg-orange-500/15 flex items-center justify-center shrink-0">
               <Star className="w-5 h-5 text-orange-600 dark:text-orange-400" />
             </div>
             <div>
@@ -170,15 +170,17 @@ export default function PendingReviewsPage() {
               key={review.order_item_id}
               className="
                 flex items-center gap-4
-                bg-white dark:bg-gray-900
-                border border-gray-200 dark:border-gray-800
+                bg-white dark:bg-[#272b33]
+                border border-gray-200 dark:border-[#343942]
                 rounded-2xl p-4 sm:p-5
-                shadow-sm hover:shadow-md hover:border-orange-200 dark:hover:border-orange-800/40
+                shadow-sm hover:shadow-md dark:shadow-black/20 dark:hover:shadow-black/30
+                hover:border-orange-200 dark:hover:border-orange-500/40
+                dark:hover:bg-[#2e333c]
                 transition
               "
             >
               {/* Image */}
-              <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden shrink-0 bg-gray-100 dark:bg-gray-800">
+              <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden shrink-0 bg-gray-100 dark:bg-[#1f2228]">
                 {review.productHeroImage ? (
                   <Image
                     src={review.productHeroImage}
@@ -206,7 +208,7 @@ export default function PendingReviewsPage() {
 
                 <div className="flex flex-wrap items-center gap-2 mt-2">
                   {review.isDelivered && (
-                    <span className="inline-flex items-center text-xs font-medium text-emerald-700 bg-emerald-50 dark:text-emerald-300 dark:bg-emerald-900/30 px-2 py-0.5 rounded-full">
+                    <span className="inline-flex items-center text-xs font-medium text-emerald-700 bg-emerald-50 dark:text-emerald-300 dark:bg-emerald-500/15 px-2 py-0.5 rounded-full">
                       Delivered
                     </span>
                   )}

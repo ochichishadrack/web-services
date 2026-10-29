@@ -107,22 +107,22 @@ const NotificationsPage = () => {
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case "order":
-        return <Truck className="text-blue-500" />;
+        return <Truck className="text-blue-500 dark:text-blue-400" />;
       case "promotion":
-        return <CheckCircle className="text-blue-400" />;
+        return <CheckCircle className="text-blue-400 dark:text-blue-300" />;
       case "message":
-        return <Mail className="text-blue-500" />;
+        return <Mail className="text-blue-500 dark:text-blue-400" />;
       case "system":
-        return <Bell className="text-blue-400" />;
+        return <Bell className="text-blue-400 dark:text-blue-300" />;
       default:
-        return <BellRing className="text-gray-400" />;
+        return <BellRing className="text-gray-400 dark:text-gray-500" />;
     }
   };
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-gray-900">
-        <div className="w-16 h-16 border-4 border-t-blue-500 border-gray-300 dark:border-gray-700 rounded-full animate-spin mb-4" />
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-[#1f2228]">
+        <div className="w-16 h-16 border-4 border-t-blue-500 border-gray-300 dark:border-[#343942] dark:border-t-blue-500 rounded-full animate-spin mb-4" />
         <span className="text-gray-700 dark:text-gray-200 text-lg font-medium">
           Loading...
         </span>
@@ -131,11 +131,11 @@ const NotificationsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
+    <div className="min-h-screen bg-white dark:bg-[#1f2228]">
       <DynamicTopNav title="Inbox" />
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-8 px-4 text-center shadow-sm">
+      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-700 dark:to-indigo-700 text-white py-8 px-4 text-center shadow-sm dark:shadow-black/20">
         <h1 className="text-2xl font-bold flex items-center justify-center gap-2">
           <Bell className="text-white/90" /> Notifications
         </h1>
@@ -154,7 +154,7 @@ const NotificationsPage = () => {
               className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
                 activeTab === tab
                   ? "bg-blue-500 text-white shadow"
-                  : "bg-white dark:bg-gray-800 border text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  : "bg-white dark:bg-[#272b33] border dark:border-[#343942] text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#2e333c]"
               }`}
             >
               {tab === "all" ? "All" : "Unread"}
@@ -166,7 +166,7 @@ const NotificationsPage = () => {
           <div className="flex justify-end mb-3">
             <button
               onClick={markAllAsRead}
-              className="text-sm font-medium text-blue-500 hover:text-blue-600"
+              className="text-sm font-medium text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300"
             >
               Mark all as read
             </button>
@@ -174,10 +174,10 @@ const NotificationsPage = () => {
         )}
 
         {error ? (
-          <p className="text-center text-red-500">{error}</p>
+          <p className="text-center text-red-500 dark:text-red-400">{error}</p>
         ) : filteredNotifications.length === 0 ? (
-          <div className="rounded-xl border border-gray-200 dark:border-gray-700 p-8 text-center bg-white dark:bg-gray-800">
-            <BellRing className="mx-auto text-4xl text-gray-300 dark:text-gray-500 mb-3" />
+          <div className="rounded-xl border border-gray-200 dark:border-[#343942] p-8 text-center bg-white dark:bg-[#272b33]">
+            <BellRing className="mx-auto text-4xl text-gray-300 dark:text-gray-600 mb-3" />
             <h3 className="font-semibold text-gray-700 dark:text-gray-200">
               No notifications
             </h3>
@@ -191,10 +191,10 @@ const NotificationsPage = () => {
               <li
                 key={n.id}
                 onClick={() => markAsRead(n.id)}
-                className={`flex gap-3 rounded-xl border p-4 cursor-pointer transition hover:shadow-sm ${
+                className={`flex gap-3 rounded-xl border p-4 cursor-pointer transition hover:shadow-sm dark:hover:shadow-black/30 ${
                   !n.is_read
-                    ? "border-l-4 border-l-blue-500 bg-blue-50/30 dark:bg-blue-900/20"
-                    : "border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800"
+                    ? "border-l-4 border-l-blue-500 bg-blue-50/30 dark:border-[#343942] dark:border-l-blue-500 dark:bg-[#232a38] dark:hover:bg-[#263043]"
+                    : "border-gray-200 bg-white dark:border-[#343942] dark:bg-[#272b33] dark:hover:bg-[#2e333c]"
                 }`}
               >
                 <div className="text-xl mt-1">
@@ -203,22 +203,22 @@ const NotificationsPage = () => {
 
                 <div className="flex-1">
                   <div className="flex justify-between gap-2">
-                    <h3 className="font-semibold text-sm text-gray-800 dark:text-gray-200">
+                    <h3 className="font-semibold text-sm text-gray-800 dark:text-gray-100">
                       {n.title}
                     </h3>
-                    <span className="text-xs text-gray-400 dark:text-gray-400">
+                    <span className="text-xs text-gray-400 dark:text-gray-500">
                       {formatTimeAgo(n.created_at)}
                     </span>
                   </div>
 
                   {n.message && (
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                       {n.message}
                     </p>
                   )}
 
                   {n.meta?.orderId && (
-                    <span className="inline-block mt-2 rounded bg-blue-100 text-blue-700 dark:bg-blue-700 dark:text-blue-200 text-xs px-2 py-0.5">
+                    <span className="inline-block mt-2 rounded bg-blue-100 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300 text-xs px-2 py-0.5">
                       Order #{n.meta.orderId}
                     </span>
                   )}
@@ -229,7 +229,7 @@ const NotificationsPage = () => {
                     e.stopPropagation();
                     deleteNotification(n.id);
                   }}
-                  className="text-gray-400 hover:text-red-500"
+                  className="text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400"
                   title="Delete notification"
                 >
                   <Trash2 className="w-4 h-4" />

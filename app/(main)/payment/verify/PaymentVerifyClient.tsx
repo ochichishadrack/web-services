@@ -63,41 +63,45 @@ export default function PaymentVerifyClient() {
 
   const statusUI = {
     loading: {
-      icon: <Loader2 className="h-10 w-10 animate-spin text-orange-600" />,
+      icon: (
+        <Loader2 className="h-10 w-10 animate-spin text-orange-600 dark:text-orange-500" />
+      ),
       title: "Confirming Payment",
       subtitle: "Please wait while we securely verify your transaction.",
-      bg: "bg-gray-50 dark:bg-gray-800",
-      border: "border-gray-100 dark:border-gray-700",
+      bg: "bg-gray-50 dark:bg-[#272b33]",
+      border: "border-gray-100 dark:border-[#343942]",
       text: "text-gray-900 dark:text-gray-100",
-      subtitleText: "text-gray-600 dark:text-gray-300",
+      subtitleText: "text-gray-600 dark:text-gray-400",
     },
     success: {
-      icon: <CheckCircle className="h-12 w-12 text-green-600" />,
+      icon: (
+        <CheckCircle className="h-12 w-12 text-green-600 dark:text-green-500" />
+      ),
       title: "Payment Confirmed",
       subtitle:
         "Your order is now active. You can track progress from your dashboard.",
-      bg: "bg-white dark:bg-gray-900",
-      border: "border-gray-100 dark:border-gray-700",
+      bg: "bg-white dark:bg-[#272b33]",
+      border: "border-gray-100 dark:border-[#343942]",
       text: "text-gray-900 dark:text-gray-100",
-      subtitleText: "text-gray-600 dark:text-gray-300",
+      subtitleText: "text-gray-600 dark:text-gray-400",
     },
     failed: {
-      icon: <XCircle className="h-12 w-12 text-red-600" />,
+      icon: <XCircle className="h-12 w-12 text-red-600 dark:text-red-500" />,
       title: "Verification Failed",
       subtitle:
         "Your payment could not be confirmed. Please retry or contact support.",
-      bg: "bg-white dark:bg-gray-900",
-      border: "border-gray-100 dark:border-gray-700",
+      bg: "bg-white dark:bg-[#272b33]",
+      border: "border-gray-100 dark:border-[#343942]",
       text: "text-gray-900 dark:text-gray-100",
-      subtitleText: "text-gray-600 dark:text-gray-300",
+      subtitleText: "text-gray-600 dark:text-gray-400",
     },
   }[status];
 
   return (
-    <main className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900 flex items-center justify-center px-4">
+    <main className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 dark:from-[#1f2228] dark:to-[#1f2228] flex items-center justify-center px-4">
       <div className="w-full max-w-lg">
         <div className="text-center mb-6">
-          <h1 className="text-2xl font-extrabold text-orange-600 tracking-tight">
+          <h1 className="text-2xl font-extrabold text-orange-600 dark:text-orange-500 tracking-tight">
             MaraSpot
           </h1>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -106,7 +110,7 @@ export default function PaymentVerifyClient() {
         </div>
 
         <div
-          className={`rounded-2xl shadow-xl border p-6 text-center ${statusUI.bg} ${statusUI.border}`}
+          className={`rounded-2xl shadow-xl dark:shadow-black/30 border p-6 text-center ${statusUI.bg} ${statusUI.border}`}
         >
           <div className="flex justify-center">{statusUI.icon}</div>
 
@@ -118,7 +122,7 @@ export default function PaymentVerifyClient() {
             {statusUI.subtitle}
           </p>
 
-          <div className="mt-4 bg-gray-50 dark:bg-gray-800 border rounded-lg px-4 py-2 text-xs text-gray-700 dark:text-gray-300">
+          <div className="mt-4 bg-gray-50 dark:bg-[#1f2228] border dark:border-[#343942] rounded-lg px-4 py-2 text-xs text-gray-700 dark:text-gray-400">
             Transaction Reference
             <div className="font-mono font-semibold text-gray-900 dark:text-gray-100 mt-1">
               {reference}
@@ -152,7 +156,7 @@ export default function PaymentVerifyClient() {
 
               <Link
                 href="/"
-                className="flex-1 py-3 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+                className="flex-1 py-3 rounded-lg border border-gray-300 dark:border-[#3d434d] text-gray-700 dark:text-gray-200 text-sm font-medium hover:bg-gray-100 dark:hover:bg-[#2e333c] transition"
               >
                 Home
               </Link>
@@ -160,7 +164,7 @@ export default function PaymentVerifyClient() {
           )}
         </div>
 
-        <div className="mt-6 border rounded-2xl p-4 text-center shadow-sm bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-700">
+        <div className="mt-6 border rounded-2xl p-4 text-center shadow-sm dark:shadow-black/20 bg-white dark:bg-[#272b33] border-gray-100 dark:border-[#343942]">
           <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
             Need help with your order?
           </p>
@@ -176,14 +180,14 @@ export default function PaymentVerifyClient() {
 
             <a
               href="tel:+254113388120"
-              className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg border text-gray-700 dark:text-gray-200 text-xs hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+              className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg border dark:border-[#3d434d] text-gray-700 dark:text-gray-200 text-xs hover:bg-gray-100 dark:hover:bg-[#2e333c] transition"
             >
               <Phone size={14} /> Call
             </a>
 
             <a
               href={`mailto:maraspot.ke@gmail.com?subject=Order Support&body=${supportMessage}`}
-              className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg border text-gray-700 dark:text-gray-200 text-xs hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+              className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg border dark:border-[#3d434d] text-gray-700 dark:text-gray-200 text-xs hover:bg-gray-100 dark:hover:bg-[#2e333c] transition"
             >
               <Mail size={14} /> Email
             </a>

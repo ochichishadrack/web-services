@@ -109,16 +109,16 @@ export default function NewsletterPreferencesPage() {
 
   if (loading || authLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+      <div className="min-h-screen bg-gray-50 dark:bg-[#1f2228]">
         <DynamicTopNav title="Newsletter" />
         <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 animate-pulse space-y-6">
-          <div className="h-36 rounded-2xl bg-gray-200 dark:bg-gray-800" />
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 space-y-5">
-            <div className="h-6 w-40 bg-gray-200 dark:bg-gray-800 rounded" />
-            <div className="h-12 w-full bg-gray-200 dark:bg-gray-800 rounded-xl" />
-            <div className="h-5 w-64 bg-gray-200 dark:bg-gray-800 rounded" />
-            <div className="h-5 w-56 bg-gray-200 dark:bg-gray-800 rounded" />
-            <div className="h-12 w-full bg-gray-200 dark:bg-gray-800 rounded-xl mt-4" />
+          <div className="h-36 rounded-2xl bg-gray-200 dark:bg-[#272b33]" />
+          <div className="bg-white dark:bg-[#272b33] border border-gray-200 dark:border-[#343942] rounded-2xl p-6 space-y-5">
+            <div className="h-6 w-40 bg-gray-200 dark:bg-[#343942] rounded" />
+            <div className="h-12 w-full bg-gray-200 dark:bg-[#343942] rounded-xl" />
+            <div className="h-5 w-64 bg-gray-200 dark:bg-[#343942] rounded" />
+            <div className="h-5 w-56 bg-gray-200 dark:bg-[#343942] rounded" />
+            <div className="h-12 w-full bg-gray-200 dark:bg-[#343942] rounded-xl mt-4" />
           </div>
         </div>
       </div>
@@ -126,12 +126,12 @@ export default function NewsletterPreferencesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#1f2228]">
       <DynamicTopNav title="Newsletter" />
 
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 space-y-6">
         {/* Hero */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 p-6 sm:p-8 text-white shadow-sm">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 dark:from-orange-600 dark:to-orange-700 p-6 sm:p-8 text-white shadow-sm dark:shadow-black/20">
           <div className="relative z-10">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-11 h-11 rounded-xl bg-white/15 flex items-center justify-center backdrop-blur-sm">
@@ -155,9 +155,9 @@ export default function NewsletterPreferencesPage() {
         </div>
 
         {/* Main Card */}
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-[#272b33] border border-gray-200 dark:border-[#343942] rounded-2xl shadow-sm dark:shadow-black/20 overflow-hidden">
           {/* Status header */}
-          <div className="px-6 sm:px-8 pt-6 pb-5 border-b border-gray-100 dark:border-gray-800 flex items-start justify-between gap-4">
+          <div className="px-6 sm:px-8 pt-6 pb-5 border-b border-gray-100 dark:border-[#343942] flex items-start justify-between gap-4">
             <div>
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                 Subscription Status
@@ -172,8 +172,8 @@ export default function NewsletterPreferencesPage() {
                 shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium
                 ${
                   subscribed
-                    ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300"
-                    : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
+                    ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300"
+                    : "bg-gray-100 text-gray-600 dark:bg-[#2e333c] dark:text-gray-400"
                 }
               `}
             >
@@ -198,8 +198,8 @@ export default function NewsletterPreferencesPage() {
                 readOnly
                 className="
                   w-full px-4 py-3 rounded-xl
-                  bg-gray-50 dark:bg-gray-950
-                  border border-gray-200 dark:border-gray-700
+                  bg-gray-50 dark:bg-[#1f2228]
+                  border border-gray-200 dark:border-[#3d434d]
                   text-gray-700 dark:text-gray-300
                   cursor-not-allowed
                 "
@@ -215,12 +215,12 @@ export default function NewsletterPreferencesPage() {
                 Required agreements
               </p>
 
-              <label className="flex items-start gap-3 p-3.5 rounded-xl border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition">
+              <label className="flex items-start gap-3 p-3.5 rounded-xl border border-gray-200 dark:border-[#343942] hover:bg-gray-50 dark:hover:bg-[#2e333c] cursor-pointer transition">
                 <input
                   type="checkbox"
                   checked={acceptedPrivacy}
                   onChange={() => setAcceptedPrivacy(!acceptedPrivacy)}
-                  className="mt-0.5 w-4 h-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500/40 accent-orange-500"
+                  className="mt-0.5 w-4 h-4 rounded border-gray-300 dark:border-[#4a515c] text-orange-500 focus:ring-orange-500/40 accent-orange-500"
                 />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
@@ -235,12 +235,12 @@ export default function NewsletterPreferencesPage() {
                 </div>
               </label>
 
-              <label className="flex items-start gap-3 p-3.5 rounded-xl border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition">
+              <label className="flex items-start gap-3 p-3.5 rounded-xl border border-gray-200 dark:border-[#343942] hover:bg-gray-50 dark:hover:bg-[#2e333c] cursor-pointer transition">
                 <input
                   type="checkbox"
                   checked={acceptedTerms}
                   onChange={() => setAcceptedTerms(!acceptedTerms)}
-                  className="mt-0.5 w-4 h-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500/40 accent-orange-500"
+                  className="mt-0.5 w-4 h-4 rounded border-gray-300 dark:border-[#4a515c] text-orange-500 focus:ring-orange-500/40 accent-orange-500"
                 />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
@@ -266,7 +266,7 @@ export default function NewsletterPreferencesPage() {
                     w-full py-3.5 rounded-xl font-semibold text-sm transition
                     ${
                       submitting || !acceptedPrivacy || !acceptedTerms
-                        ? "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed"
+                        ? "bg-gray-100 dark:bg-[#2e333c] text-gray-400 dark:text-gray-500 cursor-not-allowed"
                         : "bg-orange-500 hover:bg-orange-600 text-white shadow-sm shadow-orange-500/20"
                     }
                   `}
@@ -279,10 +279,10 @@ export default function NewsletterPreferencesPage() {
                   disabled={submitting}
                   className="
                     w-full py-3.5 rounded-xl font-semibold text-sm transition
-                    bg-red-50 dark:bg-red-900/20
-                    border border-red-200 dark:border-red-800/50
+                    bg-red-50 dark:bg-red-500/10
+                    border border-red-200 dark:border-red-500/30
                     text-red-600 dark:text-red-400
-                    hover:bg-red-100 dark:hover:bg-red-900/30
+                    hover:bg-red-100 dark:hover:bg-red-500/20
                     disabled:opacity-60 disabled:cursor-not-allowed
                   "
                 >

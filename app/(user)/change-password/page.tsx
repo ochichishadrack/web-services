@@ -102,18 +102,18 @@ export default function ChangePasswordPage() {
 
   if (authLoading || !isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+      <div className="min-h-screen bg-white dark:bg-[#1f2228]">
         <DynamicTopNav title="Change Password" />
         <div className="max-w-md mx-auto px-4 sm:px-6 py-10 animate-pulse space-y-6">
-          <div className="h-8 w-48 bg-gray-200 dark:bg-gray-800 rounded-lg mx-auto" />
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 space-y-5">
+          <div className="h-8 w-48 bg-gray-200 dark:bg-gray-700/60 rounded-lg mx-auto" />
+          <div className="bg-gray-50 dark:bg-[#2a2e36] border border-gray-200 dark:border-gray-700/60 rounded-2xl p-6 space-y-5">
             {Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className="space-y-2">
-                <div className="h-4 w-32 bg-gray-200 dark:bg-gray-800 rounded" />
-                <div className="h-12 w-full bg-gray-200 dark:bg-gray-800 rounded-xl" />
+                <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700/60 rounded" />
+                <div className="h-12 w-full bg-gray-200 dark:bg-gray-700/60 rounded-xl" />
               </div>
             ))}
-            <div className="h-12 w-full bg-gray-200 dark:bg-gray-800 rounded-xl mt-2" />
+            <div className="h-12 w-full bg-gray-200 dark:bg-gray-700/60 rounded-xl mt-2" />
           </div>
         </div>
       </div>
@@ -121,7 +121,7 @@ export default function ChangePasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="min-h-screen bg-white dark:bg-[#1f2228]">
       <DynamicTopNav title="Change Password" />
 
       {/* Toast Banner */}
@@ -145,9 +145,9 @@ export default function ChangePasswordPage() {
 
       {/* Content */}
       <div className="max-w-md mx-auto px-4 sm:px-6 py-8 sm:py-10">
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden">
+        <div className="bg-gray-50 dark:bg-[#2a2e36] border border-gray-200 dark:border-gray-700/60 rounded-2xl shadow-sm overflow-hidden">
           {/* Header */}
-          <div className="px-6 sm:px-8 pt-7 pb-5 border-b border-gray-100 dark:border-gray-800">
+          <div className="px-6 sm:px-8 pt-7 pb-5 border-b border-gray-200 dark:border-gray-700/60">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-900/30 flex items-center justify-center">
                 <Lock className="w-5 h-5 text-orange-600 dark:text-orange-400" />
@@ -244,8 +244,8 @@ function PasswordField({
           onChange={onChange}
           className="
             w-full px-4 py-3 pr-12
-            bg-white dark:bg-gray-950
-            border border-gray-200 dark:border-gray-700
+            bg-white dark:bg-[#1f2228]
+            border border-gray-200 dark:border-gray-700/60
             rounded-xl
             text-gray-900 dark:text-white
             placeholder:text-gray-400

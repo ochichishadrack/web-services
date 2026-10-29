@@ -36,8 +36,8 @@ const ActionButton = ({
       onClick={() => router.push(path)}
       className="
         group w-full p-5 rounded-2xl
-        bg-white dark:bg-gray-900
-        border border-gray-200 dark:border-gray-800
+        bg-gray-50 dark:bg-[#2a2e36]
+        border border-gray-200 dark:border-gray-700/60
         hover:border-orange-300 dark:hover:border-orange-700/60
         hover:shadow-md hover:shadow-orange-500/5
         transition-all duration-200
@@ -96,15 +96,15 @@ export default function CustomerAccount() {
 
   if (authLoading || !customer) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+      <div className="min-h-screen bg-white dark:bg-[#1f2228]">
         <DynamicTopNav title="My Account" />
         <div className="max-w-5xl mx-auto px-4 mt-6 space-y-6 animate-pulse">
-          <div className="h-56 rounded-2xl bg-gray-200 dark:bg-gray-800" />
+          <div className="h-56 rounded-2xl bg-gray-200 dark:bg-gray-700/60" />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {Array.from({ length: 4 }).map((_, i) => (
               <div
                 key={i}
-                className="h-24 rounded-2xl bg-gray-200 dark:bg-gray-800"
+                className="h-24 rounded-2xl bg-gray-200 dark:bg-gray-700/60"
               />
             ))}
           </div>
@@ -150,12 +150,12 @@ export default function CustomerAccount() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="min-h-screen bg-white dark:bg-[#1f2228]">
       <DynamicTopNav title="My Account" />
 
       {/* Profile Header */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 mt-6">
-        <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm">
+        <div className="relative overflow-hidden rounded-2xl bg-gray-50 dark:bg-[#2a2e36] border border-gray-200 dark:border-gray-700/60 shadow-sm">
           {/* Top actions */}
           <div className="absolute top-5 right-5 flex items-center gap-3 z-10">
             <button
@@ -211,7 +211,7 @@ export default function CustomerAccount() {
                   </span>
                 )}
 
-                <div className="absolute bottom-0 right-0 w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white shadow-md border-2 border-white dark:border-gray-900">
+                <div className="absolute bottom-0 right-0 w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white shadow-md border-2 border-white dark:border-[#2a2e36]">
                   <Camera className="w-3.5 h-3.5" />
                 </div>
 
@@ -270,12 +270,12 @@ export default function CustomerAccount() {
             onClick={logout}
             className="
               w-full py-3.5 rounded-xl
-              bg-white dark:bg-gray-900
-              border border-gray-200 dark:border-gray-800
+              bg-gray-50 dark:bg-[#2a2e36]
+              border border-gray-200 dark:border-gray-700/60
               text-gray-700 dark:text-gray-200
               font-medium text-sm
-              hover:bg-gray-50 dark:hover:bg-gray-800
-              hover:border-gray-300 dark:hover:border-gray-700
+              hover:bg-gray-100 dark:hover:bg-[#32363f]
+              hover:border-gray-300 dark:hover:border-gray-600
               transition
             "
           >
