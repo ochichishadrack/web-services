@@ -50,7 +50,7 @@ function SkeletonCard(): JSX.Element {
 /* ---------------- COMPONENT ---------------- */
 
 const GRID_COLUMNS = 4; // matches lg:grid-cols-4, used to stagger each row
-const STAGGER_MS = 80;
+const STAGGER_MS = 150;
 
 export default function HomePage(): JSX.Element {
   const [services, setServices] = useState<Service[]>([]);

@@ -3,150 +3,18 @@
 import { useEffect, useState } from "react";
 import TopNav from "@/components/ui/DynamicTopNav";
 import MediaGallery from "./MediaGallery";
-import ServiceExtras from "./ServiceExtras";
+import PackagePanel from "./PackagePanel";
+import ServiceDetailsSkeleton from "./ServiceDetailsSkeleton";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useCustomerAuth } from "@/context/CustomerAuthContext";
 import TiptapPageView from "@/components/TiptapPageView";
 import { axiosInstance } from "@/utils/axiosInstance";
 import { useLocalCurrency } from "@/hooks/useLocalCurrency";
-import {
-  Check,
-  Clock,
-  RefreshCcw,
-  FileText,
-  Boxes,
-  ChevronUp,
-  ChevronDown,
-  X,
-} from "lucide-react";
+import { ChevronDown, X } from "lucide-react";
+import type { Package, Service } from "./types";
 
-interface Media {
-  id: string;
-  image_url?: string;
-  video_url?: string;
-  is_cover?: boolean;
-}
-interface Extra {
-  id: string;
-  title: string;
-  price: number;
-}
-interface Package {
-  id: string;
-  name: string;
-  description?: string;
-  price: number;
-  delivery_days: number;
-  revisions: number | string;
-  pages?: number | string;
-  products?: number | string;
-  features?: string[];
-  type: string;
-}
-interface FAQ {
-  id: string;
-  question: string;
-  answer: string;
-}
-interface Service {
-  id: string;
-  title: string;
-  description?: string;
-  category: string;
-  subcategory?: string;
-  packages: Package[];
-  media?: Media[];
-  extras?: Extra[];
-  faqs?: FAQ[];
-}
-
-function SkeletonBlock({ className }: { className: string }) {
-  return (
-    <div
-      className={`bg-gray-100 dark:bg-gray-800 animate-pulse rounded transition-colors ${className}`}
-    />
-  );
-}
-
-function ServiceDetailsSkeleton() {
-  return (
-    <div className="bg-white dark:bg-gray-950 min-h-screen text-gray-900 dark:text-white transition-colors">
-      {/* Top spacing (matches TopNav layout) */}
-      <div className="h-16" />
-
-      {/* Media horizontal scroll */}
-      <div className="flex gap-4 overflow-hidden py-4 px-4 md:px-6">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <SkeletonBlock
-            key={i}
-            className="w-80 md:w-96 h-60 md:h-72 rounded-xl shrink-0"
-          />
-        ))}
-      </div>
-
-      {/* Main layout */}
-      <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-3 gap-8 mt-4 md:mt-6">
-        {/* LEFT CONTENT */}
-        <div className="lg:col-span-2 space-y-6">
-          <div>
-            <SkeletonBlock className="h-8 w-2/3 mb-2" />
-            <SkeletonBlock className="h-4 w-1/3" />
-          </div>
-
-          {/* About section */}
-          <div className="px-2 py-5">
-            <SkeletonBlock className="h-6 w-40 mb-4" />
-            <SkeletonBlock className="h-4 w-full mb-2" />
-            <SkeletonBlock className="h-4 w-full mb-2" />
-            <SkeletonBlock className="h-4 w-5/6" />
-          </div>
-
-          {/* FAQ card */}
-          <div className="border rounded-xl p-5 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 shadow-sm">
-            <SkeletonBlock className="h-6 w-1/2 mb-4" />
-            <SkeletonBlock className="h-4 w-full mb-2" />
-            <SkeletonBlock className="h-4 w-full mb-2" />
-            <SkeletonBlock className="h-4 w-3/4" />
-          </div>
-        </div>
-
-        {/* RIGHT SIDEBAR */}
-        <div className="sticky top-6 h-fit border rounded-2xl shadow-sm bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 overflow-hidden">
-          {/* Tabs */}
-          <div className="flex border-b bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-            <SkeletonBlock className="h-10 flex-1" />
-            <SkeletonBlock className="h-10 flex-1" />
-            <SkeletonBlock className="h-10 flex-1" />
-          </div>
-
-          {/* Package content */}
-          <div className="p-6 space-y-4">
-            <SkeletonBlock className="h-8 w-1/2" />
-            <SkeletonBlock className="h-4 w-2/3" />
-            <SkeletonBlock className="h-4 w-full" />
-
-            <div className="space-y-2 pt-3">
-              <SkeletonBlock className="h-4 w-3/4" />
-              <SkeletonBlock className="h-4 w-2/3" />
-              <SkeletonBlock className="h-4 w-1/2" />
-            </div>
-
-            {/* Features list */}
-            <div className="border-t pt-3 space-y-2">
-              <SkeletonBlock className="h-4 w-1/3 mb-2" />
-              <SkeletonBlock className="h-4 w-full" />
-              <SkeletonBlock className="h-4 w-full" />
-              <SkeletonBlock className="h-4 w-5/6" />
-            </div>
-
-            {/* CTA */}
-            <SkeletonBlock className="h-12 w-full rounded-lg mt-4" />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+const card =
+  "bg-white dark:bg-[#262a31] border border-gray-100 dark:border-white/10 rounded-2xl";
 
 export default function ServiceDetailsPage() {
   const { id } = useParams();
@@ -154,6 +22,7 @@ export default function ServiceDetailsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { setReferralCode } = useCustomerAuth();
+  const { format } = useLocalCurrency();
 
   const [service, setService] = useState<Service | null>(null);
   const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
@@ -161,24 +30,19 @@ export default function ServiceDetailsPage() {
   const [faqOpen, setFaqOpen] = useState(false);
   const [openFaqId, setOpenFaqId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const { format } = useLocalCurrency();
 
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [galleryIndex, setGalleryIndex] = useState(0);
 
+  /* ---------- Affiliate tracking ---------- */
   useEffect(() => {
     const ref = searchParams.get("ref");
-
     if (!ref) return;
 
-    // store referral locally
     setReferralCode(ref);
 
-    // prevent duplicate tracking
     const trackedKey = `affiliate_click_${ref}_${serviceId}`;
-    const alreadyTracked = sessionStorage.getItem(trackedKey);
-
-    if (alreadyTracked) return;
+    if (sessionStorage.getItem(trackedKey)) return;
 
     async function trackClick() {
       try {
@@ -187,7 +51,6 @@ export default function ServiceDetailsPage() {
           service_id: serviceId,
           referrer: document.referrer || null,
         });
-
         sessionStorage.setItem(trackedKey, "1");
       } catch (err) {
         console.error("Affiliate click tracking failed", err);
@@ -197,6 +60,7 @@ export default function ServiceDetailsPage() {
     trackClick();
   }, [searchParams, serviceId, setReferralCode]);
 
+  /* ---------- Fetch service ---------- */
   useEffect(() => {
     async function fetchService() {
       try {
@@ -206,8 +70,7 @@ export default function ServiceDetailsPage() {
         const data = res.data;
 
         const order = ["Basic", "Standard", "Premium"];
-
-        const sortedPackages: Package[] = (data.packages || []).sort(
+        const sortedPackages: Package[] = [...(data.packages || [])].sort(
           (a: Package, b: Package) =>
             order.indexOf(a.type) - order.indexOf(b.type),
         );
@@ -220,11 +83,10 @@ export default function ServiceDetailsPage() {
           faqs: data.faqs || [],
         });
 
-        // Always select BASIC if it exists
-        const basicPkg: Package | undefined = sortedPackages.find(
-          (p: Package) => p.type === "Basic",
-        );
+        const basicPkg = sortedPackages.find((p) => p.type === "Basic");
         setSelectedPackage(basicPkg || sortedPackages[0] || null);
+      } catch (err) {
+        console.error("Failed to fetch service", err);
       } finally {
         setLoading(false);
       }
@@ -236,16 +98,17 @@ export default function ServiceDetailsPage() {
   const toggleExtra = (extraId: string) =>
     setSelectedExtras((prev) =>
       prev.includes(extraId)
-        ? prev.filter((id) => id !== extraId)
+        ? prev.filter((x) => x !== extraId)
         : [...prev, extraId],
     );
 
   if (loading) return <ServiceDetailsSkeleton />;
+
   if (!service)
     return (
-      <div className="min-h-screen bg-white dark:bg-gray-950 flex items-center justify-center px-6">
+      <div className="min-h-screen bg-white dark:bg-[#1f2228] flex items-center justify-center px-6">
         <div className="text-center max-w-md">
-          <div className="mx-auto mb-6 flex items-center justify-center w-16 h-16 rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+          <div className="mx-auto mb-6 flex items-center justify-center w-16 h-16 rounded-2xl border border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-[#262a31]">
             <X className="w-6 h-6 text-gray-500 dark:text-gray-300" />
           </div>
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
@@ -256,9 +119,9 @@ export default function ServiceDetailsPage() {
           </p>
           <button
             onClick={() => router.push("/services")}
-            className="mt-6 px-5 py-2.5 rounded-lg bg-black text-white text-sm font-semibold hover:bg-gray-900 transition"
+            className="mt-6 px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold transition-colors"
           >
-            Browse Services
+            Browse services
           </button>
         </div>
       </div>
@@ -270,9 +133,17 @@ export default function ServiceDetailsPage() {
       .reduce((sum, e) => sum + e.price, 0) || 0;
   const totalPrice = (selectedPackage?.price || 0) + extrasTotal;
 
+  const goCheckout = () => {
+    if (!selectedPackage) return;
+    router.push(
+      `/service-checkout?serviceId=${service.id}&packageId=${selectedPackage.id}&extras=${selectedExtras.join(",")}`,
+    );
+  };
+
   return (
-    <div className="bg-white dark:bg-gray-950 min-h-screen text-gray-900 dark:text-white">
+    <div className="bg-white dark:bg-[#1f2228] min-h-screen text-gray-900 dark:text-white transition-colors pb-28 lg:pb-12">
       <TopNav title="Service Details" />
+
       {galleryOpen && service.media && (
         <MediaGallery
           media={service.media}
@@ -281,13 +152,15 @@ export default function ServiceDetailsPage() {
         />
       )}
 
-      {/* Media scroll on top */}
+      {/* Media strip */}
       {service.media?.length ? (
-        <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory py-4 px-4 md:px-6 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-gray-100 dark:scrollbar-track-gray-800">
+        <div className="flex gap-3 md:gap-4 overflow-x-auto snap-x snap-mandatory py-4 px-4 md:px-6 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-white/20 scrollbar-track-transparent">
           {service.media.map((m, i) => (
-            <div
+            <button
+              type="button"
               key={m.id}
-              className="shrink-0 snap-start w-80 md:w-96 h-60 md:h-72 rounded-xl shadow-lg overflow-hidden border cursor-pointer transform hover:scale-105 transition duration-300"
+              aria-label={`Open media ${i + 1}`}
+              className="shrink-0 snap-start w-72 md:w-96 h-52 md:h-72 rounded-2xl overflow-hidden border border-gray-100 dark:border-white/10 bg-gray-100 dark:bg-white/5 cursor-pointer transition hover:shadow-md hover:border-gray-200 dark:hover:border-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/40"
               onClick={() => {
                 setGalleryIndex(i);
                 setGalleryOpen(true);
@@ -296,7 +169,7 @@ export default function ServiceDetailsPage() {
               {m.image_url && (
                 <img
                   src={m.image_url}
-                  alt="media"
+                  alt=""
                   className="w-full h-full object-cover"
                 />
               )}
@@ -309,153 +182,123 @@ export default function ServiceDetailsPage() {
                   className="w-full h-full object-cover"
                 />
               )}
-            </div>
+            </button>
           ))}
         </div>
       ) : null}
 
-      <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-3 gap-8 mt-4 md:mt-6">
-        {/* LEFT */}
-        <div className="lg:col-span-2 space-y-6">
-          <div>
-            <h1 className="text-xl font-bold">{service.title}</h1>
-            <p className="text-sm text-gray-700 dark:text-gray-300">
-              {service.category}
-              {service.subcategory ? ` / ${service.subcategory}` : ""}
-            </p>
-          </div>
-
-          <div className="px-2 py-5 text-gray-600 dark:text-gray-300">
-            <h2 className="font-semibold mb-2 text-lg text-gray-800 dark:text-gray-100">
-              About this service
-            </h2>
-            <TiptapPageView value={service.description ?? ""} />
-          </div>
-
-          {service.faqs?.length ? (
-            <div className="border rounded-xl mb-4 p-5 bg-white dark:bg-gray-900 shadow-sm border-gray-200 dark:border-gray-700">
-              <button
-                onClick={() => setFaqOpen(!faqOpen)}
-                className="flex items-center text-gray-700 dark:text-gray-300 justify-between w-full font-semibold text-lg"
-              >
-                Frequently Asked Questions{" "}
-                {faqOpen ? <ChevronUp /> : <ChevronDown />}
-              </button>
-              {faqOpen && (
-                <div className="mt-4 space-y-2">
-                  {service.faqs.map((faq) => {
-                    const open = openFaqId === faq.id;
-                    return (
-                      <div
-                        key={faq.id}
-                        className="border rounded-lg border-gray-200 dark:border-gray-700"
-                      >
-                        <button
-                          onClick={() => setOpenFaqId(open ? null : faq.id)}
-                          className="flex justify-between items-center w-full p-3 text-sm font-semibold text-gray-700 dark:text-gray-300"
-                        >
-                          {faq.question}{" "}
-                          {open ? <ChevronUp /> : <ChevronDown />}
-                        </button>
-                        {open && (
-                          <p className="p-3 pt-0 text-sm text-gray-600 dark:text-gray-400">
-                            {faq.answer}
-                          </p>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          ) : null}
+      {/* Layout: on mobile the order is title → packages → about → FAQ.
+          On desktop the package panel sits in a sticky right column. */}
+      <div className="max-w-7xl mx-auto px-4 md:px-6 grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-6 mt-2 md:mt-4">
+        {/* Title */}
+        <div className="lg:col-span-2">
+          <h1 className="text-xl md:text-2xl font-bold leading-snug">
+            {service.title}
+          </h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            {service.category}
+            {service.subcategory ? ` / ${service.subcategory}` : ""}
+          </p>
         </div>
 
-        {/* RIGHT SIDEBAR */}
-        <div className="sticky top-6 mt-2 h-fit border rounded-2xl shadow-sm bg-white dark:bg-gray-900 overflow-hidden border-gray-200 dark:border-gray-700">
-          {/* PACKAGE TABS */}
-          <div className="flex border-b bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-            {service.packages.map((pkg, index) => (
-              <button
-                key={pkg.id}
-                onClick={() => setSelectedPackage(pkg)}
-                className={`flex-1 py-3 text-sm font-semibold transition ${
-                  selectedPackage?.id === pkg.id
-                    ? "border-b-2 text-gray-900 dark:text-white border-black dark:border-white bg-white dark:bg-gray-900"
-                    : "text-gray-500 dark:text-gray-300 hover:text-black dark:hover:text-white"
-                }`}
-              >
-                {pkg.type}
-              </button>
-            ))}
+        {/* Packages */}
+        {selectedPackage && (
+          <div className="lg:col-start-3 lg:row-start-1 lg:row-span-3 lg:self-start lg:sticky lg:top-24">
+            <PackagePanel
+              packages={service.packages}
+              selected={selectedPackage}
+              onSelect={setSelectedPackage}
+              extras={service.extras}
+              selectedExtras={selectedExtras}
+              toggleExtra={toggleExtra}
+              total={totalPrice}
+              onContinue={goCheckout}
+            />
           </div>
+        )}
 
-          {/* PACKAGE CONTENT */}
-          {selectedPackage && (
-            <div className="p-6 space-y-4">
-              <div className="text-3xl font-bold">{format(totalPrice)}</div>
-              <p className="font-semibold">{selectedPackage.name}</p>
-              <p className="text-sm">{selectedPackage.description}</p>
-              <div className="flex flex-wrap gap-4 text-sm font-medium text-gray-700 dark:text-gray-300 pt-3">
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4" />
-                  {selectedPackage.delivery_days} days delivery
-                </div>
-                <div className="flex items-center gap-2">
-                  <RefreshCcw className="w-4 h-4" />
-                  {selectedPackage.revisions} revisions
-                </div>
-                {Number(selectedPackage.pages ?? 0) > 0 && (
-                  <div className="flex items-center gap-2">
-                    <FileText className="w-4 h-4" />
-                    {Number(selectedPackage.pages)}{" "}
-                    {Number(selectedPackage.pages) === 1 ? "page" : "pages"}
-                  </div>
-                )}
-                {Number(selectedPackage.products ?? 0) > 0 && (
-                  <div className="flex items-center gap-2">
-                    <Boxes className="w-4 h-4" />
-                    {Number(selectedPackage.products)}{" "}
-                    {Number(selectedPackage.products) === 1
-                      ? "product"
-                      : "products"}
-                  </div>
-                )}
-              </div>
-              {selectedPackage.features?.length && (
-                <ul className="text-gray-700 dark:text-gray-300 space-y-1 text-sm border-t pt-3">
-                  <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">
-                    What’s Included
-                  </h3>
-                  {selectedPackage.features.map((f, i) => (
-                    <li key={i} className="flex gap-2 items-center">
-                      <Check className="w-4 h-4 text-green-600" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {/* Extras */}
-              <ServiceExtras
-                extras={service.extras}
-                selectedExtras={selectedExtras}
-                toggleExtra={toggleExtra}
+        {/* About */}
+        <div className="lg:col-span-2 text-gray-600 dark:text-gray-300">
+          <h2 className="font-semibold mb-2 text-lg text-gray-900 dark:text-white">
+            About this service
+          </h2>
+          <TiptapPageView value={service.description ?? ""} />
+        </div>
+
+        {/* FAQ */}
+        {service.faqs?.length ? (
+          <div className={`${card} lg:col-span-2 p-4 sm:p-5`}>
+            <button
+              type="button"
+              aria-expanded={faqOpen}
+              onClick={() => setFaqOpen(!faqOpen)}
+              className="flex items-center justify-between w-full text-left font-semibold text-gray-900 dark:text-white"
+            >
+              Frequently asked questions
+              <ChevronDown
+                className={`w-5 h-5 text-gray-400 transition-transform ${faqOpen ? "rotate-180" : ""}`}
               />
-              {/* CTA */}
-              <button
-                onClick={() =>
-                  router.push(
-                    `/service-checkout?serviceId=${service.id}&packageId=${selectedPackage.id}&extras=${selectedExtras.join(",")}`,
-                  )
-                }
-                className="w-full bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-900 transition"
-              >
-                Continue →
-              </button>
-            </div>
-          )}
-        </div>
+            </button>
+
+            {faqOpen && (
+              <div className="mt-4 space-y-2">
+                {service.faqs.map((faq) => {
+                  const open = openFaqId === faq.id;
+                  return (
+                    <div
+                      key={faq.id}
+                      className="border border-gray-100 dark:border-white/10 rounded-xl"
+                    >
+                      <button
+                        type="button"
+                        aria-expanded={open}
+                        onClick={() => setOpenFaqId(open ? null : faq.id)}
+                        className="flex justify-between items-center gap-3 w-full p-3 text-left text-sm font-semibold text-gray-800 dark:text-gray-200"
+                      >
+                        {faq.question}
+                        <ChevronDown
+                          className={`w-4 h-4 shrink-0 text-gray-400 transition-transform ${open ? "rotate-180" : ""}`}
+                        />
+                      </button>
+                      {open && (
+                        <p className="px-3 pb-3 text-sm text-gray-600 dark:text-gray-400">
+                          {faq.answer}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        ) : null}
       </div>
+
+      {/* Mobile sticky checkout bar */}
+      {selectedPackage && (
+        <div className="lg:hidden fixed bottom-0 inset-x-0 z-30 border-t border-gray-100 dark:border-white/10 bg-white/90 dark:bg-[#1f2228]/90 backdrop-blur px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+          <div className="mx-auto max-w-7xl flex items-center gap-4">
+            <div className="min-w-0 flex-1">
+              <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                {selectedPackage.type}
+                {selectedExtras.length > 0
+                  ? ` + ${selectedExtras.length} ${selectedExtras.length === 1 ? "extra" : "extras"}`
+                  : ""}
+              </div>
+              <div className="text-lg font-bold leading-tight">
+                {format(totalPrice)}
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={goCheckout}
+              className="shrink-0 rounded-xl bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 text-sm font-semibold transition-colors"
+            >
+              Continue
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
