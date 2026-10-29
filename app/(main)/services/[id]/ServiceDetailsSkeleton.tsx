@@ -24,37 +24,28 @@ export default function ServiceDetailsSkeleton() {
         ))}
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 md:px-6 grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-6 mt-2">
-        {/* Details */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="space-y-2">
-            <Block className="h-7 w-2/3" />
-            <Block className="h-4 w-1/3" />
-          </div>
-
-          <div className="space-y-2">
-            <Block className="h-6 w-40 mb-3" />
-            <Block className="h-4 w-full" />
-            <Block className="h-4 w-full" />
-            <Block className="h-4 w-5/6" />
-          </div>
-
-          <div className={`${card} p-5`}>
-            <Block className="h-5 w-1/2" />
-          </div>
+      {/* Details */}
+      <div className="max-w-4xl mx-auto px-4 md:px-6 mt-2 space-y-6">
+        <div className="space-y-2">
+          <Block className="h-7 w-2/3" />
+          <Block className="h-4 w-1/3" />
         </div>
 
-        {/* Summary card (desktop only) */}
-        <div className="hidden lg:block self-start">
-          <div className={`${card} p-5 space-y-4`}>
-            <div className="space-y-2">
-              <Block className="h-3 w-24" />
-              <Block className="h-9 w-1/2" />
-              <Block className="h-3 w-32" />
-            </div>
-            <Block className="h-12 w-full rounded-xl" />
-          </div>
+        <div className="space-y-2">
+          <Block className="h-6 w-40 mb-3" />
+          <Block className="h-4 w-full" />
+          <Block className="h-4 w-full" />
+          <Block className="h-4 w-5/6" />
         </div>
+
+        <div className={`${card} p-5`}>
+          <Block className="h-5 w-1/2" />
+        </div>
+      </div>
+
+      {/* Continue button placeholder */}
+      <div className="fixed left-4 sm:left-6 bottom-4">
+        <Block className="h-11 w-32 rounded-xl" />
       </div>
     </div>
   );
