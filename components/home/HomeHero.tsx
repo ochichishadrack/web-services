@@ -140,17 +140,17 @@ export default function HomeHero(): JSX.Element {
           </h1>
         </div>
 
-        {/* 2. Image (hidden on mobile, right column on desktop) */}
-        <div className="hidden items-center justify-center lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:flex lg:justify-end">
+        {/* 2. Image (under the title on mobile, right column on desktop) */}
+        <div className="order-2 flex items-center justify-center lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:justify-end">
           <div
-            className={`relative aspect-square w-full max-w-md transition-all duration-500 ease-out motion-reduce:transition-none ${imageMotion}`}
+            className={`relative aspect-square w-full max-w-[16rem] transition-all duration-500 ease-out motion-reduce:transition-none sm:max-w-sm lg:max-w-md ${imageMotion}`}
           >
             <Image
               src={slide.image}
               alt={slide.alt}
               fill
               priority={index === 0}
-              sizes="28rem"
+              sizes="(min-width: 1024px) 28rem, (min-width: 640px) 24rem, 16rem"
               className="object-contain"
             />
           </div>
