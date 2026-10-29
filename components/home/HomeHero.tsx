@@ -15,6 +15,13 @@ const highlights = [
 
 const slides = [
   {
+    image: '/hero/0.png',
+    alt: 'Laptop surrounded by different website layouts, representing websites of all kinds',
+    title: 'We deliver websites Of',
+    accent: 'All Kinds',
+    text: 'Business sites, online stores, portfolios, booking platforms, blogs and custom web apps: whatever your business needs online, we design, build and launch it.',
+  },
+  {
     image: '/hero/1.png',
     alt: 'Developer working on a laptop with a cup of coffee',
     title: 'Code Crafted',
@@ -125,13 +132,14 @@ export default function HomeHero(): JSX.Element {
 
   return (
     <section
-      className="relative flex  items-center bg-white dark:bg-[#1f2228]"
+      // 4rem = header height. Adjust if your navbar is taller or shorter.
+      className="relative flex items-center bg-white lg:min-h-[calc(100svh-4rem)] dark:bg-[#1f2228]"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      <div className="relative z-10 mx-auto grid w-full max-w-6xl grid-cols-1 content-center gap-x-16 gap-y-6 px-6 py-16 lg:grid-cols-2 lg:py-24">
+      <div className="relative z-10 mx-auto grid w-full max-w-6xl grid-cols-1 content-center items-center gap-x-16 gap-y-6 px-6 py-12 lg:grid-cols-2 lg:py-8">
         {/* 1. Title (top on mobile, left column on desktop) */}
-        <div className="order-1 flex min-h-[6rem] items-end justify-center text-center lg:col-start-1 lg:row-start-1 lg:min-h-[11.5rem] lg:justify-start lg:text-left">
+        <div className="order-1 flex min-h-[6rem] items-end justify-center text-center lg:col-start-1 lg:row-start-1 lg:min-h-[8rem] lg:justify-start lg:text-left">
           <h1
             aria-live="polite"
             className={`text-3xl font-bold leading-tight text-zinc-900 transition-all duration-500 ease-out motion-reduce:transition-none sm:text-4xl lg:text-5xl dark:text-white ${textMotion}`}
@@ -141,9 +149,9 @@ export default function HomeHero(): JSX.Element {
         </div>
 
         {/* 2. Image (under the title on mobile, right column on desktop) */}
-        <div className="order-2 flex items-center justify-center lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:justify-end">
+        <div className="order-2 flex items-center justify-center lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:justify-center">
           <div
-            className={`relative aspect-square w-full max-w-[16rem] transition-all duration-500 ease-out motion-reduce:transition-none sm:max-w-sm lg:max-w-md ${imageMotion}`}
+            className={`relative aspect-square w-full max-w-[16rem] transition-all duration-500 ease-out motion-reduce:transition-none sm:max-w-sm lg:w-[min(28rem,60svh)] lg:max-w-none ${imageMotion}`}
           >
             <Image
               src={slide.image}
@@ -159,7 +167,7 @@ export default function HomeHero(): JSX.Element {
         {/* 3. Paragraph, CTAs, dots, highlights */}
         <div className="order-3 text-center lg:col-start-1 lg:row-start-2 lg:text-left">
           <p
-            className={`mx-auto mb-8 min-h-[7rem] max-w-xl text-lg text-zinc-600 transition-all delay-100 duration-500 ease-out motion-reduce:transition-none md:text-xl lg:mx-0 lg:min-h-[6rem] dark:text-zinc-300 ${textMotion}`}
+            className={`mx-auto mb-8 min-h-[7rem] max-w-xl text-lg text-zinc-600 transition-all delay-100 duration-500 ease-out motion-reduce:transition-none md:text-xl lg:mx-0 lg:mb-6 lg:min-h-[7rem] dark:text-zinc-300 ${textMotion}`}
           >
             {slide.text}
           </p>
@@ -196,7 +204,7 @@ export default function HomeHero(): JSX.Element {
           </div>
 
           {/* Slide indicators */}
-          <div className="mt-10 flex items-center justify-center gap-2 lg:justify-start">
+          <div className="mt-8 flex items-center justify-center gap-2 lg:mt-6 lg:justify-start">
             {slides.map((s, i) => (
               <button
                 key={s.image}
@@ -214,7 +222,7 @@ export default function HomeHero(): JSX.Element {
           </div>
 
           {/* Highlights (desktop only) */}
-          <ul className="mt-10 hidden max-w-xl flex-wrap items-center gap-x-6 gap-y-3 text-sm font-medium text-zinc-600 lg:flex dark:text-zinc-400">
+          <ul className="mt-6 hidden max-w-xl flex-wrap items-center gap-x-6 gap-y-3 text-sm font-medium text-zinc-600 lg:flex dark:text-zinc-400">
             {highlights.map((item) => (
               <li key={item} className="inline-flex items-center gap-2">
                 <svg
