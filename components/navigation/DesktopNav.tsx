@@ -49,7 +49,7 @@ export default function DesktopNav({ activePage }: DesktopNavProps) {
         href="/"
         className="font-semibold text-xl tracking-tight text-gray-900 dark:text-white shrink-0"
       >
-        MARA DEVS
+        MARASPOT
       </Link>
 
       {/* Center tabs - no icons, no underline */}

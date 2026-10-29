@@ -42,16 +42,16 @@ const BENEFITS = [
 ];
 
 const labelCls =
-  "mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200";
+  "mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-200";
 
 const inputCls =
-  "h-[50px] w-full rounded-xl border border-slate-300 bg-white px-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:ring-orange-500/20";
+  "h-11 w-full rounded-xl border border-gray-200 bg-white px-4 text-sm text-gray-900 placeholder:text-gray-400 outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-gray-500";
 
 const primaryBtnCls =
-  "flex h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-orange-600 text-sm font-semibold text-white shadow-sm transition hover:bg-orange-700 focus:outline-none focus:ring-4 focus:ring-orange-200 disabled:cursor-not-allowed disabled:opacity-60 dark:focus:ring-orange-500/30";
+  "flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-orange-500 text-sm font-semibold text-white transition-colors hover:bg-orange-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/40 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 dark:focus-visible:ring-offset-[#1f2228]";
 
 const secondaryBtnCls =
-  "h-12 flex-1 rounded-xl border border-slate-300 text-sm font-medium text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800";
+  "h-11 flex-1 rounded-xl border border-gray-200 bg-white text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/40 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/10 dark:bg-transparent dark:text-gray-200 dark:hover:bg-white/5";
 
 export default function ResetPassword() {
   const router = useRouter();
@@ -162,29 +162,18 @@ export default function ResetPassword() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-50 transition-colors dark:bg-gray-950">
+    <main className="min-h-screen bg-white text-gray-900 transition-colors dark:bg-[#1f2228] dark:text-white">
       <div className="mx-auto grid min-h-screen w-full max-w-7xl lg:grid-cols-2">
         {/* ---------- Brand panel (desktop only) ---------- */}
-        <aside className="relative hidden overflow-hidden bg-gradient-to-br from-orange-500 via-orange-600 to-orange-700 p-12 text-white lg:flex lg:flex-col lg:justify-between xl:p-16">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-white/10"
-          />
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -bottom-32 -left-20 h-96 w-96 rounded-full bg-black/10"
-          />
+        <aside className="hidden border-r border-gray-100 bg-gray-50/60 p-12 lg:flex lg:flex-col lg:justify-between xl:p-16 dark:border-white/10 dark:bg-white/[0.02]">
+          <div className="text-xl font-semibold tracking-tight">Maraspot</div>
 
-          <div className="relative text-2xl font-bold tracking-tight">
-            Maraspot
-          </div>
-
-          <div className="relative space-y-10">
+          <div className="space-y-10">
             <div>
-              <h2 className="text-4xl font-bold leading-tight xl:text-5xl">
+              <h2 className="text-3xl font-bold leading-tight xl:text-4xl">
                 Locked out? We&apos;ll get you back in.
               </h2>
-              <p className="mt-4 max-w-md text-lg text-orange-50">
+              <p className="mt-3 max-w-md text-base text-gray-500 dark:text-gray-400">
                 Reset your password in two quick steps and return to your
                 projects.
               </p>
@@ -193,232 +182,228 @@ export default function ResetPassword() {
             <ul className="space-y-6">
               {BENEFITS.map(({ icon: Icon, title, text }) => (
                 <li key={title} className="flex items-start gap-4">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/20">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-gray-100 bg-white text-gray-700 dark:border-white/10 dark:bg-white/5 dark:text-gray-200">
                     <Icon className="h-5 w-5" />
                   </span>
                   <div>
-                    <p className="font-semibold">{title}</p>
-                    <p className="mt-0.5 text-sm text-orange-50">{text}</p>
+                    <p className="text-sm font-semibold">{title}</p>
+                    <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
+                      {text}
+                    </p>
                   </div>
                 </li>
               ))}
             </ul>
           </div>
 
-          <p className="relative text-sm text-orange-100">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             &copy; {new Date().getFullYear()} Maraspot
           </p>
         </aside>
 
         {/* ---------- Form ---------- */}
         <section className="flex items-center justify-center px-4 py-10 sm:px-8 lg:px-12">
-          <div className="w-full max-w-xl">
+          <div className="w-full max-w-md">
             {/* Mobile brand */}
-            <div className="mb-6 text-center text-2xl font-bold tracking-tight text-orange-600 lg:hidden">
+            <div className="mb-8 text-center text-xl font-semibold tracking-tight lg:hidden">
               Maraspot
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8 dark:border-slate-800 dark:bg-gray-900">
-              <div className="mb-6 text-center sm:mb-8 sm:text-left">
-                <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl dark:text-slate-100">
-                  Reset your password
-                </h1>
-                <p className="mt-2 text-sm text-slate-600 sm:text-base dark:text-slate-400">
-                  {step === 1
-                    ? "Enter your email to receive a reset code."
-                    : "Enter the code we emailed you and choose a new password."}
-                </p>
-              </div>
-
-              {feedback && (
-                <div
-                  role="alert"
-                  className={`mb-6 rounded-xl px-4 py-3 text-center text-sm ${
-                    feedback.type === "success"
-                      ? "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300"
-                      : "bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300"
-                  }`}
-                >
-                  {feedback.message}
-                </div>
-              )}
-
-              {step === 1 ? (
-                <form
-                  onSubmit={handleEmailSubmit(onSubmitEmail)}
-                  noValidate
-                  className="space-y-4 sm:space-y-5"
-                >
-                  {/* Email */}
-                  <div>
-                    <label htmlFor="email" className={labelCls}>
-                      Email address
-                    </label>
-                    <input
-                      id="email"
-                      type="email"
-                      autoComplete="email"
-                      inputMode="email"
-                      placeholder="e.g. john@example.com"
-                      disabled={loading}
-                      className={inputCls}
-                      {...registerEmail("email", {
-                        required: "Email is required",
-                      })}
-                    />
-                    {emailErrors.email && (
-                      <p className="mt-1 text-xs text-red-600">
-                        {emailErrors.email.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="flex gap-3 pt-1">
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className={primaryBtnCls}
-                    >
-                      {loading ? (
-                        <>
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          Sending...
-                        </>
-                      ) : (
-                        <>
-                          Send code
-                          <ArrowRight size={18} />
-                        </>
-                      )}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={handleCancel}
-                      disabled={loading}
-                      className={secondaryBtnCls}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </form>
-              ) : (
-                <form
-                  onSubmit={handleResetSubmit(onSubmitReset)}
-                  noValidate
-                  className="space-y-4 sm:space-y-5"
-                >
-                  {/* Email (read only) */}
-                  <div>
-                    <label htmlFor="email_readonly" className={labelCls}>
-                      Email address
-                    </label>
-                    <input
-                      id="email_readonly"
-                      type="text"
-                      readOnly
-                      value={emailValue}
-                      className={`${inputCls} cursor-not-allowed bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300`}
-                    />
-                  </div>
-
-                  {/* Reset code */}
-                  <div>
-                    <label htmlFor="reset_code" className={labelCls}>
-                      Reset code
-                    </label>
-                    <input
-                      id="reset_code"
-                      type="text"
-                      autoComplete="one-time-code"
-                      placeholder="Enter the code from your email"
-                      disabled={loading}
-                      className={inputCls}
-                      {...registerReset("reset_code", {
-                        required: "Reset code is required",
-                      })}
-                    />
-                    {resetErrors.reset_code && (
-                      <p className="mt-1 text-xs text-red-600">
-                        {resetErrors.reset_code.message}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* New password */}
-                  <div>
-                    <label htmlFor="new_password" className={labelCls}>
-                      New password
-                    </label>
-                    <div className="relative">
-                      <input
-                        id="new_password"
-                        type={showPassword ? "text" : "password"}
-                        autoComplete="new-password"
-                        placeholder="Create a new password"
-                        disabled={loading}
-                        className={`${inputCls} pr-12`}
-                        {...registerReset("new_password", {
-                          required: "Password is required",
-                          minLength: {
-                            value: 6,
-                            message: "Password must be at least 6 characters",
-                          },
-                        })}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword((v) => !v)}
-                        aria-label={
-                          showPassword ? "Hide password" : "Show password"
-                        }
-                        className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-200"
-                      >
-                        {showPassword ? (
-                          <EyeOff size={18} />
-                        ) : (
-                          <Eye size={18} />
-                        )}
-                      </button>
-                    </div>
-                    {resetErrors.new_password && (
-                      <p className="mt-1 text-xs text-red-600">
-                        {resetErrors.new_password.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="flex gap-3 pt-1">
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className={primaryBtnCls}
-                    >
-                      {loading ? (
-                        <>
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          Resetting...
-                        </>
-                      ) : (
-                        <>
-                          Reset password
-                          <ArrowRight size={18} />
-                        </>
-                      )}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={handleCancel}
-                      disabled={loading}
-                      className={secondaryBtnCls}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </form>
-              )}
+            <div className="mb-8">
+              <h1 className="text-2xl font-bold sm:text-3xl">
+                Reset your password
+              </h1>
+              <p className="mt-2 text-sm text-gray-500 sm:text-base dark:text-gray-400">
+                {step === 1
+                  ? "Enter your email to receive a reset code."
+                  : "Enter the code we emailed you and choose a new password."}
+              </p>
             </div>
+
+            {feedback && (
+              <div
+                role="alert"
+                className={`mb-6 rounded-xl border px-4 py-3 text-sm ${
+                  feedback.type === "success"
+                    ? "border-green-200 bg-green-50 text-green-800 dark:border-green-500/30 dark:bg-green-500/10 dark:text-green-200"
+                    : "border-red-200 bg-red-50 text-red-800 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200"
+                }`}
+              >
+                {feedback.message}
+              </div>
+            )}
+
+            {step === 1 ? (
+              <form
+                onSubmit={handleEmailSubmit(onSubmitEmail)}
+                noValidate
+                className="space-y-5"
+              >
+                {/* Email */}
+                <div>
+                  <label htmlFor="email" className={labelCls}>
+                    Email address
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    autoComplete="email"
+                    inputMode="email"
+                    placeholder="e.g. john@example.com"
+                    disabled={loading}
+                    className={inputCls}
+                    {...registerEmail("email", {
+                      required: "Email is required",
+                    })}
+                  />
+                  {emailErrors.email && (
+                    <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                      {emailErrors.email.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex gap-3 pt-1">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className={primaryBtnCls}
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        Send code
+                        <ArrowRight size={18} />
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleCancel}
+                    disabled={loading}
+                    className={secondaryBtnCls}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <form
+                onSubmit={handleResetSubmit(onSubmitReset)}
+                noValidate
+                className="space-y-5"
+              >
+                {/* Email (read only) */}
+                <div>
+                  <label htmlFor="email_readonly" className={labelCls}>
+                    Email address
+                  </label>
+                  <input
+                    id="email_readonly"
+                    type="text"
+                    readOnly
+                    value={emailValue}
+                    className={`${inputCls} cursor-not-allowed bg-gray-50 text-gray-500 dark:bg-white/[0.03] dark:text-gray-400`}
+                  />
+                </div>
+
+                {/* Reset code */}
+                <div>
+                  <label htmlFor="reset_code" className={labelCls}>
+                    Reset code
+                  </label>
+                  <input
+                    id="reset_code"
+                    type="text"
+                    autoComplete="one-time-code"
+                    placeholder="Enter the code from your email"
+                    disabled={loading}
+                    className={inputCls}
+                    {...registerReset("reset_code", {
+                      required: "Reset code is required",
+                    })}
+                  />
+                  {resetErrors.reset_code && (
+                    <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                      {resetErrors.reset_code.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* New password */}
+                <div>
+                  <label htmlFor="new_password" className={labelCls}>
+                    New password
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="new_password"
+                      type={showPassword ? "text" : "password"}
+                      autoComplete="new-password"
+                      placeholder="Create a new password"
+                      disabled={loading}
+                      className={`${inputCls} pr-12`}
+                      {...registerReset("new_password", {
+                        required: "Password is required",
+                        minLength: {
+                          value: 6,
+                          message: "Password must be at least 6 characters",
+                        },
+                      })}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((v) => !v)}
+                      aria-label={
+                        showPassword ? "Hide password" : "Show password"
+                      }
+                      className="absolute right-1.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/40 dark:hover:bg-white/10 dark:hover:text-gray-200"
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                  {resetErrors.new_password && (
+                    <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                      {resetErrors.new_password.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex gap-3 pt-1">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className={primaryBtnCls}
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Resetting...
+                      </>
+                    ) : (
+                      <>
+                        Reset password
+                        <ArrowRight size={18} />
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleCancel}
+                    disabled={loading}
+                    className={secondaryBtnCls}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </section>
       </div>

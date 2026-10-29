@@ -8,7 +8,7 @@ import TopNav from "@/components/ui/DynamicTopNav";
 function Block({ className }: { className: string }): JSX.Element {
   return (
     <div
-      className={`bg-gray-200 dark:bg-gray-700 rounded animate-pulse ${className}`}
+      className={`bg-gray-200 dark:bg-gray-700/60 rounded animate-pulse ${className}`}
     />
   );
 }
@@ -17,7 +17,7 @@ function Block({ className }: { className: string }): JSX.Element {
 
 function HeaderSkeleton(): JSX.Element {
   return (
-    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm">
+    <div className="bg-gray-50 dark:bg-[#2a2e36] border border-gray-200 dark:border-gray-700/60 rounded-2xl p-6 shadow-sm">
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div className="space-y-2 flex-1">
           <Block className="h-6 w-3/4 sm:w-2/3" />
@@ -44,14 +44,14 @@ function HeaderSkeleton(): JSX.Element {
 
 function PackageDetailsSkeleton(): JSX.Element {
   return (
-    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm space-y-6">
+    <div className="bg-gray-50 dark:bg-[#2a2e36] border border-gray-200 dark:border-gray-700/60 rounded-2xl p-6 shadow-sm space-y-6">
       <Block className="h-6 w-40" />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
-            className="rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40 p-4 space-y-2"
+            className="rounded-xl border border-gray-200 dark:border-gray-700/60 bg-white dark:bg-[#1f2228] p-4 space-y-2"
           >
             <Block className="h-3 w-16" />
             <Block className="h-5 w-20" />
@@ -81,14 +81,14 @@ function PackageDetailsSkeleton(): JSX.Element {
 
 function PhasesSkeleton(): JSX.Element {
   return (
-    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm">
+    <div className="bg-gray-50 dark:bg-[#2a2e36] border border-gray-200 dark:border-gray-700/60 rounded-2xl p-6 shadow-sm">
       <Block className="h-6 w-40 mb-5" />
 
       <div className="space-y-3">
         {Array.from({ length: 3 }).map((_, i) => (
           <div
             key={i}
-            className="flex items-center justify-between gap-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40 px-4 py-3.5"
+            className="flex items-center justify-between gap-4 rounded-xl border border-gray-200 dark:border-gray-700/60 bg-white dark:bg-[#1f2228] px-4 py-3.5"
           >
             <div className="space-y-2">
               <Block className="h-4 w-28" />
@@ -108,14 +108,14 @@ function PhasesSkeleton(): JSX.Element {
 
 function DeliveriesSkeleton(): JSX.Element {
   return (
-    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm">
+    <div className="bg-gray-50 dark:bg-[#2a2e36] border border-gray-200 dark:border-gray-700/60 rounded-2xl p-6 shadow-sm">
       <Block className="h-6 w-32 mb-5" />
 
       <div className="space-y-4">
         {Array.from({ length: 2 }).map((_, i) => (
           <div
             key={i}
-            className="rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40 p-5 space-y-3"
+            className="rounded-xl border border-gray-200 dark:border-gray-700/60 bg-white dark:bg-[#1f2228] p-5 space-y-3"
           >
             <Block className="h-4 w-full" />
             <Block className="h-4 w-4/5" />
@@ -132,7 +132,7 @@ function DeliveriesSkeleton(): JSX.Element {
 
 export default function ServiceOrderDetailsSkeleton(): JSX.Element {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="min-h-screen bg-white dark:bg-[#1f2228]">
       <TopNav title="Order Details" />
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6">

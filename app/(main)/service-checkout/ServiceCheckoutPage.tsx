@@ -185,14 +185,14 @@ export default function ServiceCheckoutPage(): JSX.Element {
 
   if (loading)
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-950 transition-colors">
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#1f2228] transition-colors">
         <Loader2 className="w-8 h-8 animate-spin text-gray-600 dark:text-gray-400" />
       </div>
     );
 
   if (!service || !selectedPackage)
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-950 transition-colors">
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#1f2228] transition-colors">
         <AlertCircle className="w-6 h-6 text-gray-500 dark:text-gray-400" />
       </div>
     );
@@ -223,13 +223,13 @@ export default function ServiceCheckoutPage(): JSX.Element {
   /* ---------------- UI ---------------- */
 
   return (
-    <main className="min-h-screen bg-white dark:bg-gray-950 transition-colors">
+    <main className="min-h-screen bg-white dark:bg-[#1f2228] transition-colors">
       <TopNav title="Checkout" />
 
-      <div className="bg-gray-50 dark:bg-gray-900 min-h-screen py-2 px-4 space-y-6 transition-colors">
+      <div className="bg-white dark:bg-[#1f2228] min-h-screen py-2 px-4 space-y-6 transition-colors">
         {/* SERVICE INFO */}
         <div className="py-6 px-2 space-y-2">
-          <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
             {service.title}
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -239,10 +239,10 @@ export default function ServiceCheckoutPage(): JSX.Element {
         </div>
 
         {/* PACKAGE INFO */}
-        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
-          <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-800 flex items-start justify-between gap-4">
+        <div className="bg-gray-50 dark:bg-[#2a2e36] rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700/60 overflow-hidden">
+          <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700/60 flex items-start justify-between gap-4">
             <div>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                 {selectedPackage.name}
               </h2>
               {selectedPackage.description && (
@@ -255,8 +255,7 @@ export default function ServiceCheckoutPage(): JSX.Element {
               <p className="text-xs text-gray-500 dark:text-gray-400">
                 Package Price
               </p>
-
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
                 {format(selectedPackage.price)}
               </p>
             </div>
@@ -295,8 +294,8 @@ export default function ServiceCheckoutPage(): JSX.Element {
 
           {Array.isArray(selectedPackage.features) &&
             selectedPackage.features.length > 0 && (
-              <div className="px-6 py-5 border-t border-gray-100 dark:border-gray-800">
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">
+              <div className="px-6 py-5 border-t border-gray-200 dark:border-gray-700/60">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
                   What’s Included
                 </h3>
                 <ul className="grid md:grid-cols-2 gap-y-2 gap-x-6 text-sm text-gray-700 dark:text-gray-300">
@@ -313,8 +312,8 @@ export default function ServiceCheckoutPage(): JSX.Element {
 
         {/* EXTRAS */}
         {selectedExtras.length > 0 && (
-          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-6">
-            <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-2">
+          <div className="bg-gray-50 dark:bg-[#2a2e36] rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700/60 p-6">
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
               Selected Extras
             </h3>
             <ul className="text-sm text-gray-700 dark:text-gray-300 list-disc list-inside space-y-1">
@@ -331,8 +330,8 @@ export default function ServiceCheckoutPage(): JSX.Element {
         {/* REQUIREMENTS */}
         {Array.isArray(service.requirements) &&
           service.requirements.length > 0 && (
-            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-6 space-y-5">
-              <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-lg">
+            <div className="bg-gray-50 dark:bg-[#2a2e36] rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700/60 p-6 space-y-5">
+              <h3 className="font-semibold text-gray-900 dark:text-white text-lg">
                 Requirements
               </h3>
               {service.requirements.map((req) => {
@@ -354,7 +353,7 @@ export default function ServiceCheckoutPage(): JSX.Element {
                         onChange={(e) =>
                           handleRequirementChange(req.id, e.target.value)
                         }
-                        className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-lg px-3 py-2 text-sm"
+                        className="w-full border border-gray-200 dark:border-gray-700/60 bg-white dark:bg-[#1f2228] text-gray-700 dark:text-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-400/20"
                       />
                     )}
 
@@ -384,8 +383,8 @@ export default function ServiceCheckoutPage(): JSX.Element {
                         }
                         className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition ${
                           dragActive === req.id
-                            ? "border-black dark:border-white bg-gray-100 dark:bg-gray-800"
-                            : "border-gray-300 dark:border-gray-700 hover:border-gray-500 dark:hover:border-gray-400"
+                            ? "border-orange-500 bg-orange-50 dark:bg-orange-500/10"
+                            : "border-gray-300 dark:border-gray-700/60 hover:border-gray-400 dark:hover:border-gray-500"
                         }`}
                       >
                         {answer instanceof File ? (
@@ -435,8 +434,8 @@ export default function ServiceCheckoutPage(): JSX.Element {
                                 key={opt}
                                 className={`flex items-center gap-3 border rounded-lg px-3 py-2 cursor-pointer transition ${
                                   selected
-                                    ? "border-black dark:border-white bg-gray-50 dark:bg-gray-800"
-                                    : "border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500"
+                                    ? "border-orange-400 bg-orange-50 dark:border-orange-500/50 dark:bg-orange-500/10"
+                                    : "border-gray-200 dark:border-gray-700/60 hover:border-gray-400 dark:hover:border-gray-500 bg-white dark:bg-[#1f2228]"
                                 }`}
                               >
                                 <input
@@ -464,7 +463,7 @@ export default function ServiceCheckoutPage(): JSX.Element {
                                       handleRequirementChange(req.id, opt);
                                     }
                                   }}
-                                  className="accent-black dark:accent-white"
+                                  className="accent-orange-500"
                                 />
                                 <span className="text-sm text-gray-700 dark:text-gray-300">
                                   {opt}
@@ -480,15 +479,16 @@ export default function ServiceCheckoutPage(): JSX.Element {
             </div>
           )}
 
-        <div className="bg-black dark:bg-white text-white dark:text-black rounded-2xl p-6 flex flex-col gap-3 transition-colors">
+        <div className="bg-gray-900 dark:bg-[#2a2e36] text-white rounded-2xl border border-gray-800 dark:border-gray-700/60 p-6 flex flex-col gap-3 transition-colors">
           <div className="flex justify-between">
-            <span>Total</span>
-
-            <span className="text-xl font-bold">{format(totalPrice)}</span>
+            <span className="text-gray-300">Total</span>
+            <span className="text-xl font-bold text-white">
+              {format(totalPrice)}
+            </span>
           </div>
           <button
             onClick={handleProceedToPayment}
-            className="w-full py-3 rounded-xl font-semibold bg-white dark:bg-black text-black dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 transition"
+            className="w-full py-3 rounded-xl font-semibold bg-orange-500 hover:bg-orange-600 text-white transition active:scale-[0.98]"
           >
             Proceed to Payment
           </button>

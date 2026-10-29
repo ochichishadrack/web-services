@@ -44,10 +44,10 @@ const BENEFITS = [
 ];
 
 const labelCls =
-  "mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200";
+  "mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-200";
 
 const inputCls =
-  "h-[50px] w-full rounded-xl border border-slate-300 bg-white px-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:ring-orange-500/20";
+  "h-11 w-full rounded-xl border border-gray-200 bg-white px-4 text-sm text-gray-900 placeholder:text-gray-400 outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-gray-500";
 
 export default function Register() {
   const { customer } = useCustomerAuth();
@@ -121,29 +121,18 @@ export default function Register() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-50 transition-colors dark:bg-gray-950">
+    <main className="min-h-screen bg-white text-gray-900 transition-colors dark:bg-[#1f2228] dark:text-white">
       <div className="mx-auto grid min-h-screen w-full max-w-7xl lg:grid-cols-2">
         {/* ---------- Brand panel (desktop only) ---------- */}
-        <aside className="relative hidden overflow-hidden bg-gradient-to-br from-orange-500 via-orange-600 to-orange-700 p-12 text-white lg:flex lg:flex-col lg:justify-between xl:p-16">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-white/10"
-          />
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -bottom-32 -left-20 h-96 w-96 rounded-full bg-black/10"
-          />
+        <aside className="hidden border-r border-gray-100 bg-gray-50/60 p-12 lg:flex lg:flex-col lg:justify-between xl:p-16 dark:border-white/10 dark:bg-white/[0.02]">
+          <div className="text-xl font-semibold tracking-tight">Maraspot</div>
 
-          <div className="relative text-2xl font-bold tracking-tight">
-            Maraspot
-          </div>
-
-          <div className="relative space-y-10">
+          <div className="space-y-10">
             <div>
-              <h2 className="text-4xl font-bold leading-tight xl:text-5xl">
+              <h2 className="text-3xl font-bold leading-tight xl:text-4xl">
                 Build your next project with Maraspot developers.
               </h2>
-              <p className="mt-4 max-w-md text-lg text-orange-50">
+              <p className="mt-3 max-w-md text-base text-gray-500 dark:text-gray-400">
                 Hire, track and pay for development work in one place.
               </p>
             </div>
@@ -151,190 +140,190 @@ export default function Register() {
             <ul className="space-y-6">
               {BENEFITS.map(({ icon: Icon, title, text }) => (
                 <li key={title} className="flex items-start gap-4">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/20">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-gray-100 bg-white text-gray-700 dark:border-white/10 dark:bg-white/5 dark:text-gray-200">
                     <Icon className="h-5 w-5" />
                   </span>
                   <div>
-                    <p className="font-semibold">{title}</p>
-                    <p className="mt-0.5 text-sm text-orange-50">{text}</p>
+                    <p className="text-sm font-semibold">{title}</p>
+                    <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
+                      {text}
+                    </p>
                   </div>
                 </li>
               ))}
             </ul>
           </div>
 
-          <p className="relative text-sm text-orange-100">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             &copy; {new Date().getFullYear()} Maraspot
           </p>
         </aside>
 
         {/* ---------- Form ---------- */}
         <section className="flex items-center justify-center px-4 py-10 sm:px-8 lg:px-12">
-          <div className="w-full max-w-xl">
+          <div className="w-full max-w-lg">
             {/* Mobile brand */}
-            <div className="mb-6 text-center text-2xl font-bold tracking-tight text-orange-600 lg:hidden">
+            <div className="mb-8 text-center text-xl font-semibold tracking-tight lg:hidden">
               Maraspot
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8 dark:border-slate-800 dark:bg-gray-900">
-              <div className="mb-6 text-center sm:mb-8 sm:text-left">
-                <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl dark:text-slate-100">
-                  Create your account
-                </h1>
-                <p className="mt-2 text-sm text-slate-600 sm:text-base dark:text-slate-400">
-                  Join Maraspot and start managing your projects.
-                </p>
-              </div>
-
-              {feedback && (
-                <div
-                  role="alert"
-                  className={`mb-6 rounded-xl px-4 py-3 text-center text-sm ${
-                    feedback.type === "success"
-                      ? "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300"
-                      : "bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300"
-                  }`}
-                >
-                  {feedback.message}
-                </div>
-              )}
-
-              <form
-                onSubmit={handleSubmit(onSubmit)}
-                noValidate
-                className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5"
-              >
-                <Field
-                  label="First name"
-                  placeholder="e.g. John"
-                  autoComplete="given-name"
-                  disabled={loading}
-                  error={errors.firstName?.message}
-                  {...register("firstName", { required: "Required" })}
-                />
-
-                <Field
-                  label="Last name"
-                  placeholder="e.g. Doe"
-                  autoComplete="family-name"
-                  disabled={loading}
-                  error={errors.lastName?.message}
-                  {...register("lastName", { required: "Required" })}
-                />
-
-                <div className="sm:col-span-2">
-                  <Field
-                    type="email"
-                    label="Email address"
-                    placeholder="e.g. john@example.com"
-                    autoComplete="email"
-                    inputMode="email"
-                    disabled={loading}
-                    error={errors.email?.message}
-                    {...register("email", { required: "Required" })}
-                  />
-                </div>
-
-                <Field
-                  type="tel"
-                  label="Primary phone"
-                  placeholder="e.g. +254712345678"
-                  autoComplete="tel"
-                  disabled={loading}
-                  error={errors.phonePrimary?.message}
-                  {...register("phonePrimary", {
-                    required: "Required",
-                    minLength: { value: 7, message: "Invalid" },
-                  })}
-                />
-
-                <Field
-                  type="tel"
-                  label="Secondary phone (optional)"
-                  placeholder="e.g. +254798765432"
-                  disabled={loading}
-                  error={errors.phoneSecondary?.message}
-                  {...register("phoneSecondary")}
-                />
-
-                {/* Password */}
-                <div className="sm:col-span-2">
-                  <label htmlFor="password" className={labelCls}>
-                    Password
-                  </label>
-                  <div className="relative">
-                    <input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      autoComplete="new-password"
-                      placeholder="Create a password"
-                      disabled={loading}
-                      className={`${inputCls} pr-12`}
-                      {...register("password", {
-                        required: "Required",
-                        minLength: { value: 6, message: "Min 6 chars" },
-                      })}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword((v) => !v)}
-                      aria-label={
-                        showPassword ? "Hide password" : "Show password"
-                      }
-                      className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-200"
-                    >
-                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
-                  </div>
-                  {errors.password && (
-                    <p className="mt-1 text-xs text-red-600">
-                      {errors.password.message}
-                    </p>
-                  )}
-                </div>
-
-                {/* Submit */}
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="mt-1 flex h-12 items-center justify-center gap-2 rounded-xl bg-orange-600 text-sm font-semibold text-white shadow-sm transition hover:bg-orange-700 focus:outline-none focus:ring-4 focus:ring-orange-200 disabled:cursor-not-allowed disabled:opacity-60 sm:col-span-2 dark:focus:ring-orange-500/30"
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Creating account...
-                    </>
-                  ) : (
-                    <>
-                      Create account
-                      <ArrowRight size={18} />
-                    </>
-                  )}
-                </button>
-              </form>
-
-              {/* Divider */}
-              <div className="relative my-6 text-center text-xs">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-slate-200 dark:border-slate-700" />
-                </div>
-                <span className="relative bg-white px-3 text-slate-500 dark:bg-gray-900 dark:text-slate-400">
-                  or continue with
-                </span>
-              </div>
-
-              <GoogleLoginButton callbackUrl={callbackUrl} />
-
-              <div className="mt-6 border-t border-slate-100 pt-5 text-center text-sm text-slate-600 dark:border-slate-800 dark:text-slate-400">
-                Already have an account?{" "}
-                <Link
-                  href={`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`}
-                  className="font-semibold text-orange-600 hover:underline"
-                >
-                  Sign in
-                </Link>
-              </div>
+            <div className="mb-8">
+              <h1 className="text-2xl font-bold sm:text-3xl">
+                Create your account
+              </h1>
+              <p className="mt-2 text-sm text-gray-500 sm:text-base dark:text-gray-400">
+                Join Maraspot and start managing your projects.
+              </p>
             </div>
+
+            {feedback && (
+              <div
+                role="alert"
+                className={`mb-6 rounded-xl border px-4 py-3 text-sm ${
+                  feedback.type === "success"
+                    ? "border-green-200 bg-green-50 text-green-800 dark:border-green-500/30 dark:bg-green-500/10 dark:text-green-200"
+                    : "border-red-200 bg-red-50 text-red-800 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200"
+                }`}
+              >
+                {feedback.message}
+              </div>
+            )}
+
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              noValidate
+              className="grid grid-cols-1 gap-5 sm:grid-cols-2"
+            >
+              <Field
+                label="First name"
+                placeholder="e.g. John"
+                autoComplete="given-name"
+                disabled={loading}
+                error={errors.firstName?.message}
+                {...register("firstName", { required: "Required" })}
+              />
+
+              <Field
+                label="Last name"
+                placeholder="e.g. Doe"
+                autoComplete="family-name"
+                disabled={loading}
+                error={errors.lastName?.message}
+                {...register("lastName", { required: "Required" })}
+              />
+
+              <div className="sm:col-span-2">
+                <Field
+                  type="email"
+                  label="Email address"
+                  placeholder="e.g. john@example.com"
+                  autoComplete="email"
+                  inputMode="email"
+                  disabled={loading}
+                  error={errors.email?.message}
+                  {...register("email", { required: "Required" })}
+                />
+              </div>
+
+              <Field
+                type="tel"
+                label="Primary phone"
+                placeholder="e.g. +254712345678"
+                autoComplete="tel"
+                disabled={loading}
+                error={errors.phonePrimary?.message}
+                {...register("phonePrimary", {
+                  required: "Required",
+                  minLength: { value: 7, message: "Invalid" },
+                })}
+              />
+
+              <Field
+                type="tel"
+                label="Secondary phone (optional)"
+                placeholder="e.g. +254798765432"
+                disabled={loading}
+                error={errors.phoneSecondary?.message}
+                {...register("phoneSecondary")}
+              />
+
+              {/* Password */}
+              <div className="sm:col-span-2">
+                <label htmlFor="password" className={labelCls}>
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="new-password"
+                    placeholder="Create a password"
+                    disabled={loading}
+                    className={`${inputCls} pr-12`}
+                    {...register("password", {
+                      required: "Required",
+                      minLength: { value: 6, message: "Min 6 chars" },
+                    })}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
+                    className="absolute right-1.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/40 dark:hover:bg-white/10 dark:hover:text-gray-200"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+                {errors.password && (
+                  <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                    {errors.password.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Submit */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex h-11 items-center justify-center gap-2 rounded-xl bg-orange-500 text-sm font-semibold text-white transition-colors hover:bg-orange-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/40 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 sm:col-span-2 dark:focus-visible:ring-offset-[#1f2228]"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Creating account...
+                  </>
+                ) : (
+                  <>
+                    Create account
+                    <ArrowRight size={18} />
+                  </>
+                )}
+              </button>
+            </form>
+
+            {/* Divider */}
+            <div className="relative my-6 text-center text-xs">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-100 dark:border-white/10" />
+              </div>
+              <span className="relative bg-white px-3 text-gray-500 dark:bg-[#1f2228] dark:text-gray-400">
+                or continue with
+              </span>
+            </div>
+
+            <GoogleLoginButton callbackUrl={callbackUrl} />
+
+            <p className="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
+              Already have an account?{" "}
+              <Link
+                href={`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`}
+                className="font-semibold text-gray-900 hover:underline dark:text-white"
+              >
+                Sign in
+              </Link>
+            </p>
           </div>
         </section>
       </div>
@@ -356,7 +345,9 @@ function Field({
         {label}
       </label>
       <input id={props.name} {...props} className={inputCls} />
-      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+      {error && (
+        <p className="mt-1 text-xs text-red-600 dark:text-red-400">{error}</p>
+      )}
     </div>
   );
 }

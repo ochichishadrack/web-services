@@ -3,7 +3,7 @@ import ServiceCheckoutPage from "./ServiceCheckoutPage";
 
 export default function Page() {
   return (
-    <main className="min-h-screen bg-white dark:bg-gray-950 transition-colors">
+    <main className="min-h-screen bg-white dark:bg-[#1f2228] transition-colors">
       <Suspense fallback={<CheckoutLoading />}>
         <ServiceCheckoutPage />
       </Suspense>
@@ -13,7 +13,7 @@ export default function Page() {
 
 function CheckoutLoading() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-950 transition-colors">
+    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#1f2228] transition-colors">
       <p className="text-gray-500 dark:text-gray-400">Loading checkout...</p>
     </div>
   );

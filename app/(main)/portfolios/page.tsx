@@ -171,26 +171,26 @@ export default function PortfolioPage() {
   }, [items]);
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-zinc-100 transition-colors">
+    <div className="min-h-screen bg-white text-gray-900 dark:bg-[#1f2228] dark:text-white transition-colors">
       <TopNav activePage="portfolios" />
 
       {/* Toolbar */}
-      <section className="sticky top-16 z-20 border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950">
+      <section className="sticky top-16 z-20 border-b border-gray-200 bg-white dark:border-gray-700/60 dark:bg-[#1f2228]">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 py-3.5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-zinc-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input
               type="search"
               placeholder="Search projects…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full rounded-xl border border-gray-200 bg-gray-50/80 py-2 pl-9 pr-9 text-sm outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-400/20 dark:border-zinc-700 dark:bg-zinc-900 dark:focus:border-orange-500"
+              className="w-full rounded-xl border border-gray-200 bg-gray-50/80 py-2 pl-9 pr-9 text-sm outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-400/20 dark:border-gray-700/60 dark:bg-[#2a2e36] dark:focus:border-orange-500"
             />
             {search && (
               <button
                 type="button"
                 onClick={() => setSearch("")}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-md p-0.5 text-gray-400 hover:text-gray-600 dark:hover:text-zinc-300"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-md p-0.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
@@ -203,7 +203,7 @@ export default function PortfolioPage() {
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="appearance-none rounded-xl border border-gray-200 bg-white py-2 pl-8 pr-8 text-sm outline-none focus:border-orange-400 dark:border-zinc-700 dark:bg-zinc-900"
+                className="appearance-none rounded-xl border border-gray-200 bg-white py-2 pl-8 pr-8 text-sm outline-none focus:border-orange-400 dark:border-gray-700/60 dark:bg-[#2a2e36]"
               >
                 <option value="all">All categories</option>
                 {categories.map((c) => (
@@ -217,7 +217,7 @@ export default function PortfolioPage() {
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value as SortKey)}
-              className="rounded-xl border border-gray-200 bg-white py-2 px-3 text-sm outline-none focus:border-orange-400 dark:border-zinc-700 dark:bg-zinc-900"
+              className="rounded-xl border border-gray-200 bg-white py-2 px-3 text-sm outline-none focus:border-orange-400 dark:border-gray-700/60 dark:bg-[#2a2e36]"
             >
               <option value="featured">Featured first</option>
               <option value="newest">Newest</option>
@@ -230,7 +230,7 @@ export default function PortfolioPage() {
               className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 text-sm font-medium transition ${
                 featuredOnly
                   ? "border-orange-300 bg-orange-50 text-orange-700 dark:border-orange-500/40 dark:bg-orange-500/15 dark:text-orange-400"
-                  : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-400"
+                  : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 dark:border-gray-700/60 dark:bg-[#2a2e36] dark:text-gray-400"
               }`}
             >
               <Star
@@ -239,14 +239,14 @@ export default function PortfolioPage() {
               Featured
             </button>
 
-            <div className="flex rounded-xl border border-gray-200 p-0.5 dark:border-zinc-700">
+            <div className="flex rounded-xl border border-gray-200 p-0.5 dark:border-gray-700/60">
               <button
                 type="button"
                 onClick={() => setView("grid")}
                 className={`rounded-lg p-1.5 transition ${
                   view === "grid"
                     ? "bg-orange-100 text-orange-600 dark:bg-orange-500/20 dark:text-orange-400"
-                    : "text-gray-400 hover:text-gray-600 dark:hover:text-zinc-300"
+                    : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                 }`}
                 aria-label="Grid view"
               >
@@ -258,7 +258,7 @@ export default function PortfolioPage() {
                 className={`rounded-lg p-1.5 transition ${
                   view === "list"
                     ? "bg-orange-100 text-orange-600 dark:bg-orange-500/20 dark:text-orange-400"
-                    : "text-gray-400 hover:text-gray-600 dark:hover:text-zinc-300"
+                    : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                 }`}
                 aria-label="List view"
               >
@@ -272,7 +272,7 @@ export default function PortfolioPage() {
       {/* Content */}
       <section className="mx-auto max-w-6xl px-4 sm:px-6 py-10 sm:py-12">
         {loading ? (
-          <div className="flex flex-col items-center justify-center gap-3 py-24 text-gray-500 dark:text-zinc-500">
+          <div className="flex flex-col items-center justify-center gap-3 py-24 text-gray-500 dark:text-gray-400">
             <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
             <p className="text-sm">Loading projects…</p>
           </div>
@@ -288,9 +288,9 @@ export default function PortfolioPage() {
             </button>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-gray-200 py-20 text-center dark:border-zinc-700">
-            <Globe className="mx-auto h-10 w-10 text-gray-300 dark:text-zinc-600" />
-            <p className="mt-3 text-sm font-medium text-gray-600 dark:text-zinc-400">
+          <div className="rounded-2xl border border-dashed border-gray-200 py-20 text-center dark:border-gray-700/60">
+            <Globe className="mx-auto h-10 w-10 text-gray-300 dark:text-gray-600" />
+            <p className="mt-3 text-sm font-medium text-gray-600 dark:text-gray-400">
               No projects match your filters
             </p>
             <button
@@ -320,7 +320,7 @@ export default function PortfolioPage() {
         )}
 
         {!loading && filtered.length > 0 && (
-          <p className="mt-8 text-center text-xs text-gray-400 dark:text-zinc-500">
+          <p className="mt-8 text-center text-xs text-gray-400 dark:text-gray-500">
             Showing {filtered.length}
             {total > filtered.length ? ` of ${total}` : ""} project
             {filtered.length === 1 ? "" : "s"}
@@ -331,12 +331,12 @@ export default function PortfolioPage() {
       {/* Compact CTA */}
       <section>
         <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8 sm:py-10">
-          <div className="flex flex-col gap-4 rounded-2xl border border-gray-200 px-5 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-8 sm:py-7 dark:border-gray-800">
+          <div className="flex flex-col gap-4 rounded-2xl border border-gray-200 bg-gray-50 px-5 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-8 sm:py-7 dark:border-gray-700/60 dark:bg-[#2a2e36]">
             <div>
-              <h2 className="text-lg font-bold tracking-tight text-zinc-900 sm:text-xl dark:text-white">
+              <h2 className="text-lg font-bold tracking-tight text-gray-900 sm:text-xl dark:text-white">
                 Ready to ship your next product?
               </h2>
-              <p className="mt-1 max-w-md text-sm text-zinc-600 dark:text-zinc-400">
+              <p className="mt-1 max-w-md text-sm text-gray-600 dark:text-gray-400">
                 SaaS platforms, e-commerce, ERPs, and custom web systems —
                 engineered for performance and conversion.
               </p>
@@ -351,7 +351,7 @@ export default function PortfolioPage() {
               </Link>
               <a
                 href="mailto:maraspot.ke@gmail.com"
-                className="inline-flex items-center gap-1.5 rounded-xl border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-900 transition hover:bg-zinc-100 dark:border-white/20 dark:text-white dark:hover:bg-white/10"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-900 transition hover:bg-gray-100 dark:border-gray-600 dark:text-white dark:hover:bg-white/10"
               >
                 Get a quote
               </a>
@@ -370,10 +370,10 @@ function ProjectCard({ project }: { project: PortfolioListOut }) {
   const href = `/portfolios/${project.slug || project.id}`;
 
   return (
-    <li className="group relative flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:border-orange-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-orange-500/40">
+    <li className="group relative flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 shadow-sm transition hover:border-orange-300 hover:shadow-md dark:border-gray-700/60 dark:bg-[#2a2e36] dark:hover:border-orange-500/40">
       <Link
         href={href}
-        className="relative aspect-[16/10] overflow-hidden bg-gray-100 dark:bg-zinc-800"
+        className="relative aspect-[16/10] overflow-hidden bg-gray-100 dark:bg-[#1f2228]"
       >
         {cover ? (
           cover.media_type === "video" ? (
@@ -395,7 +395,7 @@ function ProjectCard({ project }: { project: PortfolioListOut }) {
           )
         ) : (
           <div className="flex h-full w-full items-center justify-center">
-            <Globe className="h-12 w-12 text-gray-300 dark:text-zinc-600" />
+            <Globe className="h-12 w-12 text-gray-300 dark:text-gray-600" />
           </div>
         )}
 
@@ -426,7 +426,7 @@ function ProjectCard({ project }: { project: PortfolioListOut }) {
         </div>
 
         {project.summary && (
-          <p className="mt-2 text-sm text-gray-500 dark:text-zinc-400 line-clamp-2 leading-relaxed">
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed">
             {project.summary}
           </p>
         )}
@@ -434,7 +434,7 @@ function ProjectCard({ project }: { project: PortfolioListOut }) {
         <div className="mt-auto pt-4 flex items-center justify-between gap-2">
           <div className="min-w-0">
             {project.client && (
-              <p className="text-xs text-gray-400 dark:text-zinc-500 truncate">
+              <p className="text-xs text-gray-400 dark:text-gray-500 truncate">
                 {project.client}
               </p>
             )}
@@ -457,10 +457,10 @@ function ProjectRow({ project }: { project: PortfolioListOut }) {
   const href = `/portfolios/${project.slug || project.id}`;
 
   return (
-    <li className="group flex flex-col sm:flex-row overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:border-orange-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-orange-500/40">
+    <li className="group flex flex-col sm:flex-row overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 shadow-sm transition hover:border-orange-300 hover:shadow-md dark:border-gray-700/60 dark:bg-[#2a2e36] dark:hover:border-orange-500/40">
       <Link
         href={href}
-        className="relative aspect-[16/10] sm:aspect-auto sm:w-48 sm:shrink-0 overflow-hidden bg-gray-100 dark:bg-zinc-800"
+        className="relative aspect-[16/10] sm:aspect-auto sm:w-48 sm:shrink-0 overflow-hidden bg-gray-100 dark:bg-[#1f2228]"
       >
         {cover ? (
           cover.media_type === "video" ? (
@@ -482,7 +482,7 @@ function ProjectRow({ project }: { project: PortfolioListOut }) {
           )
         ) : (
           <div className="flex h-full min-h-[120px] w-full items-center justify-center">
-            <Globe className="h-8 w-8 text-gray-300 dark:text-zinc-600" />
+            <Globe className="h-8 w-8 text-gray-300 dark:text-gray-600" />
           </div>
         )}
       </Link>
@@ -497,7 +497,7 @@ function ProjectRow({ project }: { project: PortfolioListOut }) {
             </span>
           )}
           {project.year && (
-            <span className="text-[11px] text-gray-400 dark:text-zinc-500">
+            <span className="text-[11px] text-gray-400 dark:text-gray-500">
               {project.year}
             </span>
           )}
@@ -508,16 +508,16 @@ function ProjectRow({ project }: { project: PortfolioListOut }) {
         </h3>
 
         {project.summary && (
-          <p className="mt-1 text-sm text-gray-500 dark:text-zinc-400 line-clamp-2">
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
             {project.summary}
           </p>
         )}
 
-        <div className="mt-3 flex items-center gap-3 text-xs text-gray-400 dark:text-zinc-500">
+        <div className="mt-3 flex items-center gap-3 text-xs text-gray-400 dark:text-gray-500">
           {project.client && <span>{project.client}</span>}
           {project.subcategory && (
             <>
-              <span className="text-gray-300 dark:text-zinc-600">·</span>
+              <span className="text-gray-300 dark:text-gray-600">·</span>
               <span className="capitalize">{project.subcategory}</span>
             </>
           )}
@@ -527,7 +527,7 @@ function ProjectRow({ project }: { project: PortfolioListOut }) {
       <div className="flex items-center px-4 pb-4 sm:pb-0 sm:pr-5">
         <Link
           href={href}
-          className="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 px-3.5 py-2 text-sm font-medium text-gray-700 hover:border-orange-300 hover:text-orange-600 transition dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-orange-500/40 dark:hover:text-orange-400"
+          className="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 px-3.5 py-2 text-sm font-medium text-gray-700 hover:border-orange-300 hover:text-orange-600 transition dark:border-gray-700/60 dark:text-gray-300 dark:hover:border-orange-500/40 dark:hover:text-orange-400"
         >
           View project
           <ExternalLink className="h-3.5 w-3.5" />

@@ -1,9 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import type { FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { AlertTriangle, Loader2, ArrowRight } from "lucide-react";
 import { getApiBaseUrl } from "@/api/api";
+
+const labelCls =
+  "mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-200";
+
+const inputCls =
+  "h-11 w-full rounded-xl border border-gray-200 bg-white px-4 text-base sm:text-sm text-gray-900 placeholder:text-gray-400 outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-gray-500";
 
 export default function CompletePhonePage() {
   const router = useRouter();
@@ -14,8 +22,10 @@ export default function CompletePhonePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const submitPhone = async () => {
-    if (!phonePrimary) {
+  const submitPhone = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!phonePrimary.trim()) {
       setError("Primary phone number is required");
       return;
     }
@@ -52,93 +62,103 @@ export default function CompletePhonePage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-sm">
-        {/* Brand Header */}
-        <div className="mb-6 text-center">
-          <div className="flex justify-center mb-2">
+    <main className="flex min-h-[100dvh] items-center justify-center bg-white px-4 py-10 pb-[max(2.5rem,env(safe-area-inset-bottom))] pt-[max(2.5rem,env(safe-area-inset-top))] text-gray-900 transition-colors sm:px-6 dark:bg-[#1f2228] dark:text-white">
+      <div className="w-full max-w-md">
+        {/* Brand header */}
+        <div className="mb-8 text-center">
+          <div className="mb-3 flex justify-center">
             <Image
               src="/icons/icon-192.png"
               alt="Maraspot"
-              width={56}
-              height={56}
+              width={48}
+              height={48}
               priority
+              className="h-12 w-12 rounded-xl"
             />
           </div>
 
-          <h1 className="text-xl font-semibold tracking-tight text-gray-900">
-            Maraspot
+          <h1 className="text-2xl font-bold sm:text-3xl">
+            Complete your profile
           </h1>
-
-          <p className="text-sm text-gray-500 mt-1">Complete your profile</p>
+          <p className="mt-2 text-sm text-gray-500 sm:text-base dark:text-gray-400">
+            Add your phone number so we can reach you about your projects.
+          </p>
         </div>
 
-        {/* Card */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 space-y-5">
-          {/* Error Alert */}
-          {error && (
-            <div
-              role="alert"
-              className="flex gap-3 items-start rounded-lg border border-red-200 
-              bg-red-50 px-4 py-3 text-sm text-red-800"
-            >
-              <span className="mt-0.5 text-red-500">⚠</span>
-              <div>
-                <p className="font-medium">Submission failed</p>
-                <p>{error}</p>
-              </div>
+        {/* Error alert */}
+        {error && (
+          <div
+            role="alert"
+            className="mb-6 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200"
+          >
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+            <div className="min-w-0">
+              <p className="font-medium">Submission failed</p>
+              <p className="break-words">{error}</p>
             </div>
-          )}
+          </div>
+        )}
 
-          {/* Primary Phone */}
-          <div className="relative">
-            <input
-              value={phonePrimary}
-              onChange={(e) => setPhonePrimary(e.target.value)}
-              placeholder=" "
-              className="peer w-full text-gray-900 rounded-md border border-gray-300 
-              px-3 pt-5 pb-2 text-sm focus:ring-2 focus:ring-orange-500 
-              focus:border-orange-500 outline-none"
-            />
-            <label
-              className="absolute left-3 top-2.5 text-xs text-gray-500 transition-all
-              peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm
-              peer-focus:top-2.5 peer-focus:text-xs"
-            >
+        <form onSubmit={submitPhone} noValidate className="space-y-5">
+          {/* Primary phone */}
+          <div>
+            <label htmlFor="phonePrimary" className={labelCls}>
               Primary phone number
             </label>
+            <input
+              id="phonePrimary"
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
+              placeholder="e.g. +254712345678"
+              value={phonePrimary}
+              onChange={(e) => setPhonePrimary(e.target.value)}
+              disabled={loading}
+              className={inputCls}
+            />
           </div>
 
-          {/* Secondary Phone */}
-          <div className="relative">
+          {/* Secondary phone */}
+          <div>
+            <label htmlFor="phoneSecondary" className={labelCls}>
+              Secondary phone number{" "}
+              <span className="font-normal text-gray-400 dark:text-gray-500">
+                (optional)
+              </span>
+            </label>
             <input
+              id="phoneSecondary"
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
+              placeholder="e.g. +254798765432"
               value={phoneSecondary}
               onChange={(e) => setPhoneSecondary(e.target.value)}
-              placeholder=" "
-              className="peer w-full text-gray-900 rounded-md border border-gray-300 
-              px-3 pt-5 pb-2 text-sm focus:ring-2 focus:ring-orange-500 
-              focus:border-orange-500 outline-none"
+              disabled={loading}
+              className={inputCls}
             />
-            <label
-              className="absolute left-3 top-2.5 text-xs text-gray-500 transition-all
-              peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm
-              peer-focus:top-2.5 peer-focus:text-xs"
-            >
-              Secondary phone number (optional)
-            </label>
           </div>
 
-          {/* Submit Button */}
+          {/* Submit */}
           <button
-            onClick={submitPhone}
+            type="submit"
             disabled={loading}
-            className="w-full bg-orange-600 hover:bg-orange-700 
-            text-white font-medium py-2 rounded-md transition disabled:opacity-50"
+            className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-orange-500 text-sm font-semibold text-white transition-colors hover:bg-orange-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/40 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 dark:focus-visible:ring-offset-[#1f2228]"
           >
-            {loading ? "Saving..." : "Continue"}
+            {loading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                Continue
+                <ArrowRight size={18} />
+              </>
+            )}
           </button>
-        </div>
+        </form>
       </div>
-    </div>
+    </main>
   );
 }

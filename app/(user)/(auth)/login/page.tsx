@@ -41,10 +41,13 @@ const BENEFITS = [
 ];
 
 const labelCls =
-  "mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200";
+  "mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-200";
 
 const inputCls =
-  "h-[50px] w-full rounded-xl border border-slate-300 bg-white px-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:ring-orange-500/20";
+  "h-11 w-full rounded-xl border border-gray-200 bg-white px-4 text-sm text-gray-900 placeholder:text-gray-400 outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-gray-500";
+
+const secondaryBtn =
+  "flex h-11 w-full items-center justify-center rounded-xl border border-gray-200 bg-white text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/40 dark:border-white/10 dark:bg-transparent dark:text-gray-200 dark:hover:bg-white/5";
 
 export default function Login() {
   const [loading, setLoading] = useState(false);
@@ -111,29 +114,18 @@ export default function Login() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-50 transition-colors dark:bg-gray-950">
+    <main className="min-h-screen bg-white text-gray-900 transition-colors dark:bg-[#1f2228] dark:text-white">
       <div className="mx-auto grid min-h-screen w-full max-w-7xl lg:grid-cols-2">
         {/* ---------- Brand panel (desktop only) ---------- */}
-        <aside className="relative hidden overflow-hidden bg-gradient-to-br from-orange-500 via-orange-600 to-orange-700 p-12 text-white lg:flex lg:flex-col lg:justify-between xl:p-16">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-white/10"
-          />
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -bottom-32 -left-20 h-96 w-96 rounded-full bg-black/10"
-          />
+        <aside className="hidden border-r border-gray-100 bg-gray-50/60 p-12 lg:flex lg:flex-col lg:justify-between xl:p-16 dark:border-white/10 dark:bg-white/[0.02]">
+          <div className="text-xl font-semibold tracking-tight">Maraspot</div>
 
-          <div className="relative text-2xl font-bold tracking-tight">
-            Maraspot
-          </div>
-
-          <div className="relative space-y-10">
+          <div className="space-y-10">
             <div>
-              <h2 className="text-4xl font-bold leading-tight xl:text-5xl">
+              <h2 className="text-3xl font-bold leading-tight xl:text-4xl">
                 Welcome back to your projects.
               </h2>
-              <p className="mt-4 max-w-md text-lg text-orange-50">
+              <p className="mt-3 max-w-md text-base text-gray-500 dark:text-gray-400">
                 Pick up right where you left off with your developers.
               </p>
             </div>
@@ -141,179 +133,177 @@ export default function Login() {
             <ul className="space-y-6">
               {BENEFITS.map(({ icon: Icon, title, text }) => (
                 <li key={title} className="flex items-start gap-4">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/20">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-gray-100 bg-white text-gray-700 dark:border-white/10 dark:bg-white/5 dark:text-gray-200">
                     <Icon className="h-5 w-5" />
                   </span>
                   <div>
-                    <p className="font-semibold">{title}</p>
-                    <p className="mt-0.5 text-sm text-orange-50">{text}</p>
+                    <p className="text-sm font-semibold">{title}</p>
+                    <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
+                      {text}
+                    </p>
                   </div>
                 </li>
               ))}
             </ul>
           </div>
 
-          <p className="relative text-sm text-orange-100">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             &copy; {new Date().getFullYear()} Maraspot
           </p>
         </aside>
 
         {/* ---------- Form ---------- */}
         <section className="flex items-center justify-center px-4 py-10 sm:px-8 lg:px-12">
-          <div className="w-full max-w-xl">
+          <div className="w-full max-w-md">
             {/* Mobile brand */}
-            <div className="mb-6 text-center text-2xl font-bold tracking-tight text-orange-600 lg:hidden">
+            <div className="mb-8 text-center text-xl font-semibold tracking-tight lg:hidden">
               Maraspot
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8 dark:border-slate-800 dark:bg-gray-900">
-              <div className="mb-6 text-center sm:mb-8 sm:text-left">
-                <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl dark:text-slate-100">
-                  Welcome back
-                </h1>
-                <p className="mt-2 text-sm text-slate-600 sm:text-base dark:text-slate-400">
-                  Sign in to continue to Maraspot.
-                </p>
-              </div>
-
-              {error && (
-                <div
-                  role="alert"
-                  className="mb-6 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-700 dark:bg-red-900/30 dark:text-red-200"
-                >
-                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-                  <div>
-                    <p className="font-medium">Sign-in failed</p>
-                    <p>{error}</p>
-                  </div>
-                </div>
-              )}
-
-              <form
-                onSubmit={handleSubmit(onSubmit)}
-                noValidate
-                className="space-y-4 sm:space-y-5"
-              >
-                {/* Email */}
-                <div>
-                  <label htmlFor="email" className={labelCls}>
-                    Email address
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    autoComplete="email"
-                    inputMode="email"
-                    placeholder="e.g. john@example.com"
-                    disabled={loading}
-                    className={inputCls}
-                    {...register("email", { required: "Email is required" })}
-                  />
-                  {errors.email && (
-                    <p className="mt-1 text-xs text-red-600">
-                      {errors.email.message}
-                    </p>
-                  )}
-                </div>
-
-                {/* Password */}
-                <div>
-                  <div className="mb-1.5 flex items-center justify-between">
-                    <label
-                      htmlFor="password"
-                      className="block text-sm font-medium text-slate-700 dark:text-slate-200"
-                    >
-                      Password
-                    </label>
-                    <Link
-                      href="/reset-password"
-                      className="text-sm font-medium text-orange-600 hover:underline"
-                    >
-                      Forgot password?
-                    </Link>
-                  </div>
-                  <div className="relative">
-                    <input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      autoComplete="current-password"
-                      placeholder="Enter your password"
-                      disabled={loading}
-                      className={`${inputCls} pr-12`}
-                      {...register("password", {
-                        required: "Password is required",
-                      })}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword((v) => !v)}
-                      aria-label={
-                        showPassword ? "Hide password" : "Show password"
-                      }
-                      className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-200"
-                    >
-                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
-                  </div>
-                  {errors.password && (
-                    <p className="mt-1 text-xs text-red-600">
-                      {errors.password.message}
-                    </p>
-                  )}
-                </div>
-
-                {/* Submit */}
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="mt-1 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-orange-600 text-sm font-semibold text-white shadow-sm transition hover:bg-orange-700 focus:outline-none focus:ring-4 focus:ring-orange-200 disabled:cursor-not-allowed disabled:opacity-60 dark:focus:ring-orange-500/30"
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Signing in...
-                    </>
-                  ) : (
-                    <>
-                      Sign in
-                      <ArrowRight size={18} />
-                    </>
-                  )}
-                </button>
-              </form>
-
-              {/* Divider */}
-              <div className="relative my-6 text-center text-xs">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-slate-200 dark:border-slate-700" />
-                </div>
-                <span className="relative bg-white px-3 text-slate-500 dark:bg-gray-900 dark:text-slate-400">
-                  or
-                </span>
-              </div>
-
-              <div className="space-y-3">
-                <GoogleLoginButton callbackUrl={callbackUrl} />
-
-                <button
-                  type="button"
-                  onClick={handleContinueAsGuest}
-                  className="h-12 w-full rounded-xl border border-slate-300 text-sm font-medium text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-                >
-                  Continue as guest
-                </button>
-              </div>
-
-              <div className="mt-6 border-t border-slate-100 pt-5 text-center text-sm text-slate-600 dark:border-slate-800 dark:text-slate-400">
-                Don&apos;t have an account?{" "}
-                <Link
-                  href={`/register?callbackUrl=${encodeURIComponent(callbackUrl)}`}
-                  className="font-semibold text-orange-600 hover:underline"
-                >
-                  Sign up
-                </Link>
-              </div>
+            <div className="mb-8">
+              <h1 className="text-2xl font-bold sm:text-3xl">Welcome back</h1>
+              <p className="mt-2 text-sm text-gray-500 sm:text-base dark:text-gray-400">
+                Sign in to continue to Maraspot.
+              </p>
             </div>
+
+            {error && (
+              <div
+                role="alert"
+                className="mb-6 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200"
+              >
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                <div>
+                  <p className="font-medium">Sign-in failed</p>
+                  <p>{error}</p>
+                </div>
+              </div>
+            )}
+
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              noValidate
+              className="space-y-5"
+            >
+              {/* Email */}
+              <div>
+                <label htmlFor="email" className={labelCls}>
+                  Email address
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  autoComplete="email"
+                  inputMode="email"
+                  placeholder="e.g. john@example.com"
+                  disabled={loading}
+                  className={inputCls}
+                  {...register("email", { required: "Email is required" })}
+                />
+                {errors.email && (
+                  <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                    {errors.email.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Password */}
+              <div>
+                <div className="mb-1.5 flex items-center justify-between">
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-200"
+                  >
+                    Password
+                  </label>
+                  <Link
+                    href="/reset-password"
+                    className="text-sm text-gray-500 transition-colors hover:text-gray-900 hover:underline dark:text-gray-400 dark:hover:text-white"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
+                <div className="relative">
+                  <input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
+                    placeholder="Enter your password"
+                    disabled={loading}
+                    className={`${inputCls} pr-12`}
+                    {...register("password", {
+                      required: "Password is required",
+                    })}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
+                    className="absolute right-1.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/40 dark:hover:bg-white/10 dark:hover:text-gray-200"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+                {errors.password && (
+                  <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                    {errors.password.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Submit */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-orange-500 text-sm font-semibold text-white transition-colors hover:bg-orange-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/40 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 dark:focus-visible:ring-offset-[#1f2228]"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Signing in...
+                  </>
+                ) : (
+                  <>
+                    Sign in
+                    <ArrowRight size={18} />
+                  </>
+                )}
+              </button>
+            </form>
+
+            {/* Divider */}
+            <div className="relative my-6 text-center text-xs">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-100 dark:border-white/10" />
+              </div>
+              <span className="relative bg-white px-3 text-gray-500 dark:bg-[#1f2228] dark:text-gray-400">
+                or
+              </span>
+            </div>
+
+            <div className="space-y-3">
+              <GoogleLoginButton callbackUrl={callbackUrl} />
+
+              <button
+                type="button"
+                onClick={handleContinueAsGuest}
+                className={secondaryBtn}
+              >
+                Continue as guest
+              </button>
+            </div>
+
+            <p className="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
+              Don&apos;t have an account?{" "}
+              <Link
+                href={`/register?callbackUrl=${encodeURIComponent(callbackUrl)}`}
+                className="font-semibold text-gray-900 hover:underline dark:text-white"
+              >
+                Sign up
+              </Link>
+            </p>
           </div>
         </section>
       </div>

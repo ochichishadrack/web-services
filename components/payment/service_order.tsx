@@ -218,14 +218,14 @@ export default function PaymentComponent({
 
   /* ---------------- UI ---------------- */
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 px-4 py-6 sm:py-10 flex justify-center transition-colors">
-      <div className="w-full max-w-2xl lg:max-w-3xl bg-white dark:bg-gray-900 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden transition-colors">
+    <div className="min-h-screen bg-white dark:bg-[#1f2228] px-4 py-6 sm:py-10 flex justify-center transition-colors">
+      <div className="w-full max-w-2xl lg:max-w-3xl bg-gray-50 dark:bg-[#2a2e36] rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700/60 overflow-hidden transition-colors">
         {/* HEADER */}
-        <div className="bg-gray-950 dark:bg-white text-white dark:text-black px-6 py-6 sm:px-8 sm:py-7 text-center">
+        <div className="bg-gray-900 dark:bg-[#1f2228] text-white px-6 py-6 sm:px-8 sm:py-7 text-center border-b border-gray-800 dark:border-gray-700/60">
           <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">
             Contract Payment Plan
           </h1>
-          <p className="text-sm text-gray-300 dark:text-gray-600 mt-1.5">
+          <p className="text-sm text-gray-300 dark:text-gray-400 mt-1.5">
             Secure phased payments for your project
           </p>
         </div>
@@ -243,13 +243,13 @@ export default function PaymentComponent({
           {!currencyLoading && (
             <>
               {/* Service Card */}
-              <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 shadow-sm">
+              <div className="rounded-2xl border border-gray-200 dark:border-gray-700/60 bg-white dark:bg-[#1f2228] p-5 shadow-sm">
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                   <div>
                     <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
                       Selected Package
                     </p>
-                    <h2 className="font-semibold text-gray-900 dark:text-gray-100 text-lg mt-0.5">
+                    <h2 className="font-semibold text-gray-900 dark:text-white text-lg mt-0.5">
                       {selectedPackage.name}
                     </h2>
                   </div>
@@ -258,7 +258,7 @@ export default function PaymentComponent({
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       Contract Value ({paymentCurrency})
                     </p>
-                    <div className="mt-1.5 inline-flex items-center bg-gray-950 dark:bg-white text-white dark:text-black px-3.5 py-2 rounded-xl text-sm font-semibold">
+                    <div className="mt-1.5 inline-flex items-center bg-orange-500 text-white px-3.5 py-2 rounded-xl text-sm font-semibold">
                       {formatMoney(backendTotalUsd)}
                     </div>
                   </div>
@@ -278,7 +278,7 @@ export default function PaymentComponent({
 
               {/* Phases */}
               <div className="space-y-3">
-                <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                <h2 className="text-sm font-semibold text-gray-900 dark:text-white">
                   Project Milestones
                 </h2>
 
@@ -304,7 +304,7 @@ export default function PaymentComponent({
 
               {/* Payment Options */}
               <div className="space-y-3">
-                <h2 className="font-semibold flex items-center gap-2 text-gray-900 dark:text-gray-100">
+                <h2 className="font-semibold flex items-center gap-2 text-gray-900 dark:text-white">
                   <BadgePercent className="w-4 h-4" />
                   Payment Options
                 </h2>
@@ -339,16 +339,16 @@ export default function PaymentComponent({
               </div>
 
               {/* Terms */}
-              <div className="border-t border-gray-200 dark:border-gray-800 pt-5 space-y-4">
+              <div className="border-t border-gray-200 dark:border-gray-700/60 pt-5 space-y-4">
                 <button
                   onClick={() => setShowContract(true)}
-                  className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                  className="flex items-center gap-2 text-sm text-orange-600 dark:text-orange-400 hover:underline"
                 >
                   <FileText className="w-4 h-4" />
                   View Service Payment Agreement
                 </button>
 
-                <label className="flex items-start gap-3 text-sm bg-gray-50 dark:bg-gray-800/60 p-4 rounded-xl border border-gray-200 dark:border-gray-700 cursor-pointer">
+                <label className="flex items-start gap-3 text-sm bg-white dark:bg-[#1f2228] p-4 rounded-xl border border-gray-200 dark:border-gray-700/60 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={accepted}
@@ -368,7 +368,7 @@ export default function PaymentComponent({
                   <span className="text-sm text-gray-500 dark:text-gray-400">
                     Amount Payable ({paymentCurrency})
                   </span>
-                  <span className="font-bold text-xl sm:text-2xl text-gray-900 dark:text-gray-100">
+                  <span className="font-bold text-xl sm:text-2xl text-gray-900 dark:text-white">
                     {formatMoney(payable)}
                   </span>
                 </div>
@@ -387,7 +387,7 @@ export default function PaymentComponent({
                 <div className="flex flex-col sm:flex-row gap-3 pt-1">
                   <button
                     onClick={onClose}
-                    className="flex-1 py-3 px-5 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition font-medium"
+                    className="flex-1 py-3 px-5 rounded-xl border border-gray-200 dark:border-gray-700/60 text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-[#1f2228] transition font-medium"
                   >
                     Back to Checkout
                   </button>
@@ -398,7 +398,7 @@ export default function PaymentComponent({
                     className={`flex-1 py-3 px-5 rounded-xl font-semibold flex items-center justify-center gap-2 transition shadow-sm
                     ${
                       accepted
-                        ? 'bg-orange-600 text-white hover:bg-orange-700 active:scale-[0.98]'
+                        ? 'bg-orange-500 text-white hover:bg-orange-600 active:scale-[0.98]'
                         : 'bg-gray-200 dark:bg-gray-700 text-gray-500 cursor-not-allowed'
                     }`}
                   >
@@ -436,15 +436,15 @@ interface PhaseBoxProps {
 
 function PhaseBox({ title, percent, amountLabel, description }: PhaseBoxProps): JSX.Element {
   return (
-    <div className="border border-gray-200 dark:border-gray-800 rounded-xl p-4 bg-white dark:bg-gray-900 shadow-sm">
+    <div className="border border-gray-200 dark:border-gray-700/60 rounded-xl p-4 bg-white dark:bg-[#1f2228] shadow-sm">
       <div className="flex justify-between items-center">
-        <h3 className="font-semibold text-gray-900 dark:text-gray-100">{title}</h3>
+        <h3 className="font-semibold text-gray-900 dark:text-white">{title}</h3>
         <span className="text-xs font-medium bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 px-2.5 py-1 rounded-full">
           {percent}
         </span>
       </div>
       <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 leading-relaxed">{description}</p>
-      <p className="text-sm font-bold text-gray-900 dark:text-gray-100 mt-3">{amountLabel}</p>
+      <p className="text-sm font-bold text-gray-900 dark:text-white mt-3">{amountLabel}</p>
     </div>
   );
 }
@@ -473,8 +473,8 @@ function OptionCard({
       className={`flex items-center justify-between p-4 border rounded-xl cursor-pointer transition
       ${
         active
-          ? 'border-gray-900 dark:border-white bg-gray-50 dark:bg-gray-800 shadow-sm'
-          : 'border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500'
+          ? 'border-orange-400 dark:border-orange-500/50 bg-orange-50 dark:bg-orange-500/10 shadow-sm'
+          : 'border-gray-200 dark:border-gray-700/60 hover:border-gray-400 dark:hover:border-gray-500 bg-white dark:bg-[#1f2228]'
       }`}
     >
       <div className="flex items-start gap-3">
@@ -482,14 +482,14 @@ function OptionCard({
           type="radio"
           checked={active}
           onChange={() => setOption(value)}
-          className="mt-1 accent-black dark:accent-white"
+          className="mt-1 accent-orange-500"
         />
         <div>
-          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{label}</p>
+          <p className="text-sm font-medium text-gray-900 dark:text-white">{label}</p>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{desc}</p>
         </div>
       </div>
-      <span className="text-xs font-medium bg-gray-950 dark:bg-white text-white dark:text-black px-2.5 py-1 rounded-full shrink-0">
+      <span className="text-xs font-medium bg-orange-500 text-white px-2.5 py-1 rounded-full shrink-0">
         {badge}
       </span>
     </label>
@@ -503,7 +503,7 @@ interface ContractModalProps {
 function ContractModal({ onClose }: ContractModalProps): JSX.Element {
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center p-4 z-50">
-      <div className="bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-300 max-w-lg w-full p-6 md:p-8 rounded-2xl shadow-2xl space-y-5 text-sm max-h-[90vh] overflow-y-auto">
+      <div className="bg-white dark:bg-[#2a2e36] text-gray-600 dark:text-gray-300 max-w-lg w-full p-6 md:p-8 rounded-2xl shadow-2xl space-y-5 text-sm max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-gray-700/60">
         <div className="space-y-1">
           <h2 className="font-bold text-gray-900 dark:text-white text-xl">
             Service Agreement & Payment Terms
@@ -567,7 +567,7 @@ function ContractModal({ onClose }: ContractModalProps): JSX.Element {
           </ul>
         </div>
 
-        <div className="bg-gray-50 dark:bg-gray-800/60 rounded-xl p-3 text-xs text-gray-500 dark:text-gray-400 space-y-1">
+        <div className="bg-gray-50 dark:bg-[#1f2228] rounded-xl p-3 text-xs text-gray-500 dark:text-gray-400 space-y-1">
           <p>• Work on each phase begins only after the corresponding payment is received.</p>
           <p>• Final source files and ownership are transferred after full payment.</p>
           <p>• Additional features or scope changes may incur extra charges.</p>
@@ -575,7 +575,7 @@ function ContractModal({ onClose }: ContractModalProps): JSX.Element {
 
         <button
           onClick={onClose}
-          className="w-full py-2.5 rounded-xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium hover:opacity-90 transition"
+          className="w-full py-2.5 rounded-xl bg-orange-500 text-white font-medium hover:bg-orange-600 transition"
         >
           I Understand
         </button>

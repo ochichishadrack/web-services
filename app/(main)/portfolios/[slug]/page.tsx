@@ -66,7 +66,7 @@ export default function PortfolioDetailPage({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-zinc-100">
+      <div className="min-h-screen bg-white text-gray-900 dark:bg-[#1f2228] dark:text-white">
         <TopNav activePage="portfolios" />
         <div className="flex min-h-[60vh] items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
@@ -77,10 +77,10 @@ export default function PortfolioDetailPage({
 
   if (error || !portfolio) {
     return (
-      <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-zinc-100">
+      <div className="min-h-screen bg-white text-gray-900 dark:bg-[#1f2228] dark:text-white">
         <TopNav activePage="portfolios" />
         <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-4">
-          <p className="text-gray-500 dark:text-zinc-400">Project not found.</p>
+          <p className="text-gray-500 dark:text-gray-400">Project not found.</p>
           <Link
             href="/portfolios"
             className="text-sm font-semibold text-orange-600 hover:underline"
@@ -101,14 +101,14 @@ export default function PortfolioDetailPage({
   const features = portfolio.features || [];
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-zinc-100 transition-colors">
+    <div className="min-h-screen bg-white text-gray-900 dark:bg-[#1f2228] dark:text-white transition-colors">
       <TopNav activePage="portfolios" />
 
-      <div className="border-b border-gray-200 dark:border-gray-800">
+      <div className="border-b border-gray-200 dark:border-gray-700/60">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 py-4">
           <Link
             href="/portfolios"
-            className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition"
+            className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 transition"
           >
             <ArrowLeft className="h-4 w-4" />
             All projects
@@ -126,12 +126,12 @@ export default function PortfolioDetailPage({
               </span>
             )}
             {portfolio.category && (
-              <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-[11px] font-semibold capitalize text-gray-600 dark:bg-zinc-800 dark:text-zinc-400">
+              <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-[11px] font-semibold capitalize text-gray-600 dark:bg-[#2a2e36] dark:text-gray-400">
                 {portfolio.category.replace(/_/g, " ")}
               </span>
             )}
             {portfolio.subcategory && (
-              <span className="rounded-full bg-gray-50 px-2.5 py-0.5 text-[11px] capitalize text-gray-500 dark:bg-zinc-900 dark:text-zinc-500">
+              <span className="rounded-full bg-gray-50 px-2.5 py-0.5 text-[11px] capitalize text-gray-500 dark:bg-[#2a2e36]/60 dark:text-gray-500">
                 {portfolio.subcategory}
               </span>
             )}
@@ -142,12 +142,12 @@ export default function PortfolioDetailPage({
           </h1>
 
           {portfolio.summary && (
-            <p className="mt-4 text-lg text-gray-600 dark:text-zinc-400 leading-relaxed">
+            <p className="mt-4 text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
               {portfolio.summary}
             </p>
           )}
 
-          <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-gray-500 dark:text-zinc-400">
+          <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-gray-500 dark:text-gray-400">
             {portfolio.client && (
               <span className="inline-flex items-center gap-1.5">
                 <User className="h-3.5 w-3.5" />
@@ -182,7 +182,7 @@ export default function PortfolioDetailPage({
 
         {sortedMedia.length > 0 && (
           <section className="mt-10">
-            <div className="relative aspect-[16/9] overflow-hidden rounded-2xl border border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-zinc-900">
+            <div className="relative aspect-[16/9] overflow-hidden rounded-2xl border border-gray-200 bg-gray-100 dark:border-gray-700/60 dark:bg-[#2a2e36]">
               {activeMedia ? (
                 activeMedia.media_type === "video" ? (
                   <video
@@ -216,7 +216,7 @@ export default function PortfolioDetailPage({
                       className={`relative h-16 w-24 shrink-0 overflow-hidden rounded-lg border-2 transition ${
                         activeMedia?.id === m.id
                           ? "border-orange-500"
-                          : "border-transparent hover:border-gray-300 dark:hover:border-zinc-600"
+                          : "border-transparent hover:border-gray-300 dark:hover:border-gray-600"
                       }`}
                     >
                       {m.media_type === "video" ? (
@@ -256,7 +256,7 @@ export default function PortfolioDetailPage({
                 <h2 className="text-sm font-semibold uppercase tracking-wider text-orange-600 dark:text-orange-400 mb-3">
                   Challenge
                 </h2>
-                <p className="text-gray-700 dark:text-zinc-300 leading-relaxed whitespace-pre-line">
+                <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">
                   {portfolio.challenge}
                 </p>
               </section>
@@ -267,7 +267,7 @@ export default function PortfolioDetailPage({
                 <h2 className="text-sm font-semibold uppercase tracking-wider text-orange-600 dark:text-orange-400 mb-3">
                   Solution
                 </h2>
-                <p className="text-gray-700 dark:text-zinc-300 leading-relaxed whitespace-pre-line">
+                <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">
                   {portfolio.solution}
                 </p>
               </section>
@@ -278,7 +278,7 @@ export default function PortfolioDetailPage({
                 <h2 className="text-sm font-semibold uppercase tracking-wider text-orange-600 dark:text-orange-400 mb-3">
                   Results
                 </h2>
-                <p className="text-gray-700 dark:text-zinc-300 leading-relaxed whitespace-pre-line">
+                <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">
                   {portfolio.results}
                 </p>
               </section>
@@ -293,7 +293,7 @@ export default function PortfolioDetailPage({
                   {features.map((f, i) => (
                     <li
                       key={i}
-                      className="flex items-start gap-2 text-sm text-gray-700 dark:text-zinc-300"
+                      className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300"
                     >
                       <CheckCircle2 className="h-4 w-4 shrink-0 text-orange-500 mt-0.5" />
                       {f}
@@ -306,8 +306,8 @@ export default function PortfolioDetailPage({
 
           <aside className="space-y-6">
             {techStack.length > 0 && (
-              <div className="rounded-2xl border border-gray-200 p-5 dark:border-gray-800">
-                <h3 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-zinc-400 mb-3">
+              <div className="rounded-2xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700/60 dark:bg-[#2a2e36]">
+                <h3 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">
                   <Code2 className="h-3.5 w-3.5" />
                   Tech stack
                 </h3>
@@ -315,7 +315,7 @@ export default function PortfolioDetailPage({
                   {techStack.map((t, i) => (
                     <span
                       key={i}
-                      className="rounded-lg border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-700 dark:border-zinc-700 dark:text-zinc-300"
+                      className="rounded-lg border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-700 dark:border-gray-700/60 dark:text-gray-300"
                     >
                       {t}
                     </span>
@@ -338,7 +338,7 @@ export default function PortfolioDetailPage({
 
             <Link
               href="/portfolios"
-              className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 px-4 py-3 text-sm font-medium text-gray-700 hover:border-orange-300 hover:text-orange-600 transition dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-orange-500/40 dark:hover:text-orange-400"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 px-4 py-3 text-sm font-medium text-gray-700 hover:border-orange-300 hover:text-orange-600 transition dark:border-gray-700/60 dark:text-gray-300 dark:hover:border-orange-500/40 dark:hover:text-orange-400"
             >
               <ArrowLeft className="h-4 w-4" />
               More projects
@@ -350,12 +350,12 @@ export default function PortfolioDetailPage({
       {/* Compact bottom CTA */}
       <section>
         <div className="mx-auto max-w-5xl px-4 sm:px-6 py-7 sm:py-8">
-          <div className="flex flex-col gap-4 rounded-2xl border border-gray-200 px-5 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-8 dark:border-gray-800">
+          <div className="flex flex-col gap-4 rounded-2xl border border-gray-200 bg-gray-50 px-5 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-8 dark:border-gray-700/60 dark:bg-[#2a2e36]">
             <div>
-              <h2 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-white">
+              <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
                 Want something similar?
               </h2>
-              <p className="mt-0.5 text-sm text-zinc-600 dark:text-zinc-400">
+              <p className="mt-0.5 text-sm text-gray-600 dark:text-gray-400">
                 SaaS, e-commerce, ERPs, and custom systems — built for growth.
               </p>
             </div>
@@ -369,7 +369,7 @@ export default function PortfolioDetailPage({
               </Link>
               <a
                 href="mailto:maraspot.ke@gmail.com"
-                className="inline-flex items-center gap-1.5 rounded-xl border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-900 transition hover:bg-zinc-100 dark:border-white/20 dark:text-white dark:hover:bg-white/10"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-900 transition hover:bg-gray-100 dark:border-gray-600 dark:text-white dark:hover:bg-white/10"
               >
                 Get a quote
               </a>

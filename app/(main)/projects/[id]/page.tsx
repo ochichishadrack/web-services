@@ -128,7 +128,7 @@ const statusConfig: Record<OrderStatus, { label: string; className: string }> =
 
 function InfoCard({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40 p-4">
+    <div className="rounded-xl border border-gray-200 dark:border-gray-700/60 bg-gray-50 dark:bg-[#2a2e36] p-4">
       <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
       <p className="mt-1 font-semibold text-gray-900 dark:text-white">
         {value}
@@ -270,12 +270,12 @@ export default function ServiceOrderDetailsPage(): JSX.Element | null {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="min-h-screen bg-white dark:bg-[#1f2228]">
       <TopNav title="Order Details" />
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6">
         {/* Header Card */}
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm">
+        <div className="bg-gray-50 dark:bg-[#2a2e36] border border-gray-200 dark:border-gray-700/60 rounded-2xl p-6 shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             <div>
               <h1 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
@@ -333,7 +333,7 @@ export default function ServiceOrderDetailsPage(): JSX.Element | null {
 
         {/* Package Details */}
         {order.package && (
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm space-y-6">
+          <div className="bg-gray-50 dark:bg-[#2a2e36] border border-gray-200 dark:border-gray-700/60 rounded-2xl p-6 shadow-sm space-y-6">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
               Package Details
             </h2>
@@ -406,7 +406,7 @@ export default function ServiceOrderDetailsPage(): JSX.Element | null {
 
         {/* Payment Phases */}
         {order.phases && (
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm">
+          <div className="bg-gray-50 dark:bg-[#2a2e36] border border-gray-200 dark:border-gray-700/60 rounded-2xl p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-5">
               Payment Phases
             </h2>
@@ -415,7 +415,7 @@ export default function ServiceOrderDetailsPage(): JSX.Element | null {
               {Object.entries(order.phases).map(([key, phase]) => (
                 <div
                   key={key}
-                  className="flex items-center justify-between gap-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40 px-4 py-3.5"
+                  className="flex items-center justify-between gap-4 rounded-xl border border-gray-200 dark:border-gray-700/60 bg-white dark:bg-[#1f2228] px-4 py-3.5"
                 >
                   <div>
                     <p className="font-medium text-gray-900 dark:text-white capitalize">
@@ -461,7 +461,7 @@ export default function ServiceOrderDetailsPage(): JSX.Element | null {
 
         {/* Deliveries */}
         {order.deliveries && order.deliveries.length > 0 && (
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm">
+          <div className="bg-gray-50 dark:bg-[#2a2e36] border border-gray-200 dark:border-gray-700/60 rounded-2xl p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-5">
               Deliveries
             </h2>
@@ -470,7 +470,7 @@ export default function ServiceOrderDetailsPage(): JSX.Element | null {
               {order.deliveries.map((delivery, index) => (
                 <div
                   key={`${delivery.message}-${index}`}
-                  className="rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40 p-5"
+                  className="rounded-xl border border-gray-200 dark:border-gray-700/60 bg-white dark:bg-[#1f2228] p-5"
                 >
                   <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed">
                     {delivery.message}

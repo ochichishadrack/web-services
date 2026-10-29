@@ -5,7 +5,7 @@ import ServiceOrders from "@/components/orders/ServiceOrders";
 
 export default function MyOrdersPage() {
   return (
-    <main className="min-h-screen bg-white dark:bg-gray-950 transition-colors">
+    <main className="min-h-screen bg-white text-gray-900 transition-colors dark:bg-[#1f2228] dark:text-white">
       <DynamicTopNav title="Orders" />
 
       {/* CONTENT */}

@@ -38,7 +38,7 @@ export default function Footer() {
         {/* About */}
         <div className="space-y-3">
           <h4 className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-white">
-            Mara Devs
+            Maraspot
           </h4>
           <p className="leading-relaxed text-zinc-600 dark:text-gray-400">
             We deliver modern, responsive, and scalable web solutions tailored for your business.

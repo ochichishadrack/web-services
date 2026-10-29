@@ -84,32 +84,32 @@ const statusConfig: Record<ServiceOrder['status'], { label: string; className: s
 /* ---------------- Skeleton ---------------- */
 function OrdersSkeleton(): JSX.Element {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="bg-white dark:bg-[#1f2228]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
         <div className="space-y-2">
-          <div className="h-8 w-48 bg-gray-200 dark:bg-gray-800 rounded-lg animate-pulse" />
-          <div className="h-4 w-72 bg-gray-200 dark:bg-gray-800 rounded animate-pulse" />
+          <div className="h-8 w-48 bg-gray-200 dark:bg-gray-700/60 rounded-lg animate-pulse" />
+          <div className="h-4 w-72 bg-gray-200 dark:bg-gray-700/60 rounded animate-pulse" />
         </div>
 
         <div className="grid gap-5 grid-cols-1 md:grid-cols-2 xl:grid-cols-2">
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
-              className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-5 shadow-sm space-y-4 animate-pulse"
+              className="bg-gray-50 dark:bg-[#2a2e36] border border-gray-200 dark:border-gray-700/60 rounded-2xl p-5 shadow-sm space-y-4 animate-pulse"
             >
               <div className="flex justify-between items-start gap-3">
-                <div className="h-5 w-3/5 bg-gray-200 dark:bg-gray-800 rounded" />
-                <div className="h-6 w-24 bg-gray-200 dark:bg-gray-800 rounded-full" />
+                <div className="h-5 w-3/5 bg-gray-200 dark:bg-gray-700/60 rounded" />
+                <div className="h-6 w-24 bg-gray-200 dark:bg-gray-700/60 rounded-full" />
               </div>
 
               <div className="flex justify-between items-center">
-                <div className="h-4 w-32 bg-gray-200 dark:bg-gray-800 rounded" />
-                <div className="h-4 w-20 bg-gray-200 dark:bg-gray-800 rounded" />
+                <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700/60 rounded" />
+                <div className="h-4 w-20 bg-gray-200 dark:bg-gray-700/60 rounded" />
               </div>
 
-              <div className="space-y-2 pt-2 border-t border-gray-100 dark:border-gray-800">
-                <div className="h-3 w-40 bg-gray-200 dark:bg-gray-800 rounded" />
-                <div className="h-3 w-32 bg-gray-200 dark:bg-gray-800 rounded" />
+              <div className="space-y-2 pt-2 border-t border-gray-100 dark:border-gray-700/50">
+                <div className="h-3 w-40 bg-gray-200 dark:bg-gray-700/60 rounded" />
+                <div className="h-3 w-32 bg-gray-200 dark:bg-gray-700/60 rounded" />
               </div>
             </div>
           ))}
@@ -253,7 +253,7 @@ export default function ServiceOrders(): JSX.Element {
   if (orders.length === 0) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-4">
-        <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-5">
+        <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-[#2a2e36] flex items-center justify-center mb-5">
           <svg
             className="w-8 h-8 text-gray-400"
             fill="none"
@@ -285,7 +285,7 @@ export default function ServiceOrders(): JSX.Element {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="bg-white dark:bg-[#1f2228]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         <div className="mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
@@ -301,7 +301,7 @@ export default function ServiceOrders(): JSX.Element {
             <div
               key={order.id}
               onClick={() => router.push(`/projects/${order.id}`)}
-              className="group bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-orange-200 dark:hover:border-orange-800/50 transition cursor-pointer flex flex-col"
+              className="group bg-gray-50 dark:bg-[#2a2e36] border border-gray-200 dark:border-gray-700/60 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-orange-200 dark:hover:border-orange-800/50 transition cursor-pointer flex flex-col"
             >
               {/* Header */}
               <div className="flex items-start justify-between gap-3 mb-4">
@@ -333,7 +333,7 @@ export default function ServiceOrders(): JSX.Element {
               </div>
 
               {/* Dates */}
-              <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-800 space-y-1 text-xs text-gray-400 dark:text-gray-500">
+              <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-700/50 space-y-1 text-xs text-gray-400 dark:text-gray-500">
                 <p>
                   Created{' '}
                   {new Date(order.created_at).toLocaleDateString('en-KE', {
