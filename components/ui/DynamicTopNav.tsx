@@ -82,9 +82,35 @@ export default function DynamicTopNav({
       "
     >
       <div className="mx-auto flex h-14 max-w-7xl items-center gap-1 px-3 md:px-6">
-        {/* 3-dot menu — far left */}
+        {/* Back button */}
+        {showBack && (
+          <button
+            type="button"
+            onClick={() => router.back()}
+            aria-label="Go back"
+            className="
+              -ml-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full
+              text-gray-700 dark:text-gray-200
+              hover:bg-gray-100 dark:hover:bg-white/10
+              active:scale-95 transition
+              focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/40
+            "
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
+        )}
+
+        <h1 className="min-w-0 flex-1 truncate pl-1 text-base font-semibold text-gray-900 dark:text-white">
+          {title}
+        </h1>
+
+        <div className="shrink-0">
+          <CountrySelector />
+        </div>
+
+        {/* 3-dot menu — far right */}
         {showMenu && (
-          <div className="relative -ml-1 shrink-0" ref={menuRef}>
+          <div className="relative -mr-1 shrink-0" ref={menuRef}>
             <button
               type="button"
               onClick={() => setMenuOpen((prev) => !prev)}
@@ -106,7 +132,7 @@ export default function DynamicTopNav({
               <div
                 role="menu"
                 className="
-                  absolute left-0 top-full z-[9999] mt-2 w-56 overflow-hidden
+                  absolute right-0 top-full z-[9999] mt-2 w-56 overflow-hidden
                   rounded-xl border border-gray-100 dark:border-white/10
                   bg-white dark:bg-[#1f2228] shadow-lg
                   animate-in fade-in zoom-in-95 duration-150
@@ -171,32 +197,6 @@ export default function DynamicTopNav({
             )}
           </div>
         )}
-
-        {/* Back button */}
-        {showBack && (
-          <button
-            type="button"
-            onClick={() => router.back()}
-            aria-label="Go back"
-            className="
-              flex h-9 w-9 shrink-0 items-center justify-center rounded-full
-              text-gray-700 dark:text-gray-200
-              hover:bg-gray-100 dark:hover:bg-white/10
-              active:scale-95 transition
-              focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/40
-            "
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </button>
-        )}
-
-        <h1 className="min-w-0 flex-1 truncate pl-1 text-base font-semibold text-gray-900 dark:text-white">
-          {title}
-        </h1>
-
-        <div className="shrink-0">
-          <CountrySelector />
-        </div>
       </div>
     </header>
   );
