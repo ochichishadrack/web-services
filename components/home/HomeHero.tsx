@@ -129,22 +129,40 @@ export default function HomeHero(): JSX.Element {
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      <div className="relative z-10 mx-auto grid w-full max-w-6xl items-center gap-10 px-6 py-20 lg:grid-cols-2 lg:gap-16 lg:py-24">
-        {/* Text side */}
-        <div className="order-2 text-center lg:order-1 lg:text-left">
-          <div aria-live="polite">
-            <h1
-              className={`mb-5 text-4xl font-bold leading-tight text-zinc-900 transition-all duration-500 ease-out motion-reduce:transition-none md:text-5xl lg:text-6xl dark:text-white ${textMotion}`}
-            >
-              {slide.title} <span className="text-orange-500">{slide.accent}</span>
-            </h1>
+      <div className="relative z-10 mx-auto grid w-full max-w-6xl grid-cols-1 content-center gap-x-16 gap-y-6 px-6 py-16 lg:grid-cols-2 lg:py-24">
+        {/* 1. Title (top on mobile, left column on desktop) */}
+        <div className="order-1 flex min-h-[6rem] items-end justify-center text-center lg:col-start-1 lg:row-start-1 lg:min-h-[11.5rem] lg:justify-start lg:text-left">
+          <h1
+            aria-live="polite"
+            className={`text-3xl font-bold leading-tight text-zinc-900 transition-all duration-500 ease-out motion-reduce:transition-none sm:text-4xl lg:text-5xl dark:text-white ${textMotion}`}
+          >
+            {slide.title} <span className="text-orange-500">{slide.accent}</span>
+          </h1>
+        </div>
 
-            <p
-              className={`mx-auto mb-8 max-w-xl text-lg text-zinc-600 transition-all delay-100 duration-500 ease-out motion-reduce:transition-none md:text-xl lg:mx-0 dark:text-zinc-300 ${textMotion}`}
-            >
-              {slide.text}
-            </p>
+        {/* 2. Image (under the title on mobile, right column on desktop) */}
+        <div className="order-2 flex items-center justify-center lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:justify-end">
+          <div
+            className={`relative aspect-square w-full max-w-[16rem] transition-all duration-500 ease-out motion-reduce:transition-none sm:max-w-sm lg:max-w-md ${imageMotion}`}
+          >
+            <Image
+              src={slide.image}
+              alt={slide.alt}
+              fill
+              priority={index === 0}
+              sizes="(min-width: 1024px) 28rem, (min-width: 640px) 24rem, 16rem"
+              className="object-contain"
+            />
           </div>
+        </div>
+
+        {/* 3. Paragraph, CTAs, dots, highlights */}
+        <div className="order-3 text-center lg:col-start-1 lg:row-start-2 lg:text-left">
+          <p
+            className={`mx-auto mb-8 min-h-[7rem] max-w-xl text-lg text-zinc-600 transition-all delay-100 duration-500 ease-out motion-reduce:transition-none md:text-xl lg:mx-0 lg:min-h-[6rem] dark:text-zinc-300 ${textMotion}`}
+          >
+            {slide.text}
+          </p>
 
           {/* CTAs */}
           <div className="flex w-full flex-col justify-center gap-3 sm:w-auto sm:flex-row sm:gap-4 lg:justify-start">
@@ -216,24 +234,6 @@ export default function HomeHero(): JSX.Element {
               </li>
             ))}
           </ul>
-        </div>
-
-        {/* Image side */}
-        <div className="order-1 flex justify-center lg:order-2 lg:justify-end">
-          <div className="relative w-full max-w-sm rounded-3xl bg-white p-4 shadow-xl ring-1 ring-zinc-200 sm:max-w-md dark:shadow-black/30 dark:ring-white/10">
-            <div
-              className={`relative aspect-square w-full transition-all duration-500 ease-out motion-reduce:transition-none ${imageMotion}`}
-            >
-              <Image
-                src={slide.image}
-                alt={slide.alt}
-                fill
-                priority={index === 0}
-                sizes="(min-width: 1024px) 28rem, (min-width: 640px) 24rem, 90vw"
-                className="object-contain"
-              />
-            </div>
-          </div>
         </div>
       </div>
     </section>
