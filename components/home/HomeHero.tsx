@@ -125,8 +125,8 @@ export default function HomeHero(): JSX.Element {
   return (
     <section className="relative flex items-start bg-white lg:min-h-[85vh] lg:items-center dark:bg-[#1f2228]">
       <div className="relative z-10 mx-auto grid w-full max-w-6xl grid-cols-1 content-center gap-x-16 gap-y-4 px-6 pb-12 pt-4 lg:grid-cols-2 lg:gap-y-6 lg:py-24">
-        {/* 1. Title (below the image on mobile, left column on desktop) */}
-        <div className="order-2 flex min-h-[6rem] items-start justify-center text-center lg:col-start-1 lg:row-start-1 lg:min-h-[11.5rem] lg:items-end lg:justify-start lg:text-left">
+        {/* 1. Title */}
+        <div className="order-1 flex min-h-[6rem] items-start justify-center text-center lg:col-start-1 lg:row-start-1 lg:min-h-[11.5rem] lg:items-end lg:justify-start lg:text-left">
           <h1
             aria-live="polite"
             className={`text-3xl font-bold leading-tight text-zinc-900 transition-all duration-500 ease-out sm:text-4xl lg:text-5xl dark:text-white ${textMotion}`}
@@ -135,17 +135,17 @@ export default function HomeHero(): JSX.Element {
           </h1>
         </div>
 
-        {/* 2. Image (top on mobile, right column on desktop) */}
-        <div className="order-1 flex items-center justify-center lg:order-none lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:justify-end">
+        {/* 2. Image (hidden on mobile, right column on desktop) */}
+        <div className="hidden items-center justify-center lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:flex lg:justify-end">
           <div
-            className={`relative aspect-square w-full max-w-[16rem] transition-all duration-500 ease-out sm:max-w-sm lg:max-w-md ${imageMotion}`}
+            className={`relative aspect-square w-full max-w-md transition-all duration-500 ease-out ${imageMotion}`}
           >
             <Image
               src={slide.image}
               alt={slide.alt}
               fill
               priority={index === 0}
-              sizes="(min-width: 1024px) 28rem, (min-width: 640px) 24rem, 16rem"
+              sizes="28rem"
               className="object-contain"
             />
           </div>
