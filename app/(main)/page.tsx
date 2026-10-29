@@ -36,11 +36,11 @@ interface Service {
 
 function SkeletonCard(): JSX.Element {
   return (
-    <div className="h-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl overflow-hidden animate-pulse">
-      <div className="w-full aspect-4/3 bg-gray-200 dark:bg-gray-800" />
+    <div className="h-full bg-white dark:bg-[#262a31] border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden animate-pulse">
+      <div className="w-full aspect-4/3 bg-gray-200 dark:bg-white/10" />
       <div className="p-4 space-y-3">
-        <div className="h-4 rounded bg-gray-200 dark:bg-gray-800 w-3/4" />
-        <div className="h-3 rounded bg-gray-200 dark:bg-gray-800 w-1/2" />
+        <div className="h-4 rounded bg-gray-200 dark:bg-white/10 w-3/4" />
+        <div className="h-3 rounded bg-gray-200 dark:bg-white/10 w-1/2" />
       </div>
     </div>
   );
@@ -160,7 +160,7 @@ export default function HomePage(): JSX.Element {
   const hasServices = useMemo(() => services.length > 0, [services]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-white dark:bg-gray-950">
+    <div className="flex flex-col min-h-screen bg-white dark:bg-[#1f2228]">
       <TopNav activePage="home" />
 
       {/* HERO */}
@@ -212,8 +212,8 @@ export default function HomePage(): JSX.Element {
                   href={`/services/${service.id}`}
                   className="group block h-full"
                 >
-                  <div className="h-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden transition hover:shadow-md">
-                    <div className="relative w-full aspect-4/3 bg-gray-100 dark:bg-gray-800 overflow-hidden">
+                  <div className="h-full bg-white dark:bg-[#262a31] border border-gray-200 dark:border-white/10 rounded-xl overflow-hidden transition hover:shadow-md dark:hover:border-white/20">
+                    <div className="relative w-full aspect-4/3 bg-gray-100 dark:bg-white/5 overflow-hidden">
                       {hasVideo ? (
                         <video
                           src={coverMedia.video_url ?? undefined}
@@ -294,7 +294,7 @@ export default function HomePage(): JSX.Element {
           />
 
           {/* Modal */}
-          <div className="relative bg-white dark:bg-gray-900 rounded-3xl shadow-2xl max-w-md w-full mx-4 p-8 text-center animate-fadeIn">
+          <div className="relative bg-white dark:bg-[#262a31] rounded-3xl shadow-2xl max-w-md w-full mx-4 p-8 text-center animate-fadeIn">
             {/* Close Button */}
             <button
               onClick={handleCloseModal}

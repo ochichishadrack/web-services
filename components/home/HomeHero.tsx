@@ -17,8 +17,8 @@ const slides = [
   {
     image: '/hero/0.png',
     alt: 'Laptop surrounded by different website layouts, representing websites of all kinds',
-    title: 'We deliver websites Of',
-    accent: 'All Kinds',
+    title: 'We Deliver Websites',
+    accent: 'Of All Kinds',
     text: 'Business sites, online stores, portfolios, booking platforms, blogs and custom web apps: whatever your business needs online, we design, build and launch it.',
   },
   {
