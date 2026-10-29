@@ -1,5 +1,24 @@
 @import "tailwindcss";
 
+/* Tailwind v4: make `dark:` classes follow the `.dark` class set by next-themes,
+   instead of the phone's system setting */
+@custom-variant dark (&:where(.dark, .dark *));
+
+html {
+  background-color: #ffffff;
+  color-scheme: light;
+}
+
+html.dark {
+  background-color: #1f2228;
+  color-scheme: dark;
+}
+
+body {
+  background-color: inherit;
+  min-height: 100dvh;
+}
+
 @keyframes fade-in {
   from {
     opacity: 0;
