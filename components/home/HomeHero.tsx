@@ -80,6 +80,7 @@ type Phase = 'in' | 'out' | 'enter';
 export default function HomeHero(): JSX.Element {
   const [index, setIndex] = useState(0);
   const [phase, setPhase] = useState<Phase>('in');
+  const [paused, setPaused] = useState(false);
   const timeouts = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   const goTo = useCallback((next: number) => {
@@ -93,12 +94,12 @@ export default function HomeHero(): JSX.Element {
     timeouts.current.push(t1);
   }, []);
 
-  // Auto-advance (always running)
+  // Auto-advance
   useEffect(() => {
-    if (phase !== 'in') return;
+    if (paused || phase !== 'in') return;
     const timer = setTimeout(() => goTo((index + 1) % slides.length), INTERVAL_MS);
     return () => clearTimeout(timer);
-  }, [index, phase, goTo]);
+  }, [index, paused, phase, goTo]);
 
   // Cleanup pending timeouts on unmount
   useEffect(() => {
@@ -123,13 +124,17 @@ export default function HomeHero(): JSX.Element {
         : '-translate-x-8 scale-95 opacity-0';
 
   return (
-    <section className="relative flex items-start bg-white lg:min-h-[85vh] lg:items-center dark:bg-[#1f2228]">
-      <div className="relative z-10 mx-auto grid w-full max-w-6xl grid-cols-1 content-center gap-x-16 gap-y-4 px-6 pb-12 pt-4 lg:grid-cols-2 lg:gap-y-6 lg:py-24">
-        {/* 1. Title */}
-        <div className="order-1 flex min-h-[6rem] items-start justify-center text-center lg:col-start-1 lg:row-start-1 lg:min-h-[11.5rem] lg:items-end lg:justify-start lg:text-left">
+    <section
+      className="relative flex min-h-[85vh] items-center bg-white dark:bg-[#1f2228]"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      <div className="relative z-10 mx-auto grid w-full max-w-6xl grid-cols-1 content-center gap-x-16 gap-y-6 px-6 py-16 lg:grid-cols-2 lg:py-24">
+        {/* 1. Title (top on mobile, left column on desktop) */}
+        <div className="order-1 flex min-h-[6rem] items-end justify-center text-center lg:col-start-1 lg:row-start-1 lg:min-h-[11.5rem] lg:justify-start lg:text-left">
           <h1
             aria-live="polite"
-            className={`text-3xl font-bold leading-tight text-zinc-900 transition-all duration-500 ease-out sm:text-4xl lg:text-5xl dark:text-white ${textMotion}`}
+            className={`text-3xl font-bold leading-tight text-zinc-900 transition-all duration-500 ease-out motion-reduce:transition-none sm:text-4xl lg:text-5xl dark:text-white ${textMotion}`}
           >
             {slide.title} <span className="text-orange-500">{slide.accent}</span>
           </h1>
@@ -138,7 +143,7 @@ export default function HomeHero(): JSX.Element {
         {/* 2. Image (hidden on mobile, right column on desktop) */}
         <div className="hidden items-center justify-center lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:flex lg:justify-end">
           <div
-            className={`relative aspect-square w-full max-w-md transition-all duration-500 ease-out ${imageMotion}`}
+            className={`relative aspect-square w-full max-w-md transition-all duration-500 ease-out motion-reduce:transition-none ${imageMotion}`}
           >
             <Image
               src={slide.image}
@@ -154,7 +159,7 @@ export default function HomeHero(): JSX.Element {
         {/* 3. Paragraph, CTAs, dots, highlights */}
         <div className="order-3 text-center lg:col-start-1 lg:row-start-2 lg:text-left">
           <p
-            className={`mx-auto mb-8 min-h-[7rem] max-w-xl text-lg text-zinc-600 transition-all delay-100 duration-500 ease-out md:text-xl lg:mx-0 lg:min-h-[6rem] dark:text-zinc-300 ${textMotion}`}
+            className={`mx-auto mb-8 min-h-[7rem] max-w-xl text-lg text-zinc-600 transition-all delay-100 duration-500 ease-out motion-reduce:transition-none md:text-xl lg:mx-0 lg:min-h-[6rem] dark:text-zinc-300 ${textMotion}`}
           >
             {slide.text}
           </p>
