@@ -68,11 +68,9 @@ export default function PackagesModal({
         onClick={onClose}
       />
 
-      {/* Fixed-height sheet (mobile) / dialog (desktop).
-          Height never changes, so the footer never moves. */}
+      {/* Sheet (mobile) / dialog (desktop) */}
       <div
-        className="relative flex flex-col w-full sm:max-w-lg
-          h-[92dvh] sm:h-[85vh] sm:max-h-[720px]
+        className="relative flex flex-col w-full sm:max-w-lg max-h-[92dvh] sm:max-h-[88vh]
           bg-white dark:bg-[#262a31]
           border border-gray-100 dark:border-white/10
           rounded-t-2xl sm:rounded-2xl shadow-xl overflow-hidden"
@@ -92,8 +90,8 @@ export default function PackagesModal({
           </button>
         </div>
 
-        {/* Scrollable body — the only part that scrolls */}
-        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain [scrollbar-gutter:stable] p-4 sm:p-5">
+        {/* Scrollable body */}
+        <div className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-5">
           <PackagePanel
             packages={packages}
             selected={selected}
@@ -105,7 +103,7 @@ export default function PackagesModal({
           />
         </div>
 
-        {/* Footer — pinned to the bottom */}
+        {/* Sticky footer */}
         <div className="shrink-0 flex items-center gap-4 border-t border-gray-100 dark:border-white/10 bg-white dark:bg-[#262a31] px-4 sm:px-5 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
           <div className="min-w-0 flex-1">
             <div className="text-xs text-gray-500 dark:text-gray-400">

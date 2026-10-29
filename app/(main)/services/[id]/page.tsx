@@ -9,6 +9,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useCustomerAuth } from "@/context/CustomerAuthContext";
 import TiptapPageView from "@/components/TiptapPageView";
 import { axiosInstance } from "@/utils/axiosInstance";
+import { useLocalCurrency } from "@/hooks/useLocalCurrency";
 import { ChevronDown, X } from "lucide-react";
 import type { Package, Service } from "./types";
 
@@ -21,6 +22,7 @@ export default function ServiceDetailsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { setReferralCode } = useCustomerAuth();
+  const { format } = useLocalCurrency();
 
   const [service, setService] = useState<Service | null>(null);
   const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
@@ -127,6 +129,9 @@ export default function ServiceDetailsPage() {
     );
 
   const hasPackages = service.packages.length > 0;
+  const minPrice = hasPackages
+    ? Math.min(...service.packages.map((p) => p.price))
+    : 0;
 
   const extrasTotal =
     service.extras
@@ -142,7 +147,7 @@ export default function ServiceDetailsPage() {
   };
 
   return (
-    <div className="bg-white dark:bg-[#1f2228] min-h-screen text-gray-900 dark:text-white transition-colors pb-28">
+    <div className="bg-white dark:bg-[#1f2228] min-h-screen text-gray-900 dark:text-white transition-colors pb-28 lg:pb-12">
       <TopNav title="Service Details" />
 
       {galleryOpen && service.media && (
@@ -203,85 +208,124 @@ export default function ServiceDetailsPage() {
         </div>
       ) : null}
 
-      {/* Details */}
-      <div className="max-w-4xl mx-auto px-4 md:px-6 mt-2 md:mt-4 space-y-6">
-        <div>
-          <h1 className="text-xl md:text-2xl font-bold leading-snug">
-            {service.title}
-          </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            {service.category}
-            {service.subcategory ? ` / ${service.subcategory}` : ""}
-          </p>
-        </div>
-
-        <div className="text-gray-600 dark:text-gray-300">
-          <h2 className="font-semibold mb-2 text-lg text-gray-900 dark:text-white">
-            About this service
-          </h2>
-          <TiptapPageView value={service.description ?? ""} />
-        </div>
-
-        {service.faqs?.length ? (
-          <div className={`${card} p-4 sm:p-5`}>
-            <button
-              type="button"
-              aria-expanded={faqOpen}
-              onClick={() => setFaqOpen(!faqOpen)}
-              className="flex items-center justify-between w-full text-left font-semibold text-gray-900 dark:text-white"
-            >
-              Frequently asked questions
-              <ChevronDown
-                className={`w-5 h-5 text-gray-400 transition-transform ${faqOpen ? "rotate-180" : ""}`}
-              />
-            </button>
-
-            {faqOpen && (
-              <div className="mt-4 space-y-2">
-                {service.faqs.map((faq) => {
-                  const open = openFaqId === faq.id;
-                  return (
-                    <div
-                      key={faq.id}
-                      className="border border-gray-100 dark:border-white/10 rounded-xl"
-                    >
-                      <button
-                        type="button"
-                        aria-expanded={open}
-                        onClick={() => setOpenFaqId(open ? null : faq.id)}
-                        className="flex justify-between items-center gap-3 w-full p-3 text-left text-sm font-semibold text-gray-800 dark:text-gray-200"
-                      >
-                        {faq.question}
-                        <ChevronDown
-                          className={`w-4 h-4 shrink-0 text-gray-400 transition-transform ${open ? "rotate-180" : ""}`}
-                        />
-                      </button>
-                      {open && (
-                        <p className="px-3 pb-3 text-sm text-gray-600 dark:text-gray-400">
-                          {faq.answer}
-                        </p>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+      <div className="max-w-7xl mx-auto px-4 md:px-6 grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-6 mt-2 md:mt-4">
+        {/* Details */}
+        <div className="lg:col-span-2 space-y-6">
+          <div>
+            <h1 className="text-xl md:text-2xl font-bold leading-snug">
+              {service.title}
+            </h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              {service.category}
+              {service.subcategory ? ` / ${service.subcategory}` : ""}
+            </p>
           </div>
-        ) : null}
+
+          <div className="text-gray-600 dark:text-gray-300">
+            <h2 className="font-semibold mb-2 text-lg text-gray-900 dark:text-white">
+              About this service
+            </h2>
+            <TiptapPageView value={service.description ?? ""} />
+          </div>
+
+          {service.faqs?.length ? (
+            <div className={`${card} p-4 sm:p-5`}>
+              <button
+                type="button"
+                aria-expanded={faqOpen}
+                onClick={() => setFaqOpen(!faqOpen)}
+                className="flex items-center justify-between w-full text-left font-semibold text-gray-900 dark:text-white"
+              >
+                Frequently asked questions
+                <ChevronDown
+                  className={`w-5 h-5 text-gray-400 transition-transform ${faqOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+
+              {faqOpen && (
+                <div className="mt-4 space-y-2">
+                  {service.faqs.map((faq) => {
+                    const open = openFaqId === faq.id;
+                    return (
+                      <div
+                        key={faq.id}
+                        className="border border-gray-100 dark:border-white/10 rounded-xl"
+                      >
+                        <button
+                          type="button"
+                          aria-expanded={open}
+                          onClick={() => setOpenFaqId(open ? null : faq.id)}
+                          className="flex justify-between items-center gap-3 w-full p-3 text-left text-sm font-semibold text-gray-800 dark:text-gray-200"
+                        >
+                          {faq.question}
+                          <ChevronDown
+                            className={`w-4 h-4 shrink-0 text-gray-400 transition-transform ${open ? "rotate-180" : ""}`}
+                          />
+                        </button>
+                        {open && (
+                          <p className="px-3 pb-3 text-sm text-gray-600 dark:text-gray-400">
+                            {faq.answer}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          ) : null}
+        </div>
+
+        {/* Desktop summary card */}
+        {hasPackages && (
+          <aside className="hidden lg:block lg:sticky lg:top-24 self-start">
+            <div className={`${card} p-5 shadow-sm space-y-4`}>
+              <div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Starting from
+                </p>
+                <p className="text-3xl font-bold tracking-tight">
+                  {format(minPrice)}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {service.packages.length}{" "}
+                  {service.packages.length === 1 ? "package" : "packages"}
+                  {service.extras?.length ? " + extras" : ""}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPackagesOpen(true)}
+                className="w-full rounded-xl bg-orange-500 hover:bg-orange-600 text-white py-3 font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/40 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#262a31]"
+              >
+                Continue
+              </button>
+            </div>
+          </aside>
+        )}
       </div>
 
-      {/* Fixed Continue button — bottom left, all devices */}
+      {/* Mobile sticky bar */}
       {hasPackages && (
-        <button
-          type="button"
-          onClick={() => setPackagesOpen(true)}
-          className="fixed z-30 left-4 sm:left-6 bottom-[max(1rem,env(safe-area-inset-bottom))]
-            rounded-xl bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 text-sm font-semibold
-            shadow-lg shadow-orange-500/20 transition-colors
-            focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/40 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#1f2228]"
-        >
-          Continue
-        </button>
+        <div className="lg:hidden fixed bottom-0 inset-x-0 z-30 border-t border-gray-100 dark:border-white/10 bg-white/90 dark:bg-[#1f2228]/90 backdrop-blur px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+          <div className="mx-auto max-w-7xl flex items-center gap-4">
+            <div className="min-w-0 flex-1">
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                Starting from
+              </div>
+              <div className="text-lg font-bold leading-tight">
+                {format(minPrice)}
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setPackagesOpen(true)}
+              className="shrink-0 rounded-xl bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 text-sm font-semibold transition-colors"
+            >
+              Continue
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

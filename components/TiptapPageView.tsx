@@ -37,7 +37,7 @@ export default function TiptapPageView({ value }: Props) {
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
     ],
     content: value,
-    immediatelyRender: false, // ✅ SSR fix
+    immediatelyRender: false, // SSR fix
   });
 
   useEffect(() => {
@@ -51,14 +51,23 @@ export default function TiptapPageView({ value }: Props) {
   return (
     <div
       className={`
-        prose max-w-none p-2 rounded-md shadow-sm
-        bg-green-50 text-sm lg:text-base text-gray-900 dark:bg-gray-900 dark:text-gray-100
-        [&_ul]:list-disc [&_ul]:pl-6 
-        [&_ol]:list-decimal [&_ol]:pl-6 
+        prose dark:prose-invert max-w-none
+        bg-transparent text-sm lg:text-base
+        text-gray-600 dark:text-gray-300
+        prose-headings:text-gray-900 dark:prose-headings:text-white
+        prose-strong:text-gray-900 dark:prose-strong:text-white
+        prose-a:text-orange-500 hover:prose-a:text-orange-600
+        prose-img:rounded-xl
+        [&_ul]:list-disc [&_ul]:pl-6
+        [&_ol]:list-decimal [&_ol]:pl-6
         [&_li]:ml-4
-        [&_table]:w-full [&_table]:border [&_table]:border-collapse
-        [&_th]:border [&_td]:border [&_th]:px-3 [&_td]:px-3
-        [&_th]:py-2 [&_td]:py-2 [&_tr:nth-child(even)]:bg-gray-50 dark:[&_tr:nth-child(even)]:bg-gray-800
+        [&_table]:w-full [&_table]:border-collapse [&_table]:rounded-xl
+        [&_th]:border [&_td]:border
+        [&_th]:border-gray-100 [&_td]:border-gray-100
+        dark:[&_th]:border-white/10 dark:[&_td]:border-white/10
+        [&_th]:px-3 [&_td]:px-3 [&_th]:py-2 [&_td]:py-2
+        [&_th]:bg-gray-50 dark:[&_th]:bg-white/5
+        [&_tr:nth-child(even)_td]:bg-gray-50/60 dark:[&_tr:nth-child(even)_td]:bg-white/[0.03]
       `}
     >
       <EditorContent editor={editor} />
