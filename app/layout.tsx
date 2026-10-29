@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { ReactNode } from "react";
 import ThemeProvider from "@/components/ThemeProvider";
 import "./globals.css";
@@ -10,18 +10,18 @@ export const metadata: Metadata = {
   description:
     "Professional web development services by Maraspot. Specializing in React, Next.js, Tailwind CSS, Python & more to create stunning full stack websites and applications.",
   manifest: "/manifest.json",
+  icons: {
+    apple: "/icons/icon-192.png",
+  },
+};
+
+export const viewport: Viewport = {
   themeColor: "#0f172a",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#0f172a" />
-        <link rel="apple-touch-icon" href="/icons/icon-192.png" />
-      </head>
-
       <body>
         <ServiceWorker />
         <ThemeProvider>
