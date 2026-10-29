@@ -70,7 +70,7 @@ export default function DynamicTopNav({
   const itemBase =
     'block px-4 py-2.5 text-sm transition-colors focus:outline-none focus-visible:bg-gray-50 dark:focus-visible:bg-white/5';
   const itemActive = 'bg-gray-50 dark:bg-white/5 font-medium text-gray-900 dark:text-white';
-  const itemIdle = 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5';
+  const itemIdle = 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/10';
 
   return (
     <header
@@ -82,26 +82,9 @@ export default function DynamicTopNav({
       "
     >
       <div className="mx-auto flex h-14 max-w-7xl items-center gap-1 px-3 md:px-6">
-        {showBack && (
-          <button
-            type="button"
-            onClick={() => router.back()}
-            aria-label="Go back"
-            className="
-              -ml-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full
-              text-gray-700 dark:text-gray-200
-              hover:bg-gray-100 dark:hover:bg-white/10
-              active:scale-95 transition
-              focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/40
-            "
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </button>
-        )}
-
-        {/* 3-dot menu */}
+        {/* 3-dot menu — far left */}
         {showMenu && (
-          <div className="relative shrink-0" ref={menuRef}>
+          <div className="relative -ml-1 shrink-0" ref={menuRef}>
             <button
               type="button"
               onClick={() => setMenuOpen((prev) => !prev)}
@@ -187,6 +170,24 @@ export default function DynamicTopNav({
               </div>
             )}
           </div>
+        )}
+
+        {/* Back button */}
+        {showBack && (
+          <button
+            type="button"
+            onClick={() => router.back()}
+            aria-label="Go back"
+            className="
+              flex h-9 w-9 shrink-0 items-center justify-center rounded-full
+              text-gray-700 dark:text-gray-200
+              hover:bg-gray-100 dark:hover:bg-white/10
+              active:scale-95 transition
+              focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/40
+            "
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
         )}
 
         <h1 className="min-w-0 flex-1 truncate pl-1 text-base font-semibold text-gray-900 dark:text-white">

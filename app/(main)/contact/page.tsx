@@ -8,9 +8,10 @@ import {
   Loader2,
   Mail,
   ShieldCheck,
-  Clock,
+  User,
+  Building2,
+  Phone,
 } from "lucide-react";
-import { useCustomerAuth } from "@/context/CustomerAuthContext";
 
 const WHATSAPP_NUMBER = "254113388120";
 const CONTACT_EMAIL = "maraspot.ke@gmail.com";
@@ -86,46 +87,55 @@ function ChipGroup({
   );
 }
 
-export default function ContactPage(): JSX.Element {
-  const { customer, isAuthenticated, loading: authLoading } = useCustomerAuth();
+const inputClassName = `
+  w-full px-4 py-3 rounded-xl
+  border border-gray-200 dark:border-[#3d434d]
+  bg-white dark:bg-[#1f2228]
+  text-gray-900 dark:text-white
+  placeholder:text-gray-400 dark:placeholder:text-gray-500
+  focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500
+  transition
+`;
 
+export default function ContactPage(): JSX.Element {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [company, setCompany] = useState("");
   const [projectTitle, setProjectTitle] = useState("");
   const [message, setMessage] = useState("");
   const [budget, setBudget] = useState("");
   const [timeline, setTimeline] = useState("");
-
-  const fullName = customer
-    ? `${customer.first_name || ""} ${customer.last_name || ""}`.trim()
-    : "";
 
   const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
     "Hi, I’d like to get a quote for a project.",
   )}`;
 
   async function sendQuote() {
-    if (!customer) return;
-
     setLoading(true);
     setError(null);
 
     const details = [
       `Project: ${projectTitle.trim()}`,
+      company.trim() ? `Company: ${company.trim()}` : null,
       `Budget: ${budget || "Not specified"}`,
       `Timeline: ${timeline || "Not specified"}`,
       "",
       "Project details:",
       message.trim(),
-    ].join("\n");
+    ]
+      .filter(Boolean)
+      .join("\n");
 
     const payload = {
-      name: fullName || "Customer",
-      email: customer.email,
+      name: fullName.trim(),
+      email: email.trim(),
       message: `[Quote request]\n\n${details}`,
-      phone: customer.phone_number_primary || undefined,
+      phone: phone.trim() || undefined,
       subject: `Quote request: ${projectTitle.trim()}`,
       type: "quote",
     };
@@ -143,6 +153,10 @@ export default function ContactPage(): JSX.Element {
       }
 
       setSent(true);
+      setFullName("");
+      setEmail("");
+      setPhone("");
+      setCompany("");
       setProjectTitle("");
       setMessage("");
       setBudget("");
@@ -160,11 +174,15 @@ export default function ContactPage(): JSX.Element {
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!customer) return;
     await sendQuote();
   }
 
-  const canSubmit = !loading && projectTitle.trim() && message.trim();
+  const canSubmit =
+    !loading &&
+    fullName.trim() &&
+    email.trim() &&
+    projectTitle.trim() &&
+    message.trim();
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#1f2228]">
@@ -173,41 +191,18 @@ export default function ContactPage(): JSX.Element {
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-10 pb-28 space-y-8">
         {/* Hero */}
         <div className="text-center space-y-3">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-orange-50 dark:bg-orange-500/15 px-3 py-1 text-xs font-semibold text-orange-600 dark:text-orange-400">
-            <Clock className="w-3.5 h-3.5" />
-            Quotes within one business day
-          </span>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
             Request a quote
           </h1>
           <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 max-w-md mx-auto leading-relaxed">
-            Tell us about your project and we’ll send you a tailored,
-            no-obligation quote.
+            Tell us about your project and we’ll prepare a tailored,
+            no-obligation proposal for your website or web application.
           </p>
         </div>
 
         {/* Form card */}
         <div className="bg-white dark:bg-[#272b33] border border-gray-200 dark:border-[#343942] rounded-2xl p-5 sm:p-8 shadow-sm dark:shadow-black/20">
-          {authLoading ? (
-            <div className="flex flex-col items-center justify-center py-16 gap-3">
-              <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Loading…
-              </p>
-            </div>
-          ) : !isAuthenticated ? (
-            <div className="text-center py-12">
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-5 max-w-xs mx-auto">
-                Sign in to request a quote for your project.
-              </p>
-              <a
-                href={`/login?callbackUrl=${encodeURIComponent("/contact")}`}
-                className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold transition"
-              >
-                Sign in
-              </a>
-            </div>
-          ) : sent ? (
+          {sent ? (
             <div className="flex flex-col items-center justify-center text-center py-12">
               <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 flex items-center justify-center mb-4">
                 <CheckCircle2 className="w-7 h-7 text-emerald-500" />
@@ -216,8 +211,8 @@ export default function ContactPage(): JSX.Element {
                 Quote request received
               </p>
               <p className="mt-1.5 text-sm text-gray-500 dark:text-gray-400 max-w-xs">
-                We’ll review your project and send your quote to{" "}
-                {customer?.email} within one business day.
+                We’ve received your project details and will get back to you at
+                your email shortly.
               </p>
               <button
                 type="button"
@@ -229,93 +224,165 @@ export default function ContactPage(): JSX.Element {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Sending as */}
-              <div className="rounded-xl bg-gray-50 dark:bg-[#1f2228] border border-gray-100 dark:border-[#343942] px-4 py-3 text-sm">
-                <p className="text-gray-500 dark:text-gray-400 text-xs mb-1">
-                  Quote will be sent to
+              {/* Contact details */}
+              <div className="space-y-4">
+                <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                  Your details
                 </p>
-                <p className="font-medium text-gray-900 dark:text-white">
-                  {fullName || "Customer"}
-                </p>
-                <p className="text-gray-600 dark:text-gray-300">
-                  {customer?.email}
-                </p>
-                {customer?.phone_number_primary && (
-                  <p className="text-gray-600 dark:text-gray-300">
-                    {customer.phone_number_primary}
-                  </p>
-                )}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="sm:col-span-2">
+                    <label
+                      htmlFor="full-name"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
+                    >
+                      Full name <span className="text-orange-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                      <input
+                        id="full-name"
+                        type="text"
+                        required
+                        autoComplete="name"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        placeholder="Jane Wanjiku"
+                        className={`${inputClassName} pl-10`}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="email"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
+                    >
+                      Email <span className="text-orange-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                      <input
+                        id="email"
+                        type="email"
+                        required
+                        autoComplete="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="you@company.com"
+                        className={`${inputClassName} pl-10`}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="phone"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
+                    >
+                      Phone{" "}
+                      <span className="text-gray-400 font-normal">
+                        (optional)
+                      </span>
+                    </label>
+                    <div className="relative">
+                      <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                      <input
+                        id="phone"
+                        type="tel"
+                        autoComplete="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="+254 7XX XXX XXX"
+                        className={`${inputClassName} pl-10`}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label
+                      htmlFor="company"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
+                    >
+                      Company{" "}
+                      <span className="text-gray-400 font-normal">
+                        (optional)
+                      </span>
+                    </label>
+                    <div className="relative">
+                      <Building2 className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                      <input
+                        id="company"
+                        type="text"
+                        autoComplete="organization"
+                        value={company}
+                        onChange={(e) => setCompany(e.target.value)}
+                        placeholder="Your company or brand"
+                        className={`${inputClassName} pl-10`}
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              {/* Project title */}
-              <div>
-                <label
-                  htmlFor="project-title"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
-                >
-                  Project title <span className="text-orange-500">*</span>
-                </label>
-                <input
-                  id="project-title"
-                  type="text"
-                  required
-                  value={projectTitle}
-                  onChange={(e) => setProjectTitle(e.target.value)}
-                  placeholder="e.g. E-commerce website for my business"
-                  className="
-                    w-full px-4 py-3 rounded-xl
-                    border border-gray-200 dark:border-[#3d434d]
-                    bg-white dark:bg-[#1f2228]
-                    text-gray-900 dark:text-white
-                    placeholder:text-gray-400 dark:placeholder:text-gray-500
-                    focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500
-                    transition
-                  "
+              <div className="border-t border-gray-100 dark:border-[#343942]" />
+
+              {/* Project */}
+              <div className="space-y-4">
+                <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                  Project
+                </p>
+
+                <div>
+                  <label
+                    htmlFor="project-title"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
+                  >
+                    Project title <span className="text-orange-500">*</span>
+                  </label>
+                  <input
+                    id="project-title"
+                    type="text"
+                    required
+                    value={projectTitle}
+                    onChange={(e) => setProjectTitle(e.target.value)}
+                    placeholder="e.g. E-commerce website for my business"
+                    className={inputClassName}
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="project-details"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
+                  >
+                    Project details <span className="text-orange-500">*</span>
+                  </label>
+                  <textarea
+                    id="project-details"
+                    required
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    rows={5}
+                    placeholder="Describe what you need — goals, key features, target audience, design preferences, or any references…"
+                    className={`${inputClassName} resize-none`}
+                  />
+                </div>
+
+                <ChipGroup
+                  label="Estimated budget"
+                  options={BUDGET_OPTIONS}
+                  value={budget}
+                  onChange={setBudget}
+                />
+
+                <ChipGroup
+                  label="Preferred timeline"
+                  options={TIMELINE_OPTIONS}
+                  value={timeline}
+                  onChange={setTimeline}
                 />
               </div>
-
-              {/* Project details */}
-              <div>
-                <label
-                  htmlFor="project-details"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
-                >
-                  Project details <span className="text-orange-500">*</span>
-                </label>
-                <textarea
-                  id="project-details"
-                  required
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  rows={5}
-                  placeholder="Describe what you need, key features, goals, and any requirements or references…"
-                  className="
-                    w-full px-4 py-3 rounded-xl
-                    border border-gray-200 dark:border-[#3d434d]
-                    bg-white dark:bg-[#1f2228]
-                    text-gray-900 dark:text-white
-                    placeholder:text-gray-400 dark:placeholder:text-gray-500
-                    focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500
-                    transition resize-none
-                  "
-                />
-              </div>
-
-              {/* Budget */}
-              <ChipGroup
-                label="Estimated budget"
-                options={BUDGET_OPTIONS}
-                value={budget}
-                onChange={setBudget}
-              />
-
-              {/* Timeline */}
-              <ChipGroup
-                label="Preferred timeline"
-                options={TIMELINE_OPTIONS}
-                value={timeline}
-                onChange={setTimeline}
-              />
 
               {error && (
                 <p className="text-sm text-red-600 dark:text-red-400">
@@ -362,17 +429,17 @@ export default function ContactPage(): JSX.Element {
         {/* Help footer */}
         <div className="rounded-2xl border border-gray-200 dark:border-[#343942] bg-white/60 dark:bg-[#272b33]/60 px-5 py-5 text-center">
           <p className="text-sm font-semibold text-gray-900 dark:text-white">
-            Need help?
+            Prefer to talk it through?
           </p>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
-            Prefer to talk it through? Email us at{" "}
+            Email us at{" "}
             <a
               href={`mailto:${CONTACT_EMAIL}`}
               className="font-medium text-orange-600 dark:text-orange-400 hover:underline"
             >
               {CONTACT_EMAIL}
             </a>{" "}
-            or message us directly on WhatsApp.
+            or message us on WhatsApp.
           </p>
 
           <div className="mt-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2.5">
@@ -409,7 +476,7 @@ export default function ContactPage(): JSX.Element {
         </div>
       </div>
 
-      {/* Floating WhatsApp — icon only */}
+      {/* Floating WhatsApp */}
       <a
         href={WHATSAPP_URL}
         target="_blank"

@@ -121,6 +121,21 @@ export default function Footer() {
       <div className="border-t border-gray-200 dark:border-gray-800">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-zinc-500 dark:text-gray-500">
           <p>&copy; {new Date().getFullYear()} Maraspot. All rights reserved.</p>
+
+          <nav aria-label="Legal" className="flex items-center gap-5">
+            <Link
+              href="/privacy"
+              className="hover:text-orange-500 dark:hover:text-orange-400 transition-colors"
+            >
+              Privacy Policy
+            </Link>
+            <Link
+              href="/terms"
+              className="hover:text-orange-500 dark:hover:text-orange-400 transition-colors"
+            >
+              Terms of Service
+            </Link>
+          </nav>
         </div>
       </div>
     </footer>
