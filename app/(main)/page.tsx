@@ -10,6 +10,7 @@ import { axiosInstance } from "@/utils/axiosInstance";
 import TopNav from "@/components/navigation/TopNav";
 import HomeHero from "@/components/home/HomeHero";
 import Footer from "@/components/ui/Footer";
+import Reveal from "@/components/ui/Reveal";
 import { useLocalCurrency } from "@/hooks/useLocalCurrency";
 
 /* ---------------- TYPES ---------------- */
@@ -47,6 +48,9 @@ function SkeletonCard(): JSX.Element {
 }
 
 /* ---------------- COMPONENT ---------------- */
+
+const GRID_COLUMNS = 4; // matches lg:grid-cols-4, used to stagger each row
+const STAGGER_MS = 80;
 
 export default function HomePage(): JSX.Element {
   const [services, setServices] = useState<Service[]>([]);
@@ -168,16 +172,18 @@ export default function HomePage(): JSX.Element {
 
       {/* FEATURED */}
       <main className=" mx-auto max-w-11xl w-full px-4 md:px-6 py-12 min-h-[70vh]">
-        <div className="flex items-center justify-between mb-10">
-          <h2 className="text-xl md:text-2xl font-bold">Featured Services</h2>
+        <Reveal>
+          <div className="flex items-center justify-between mb-10">
+            <h2 className="text-xl md:text-2xl font-bold">Featured Services</h2>
 
-          <Link
-            href="/services"
-            className="text-blue-600 underline font-medium hover:underline"
-          >
-            View All
-          </Link>
-        </div>
+            <Link
+              href="/services"
+              className="text-blue-600 underline font-medium hover:underline"
+            >
+              View All
+            </Link>
+          </div>
+        </Reveal>
 
         {/* LOADING — FILLS FULL GRID */}
         {loading && (
@@ -198,7 +204,7 @@ export default function HomePage(): JSX.Element {
         {/* DATA */}
         {!loading && hasServices && (
           <div className={gridClass}>
-            {services.map((service) => {
+            {services.map((service, i) => {
               const coverMedia = service.media?.find((m) => m.is_cover) || {};
               const priceData = prices[service.id];
               const price = priceData?.basic ?? priceData?.min ?? null;
@@ -207,79 +213,86 @@ export default function HomePage(): JSX.Element {
               const hasImage = !!coverMedia.image_url || !!service.cover_image;
 
               return (
-                <Link
+                <Reveal
                   key={service.id}
-                  href={`/services/${service.id}`}
-                  className="group block h-full"
+                  delay={(i % GRID_COLUMNS) * STAGGER_MS}
+                  className="h-full"
                 >
-                  <div className="h-full bg-white dark:bg-[#262a31] border border-gray-200 dark:border-white/10 rounded-xl overflow-hidden transition hover:shadow-md dark:hover:border-white/20">
-                    <div className="relative w-full aspect-4/3 bg-gray-100 dark:bg-white/5 overflow-hidden">
-                      {hasVideo ? (
-                        <video
-                          src={coverMedia.video_url ?? undefined}
-                          className="object-cover w-full h-full"
-                          muted
-                          loop
-                          playsInline
-                        />
-                      ) : hasImage ? (
-                        <Image
-                          src={
-                            coverMedia.image_url ||
-                            service.cover_image ||
-                            "/service-placeholder.jpg"
-                          }
-                          alt={service.title}
-                          fill
-                          className="object-cover group-hover:scale-[1.02] transition"
-                        />
-                      ) : (
-                        <Image
-                          src="/service-placeholder.jpg"
-                          alt="Service"
-                          fill
-                          className="object-cover"
-                        />
-                      )}
-                    </div>
-
-                    <div className="p-4 space-y-2">
-                      <h3 className="text-sm md:text-base font-semibold line-clamp-2">
-                        {service.title}
-                      </h3>
-
-                      <p className="text-xs text-gray-500">
-                        {service.category}
-                        {service.subcategory ? ` / ${service.subcategory}` : ""}
-                      </p>
-
-                      <div className="flex items-center justify-between pt-2">
-                        {service.is_featured ? (
-                          <span className="text-[11px] font-medium bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2.5 py-1 rounded-md">
-                            Featured
-                          </span>
+                  <Link
+                    href={`/services/${service.id}`}
+                    className="group block h-full"
+                  >
+                    <div className="h-full bg-white dark:bg-[#262a31] border border-gray-200 dark:border-white/10 rounded-xl overflow-hidden transition hover:shadow-md dark:hover:border-white/20">
+                      <div className="relative w-full aspect-4/3 bg-gray-100 dark:bg-white/5 overflow-hidden">
+                        {hasVideo ? (
+                          <video
+                            src={coverMedia.video_url ?? undefined}
+                            className="object-cover w-full h-full"
+                            muted
+                            loop
+                            playsInline
+                          />
+                        ) : hasImage ? (
+                          <Image
+                            src={
+                              coverMedia.image_url ||
+                              service.cover_image ||
+                              "/service-placeholder.jpg"
+                            }
+                            alt={service.title}
+                            fill
+                            className="object-cover group-hover:scale-[1.02] transition"
+                          />
                         ) : (
-                          <span />
-                        )}
-
-                        {price != null && (
-                          <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                            {fxLoading ? (
-                              "..."
-                            ) : (
-                              <>
-                                <span className="font-normal text-gray-500 dark:text-gray-400 text-xs">
-                                  From{" "}
-                                </span>
-                                {format(price)}
-                              </>
-                            )}
-                          </div>
+                          <Image
+                            src="/service-placeholder.jpg"
+                            alt="Service"
+                            fill
+                            className="object-cover"
+                          />
                         )}
                       </div>
+
+                      <div className="p-4 space-y-2">
+                        <h3 className="text-sm md:text-base font-semibold line-clamp-2">
+                          {service.title}
+                        </h3>
+
+                        <p className="text-xs text-gray-500">
+                          {service.category}
+                          {service.subcategory
+                            ? ` / ${service.subcategory}`
+                            : ""}
+                        </p>
+
+                        <div className="flex items-center justify-between pt-2">
+                          {service.is_featured ? (
+                            <span className="text-[11px] font-medium bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2.5 py-1 rounded-md">
+                              Featured
+                            </span>
+                          ) : (
+                            <span />
+                          )}
+
+                          {price != null && (
+                            <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                              {fxLoading ? (
+                                "..."
+                              ) : (
+                                <>
+                                  <span className="font-normal text-gray-500 dark:text-gray-400 text-xs">
+                                    From{" "}
+                                  </span>
+                                  {format(price)}
+                                </>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </Link>
+                  </Link>
+                </Reveal>
               );
             })}
           </div>
