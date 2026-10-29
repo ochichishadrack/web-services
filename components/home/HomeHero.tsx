@@ -125,7 +125,7 @@ export default function HomeHero(): JSX.Element {
 
   return (
     <section
-      className="relative flex min-h-[85vh] items-center bg-white dark:bg-[#1f2228]"
+      className="relative flex  items-center bg-white dark:bg-[#1f2228]"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
