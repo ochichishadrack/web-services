@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import TopNav from "@/components/ui/DynamicTopNav";
 import MediaGallery from "./MediaGallery";
-import PackagePanel from "./PackagePanel";
+import PackagesModal from "./PackagesModal";
 import ServiceDetailsSkeleton from "./ServiceDetailsSkeleton";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useCustomerAuth } from "@/context/CustomerAuthContext";
@@ -27,6 +27,7 @@ export default function ServiceDetailsPage() {
   const [service, setService] = useState<Service | null>(null);
   const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
   const [selectedExtras, setSelectedExtras] = useState<string[]>([]);
+  const [packagesOpen, setPackagesOpen] = useState(false);
   const [faqOpen, setFaqOpen] = useState(false);
   const [openFaqId, setOpenFaqId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -127,6 +128,11 @@ export default function ServiceDetailsPage() {
       </div>
     );
 
+  const hasPackages = service.packages.length > 0;
+  const minPrice = hasPackages
+    ? Math.min(...service.packages.map((p) => p.price))
+    : 0;
+
   const extrasTotal =
     service.extras
       ?.filter((e) => selectedExtras.includes(e.id))
@@ -149,6 +155,21 @@ export default function ServiceDetailsPage() {
           media={service.media}
           startIndex={galleryIndex}
           onClose={() => setGalleryOpen(false)}
+        />
+      )}
+
+      {selectedPackage && (
+        <PackagesModal
+          open={packagesOpen}
+          onClose={() => setPackagesOpen(false)}
+          packages={service.packages}
+          selected={selectedPackage}
+          onSelect={setSelectedPackage}
+          extras={service.extras}
+          selectedExtras={selectedExtras}
+          toggleExtra={toggleExtra}
+          total={totalPrice}
+          onContinue={goCheckout}
         />
       )}
 
@@ -187,111 +208,118 @@ export default function ServiceDetailsPage() {
         </div>
       ) : null}
 
-      {/* Layout: on mobile the order is title → packages → about → FAQ.
-          On desktop the package panel sits in a sticky right column. */}
       <div className="max-w-7xl mx-auto px-4 md:px-6 grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-6 mt-2 md:mt-4">
-        {/* Title */}
-        <div className="lg:col-span-2">
-          <h1 className="text-xl md:text-2xl font-bold leading-snug">
-            {service.title}
-          </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            {service.category}
-            {service.subcategory ? ` / ${service.subcategory}` : ""}
-          </p>
-        </div>
-
-        {/* Packages */}
-        {selectedPackage && (
-          <div className="lg:col-start-3 lg:row-start-1 lg:row-span-3 lg:self-start lg:sticky lg:top-24">
-            <PackagePanel
-              packages={service.packages}
-              selected={selectedPackage}
-              onSelect={setSelectedPackage}
-              extras={service.extras}
-              selectedExtras={selectedExtras}
-              toggleExtra={toggleExtra}
-              total={totalPrice}
-              onContinue={goCheckout}
-            />
+        {/* Details */}
+        <div className="lg:col-span-2 space-y-6">
+          <div>
+            <h1 className="text-xl md:text-2xl font-bold leading-snug">
+              {service.title}
+            </h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              {service.category}
+              {service.subcategory ? ` / ${service.subcategory}` : ""}
+            </p>
           </div>
-        )}
 
-        {/* About */}
-        <div className="lg:col-span-2 text-gray-600 dark:text-gray-300">
-          <h2 className="font-semibold mb-2 text-lg text-gray-900 dark:text-white">
-            About this service
-          </h2>
-          <TiptapPageView value={service.description ?? ""} />
-        </div>
+          <div className="text-gray-600 dark:text-gray-300">
+            <h2 className="font-semibold mb-2 text-lg text-gray-900 dark:text-white">
+              About this service
+            </h2>
+            <TiptapPageView value={service.description ?? ""} />
+          </div>
 
-        {/* FAQ */}
-        {service.faqs?.length ? (
-          <div className={`${card} lg:col-span-2 p-4 sm:p-5`}>
-            <button
-              type="button"
-              aria-expanded={faqOpen}
-              onClick={() => setFaqOpen(!faqOpen)}
-              className="flex items-center justify-between w-full text-left font-semibold text-gray-900 dark:text-white"
-            >
-              Frequently asked questions
-              <ChevronDown
-                className={`w-5 h-5 text-gray-400 transition-transform ${faqOpen ? "rotate-180" : ""}`}
-              />
-            </button>
+          {service.faqs?.length ? (
+            <div className={`${card} p-4 sm:p-5`}>
+              <button
+                type="button"
+                aria-expanded={faqOpen}
+                onClick={() => setFaqOpen(!faqOpen)}
+                className="flex items-center justify-between w-full text-left font-semibold text-gray-900 dark:text-white"
+              >
+                Frequently asked questions
+                <ChevronDown
+                  className={`w-5 h-5 text-gray-400 transition-transform ${faqOpen ? "rotate-180" : ""}`}
+                />
+              </button>
 
-            {faqOpen && (
-              <div className="mt-4 space-y-2">
-                {service.faqs.map((faq) => {
-                  const open = openFaqId === faq.id;
-                  return (
-                    <div
-                      key={faq.id}
-                      className="border border-gray-100 dark:border-white/10 rounded-xl"
-                    >
-                      <button
-                        type="button"
-                        aria-expanded={open}
-                        onClick={() => setOpenFaqId(open ? null : faq.id)}
-                        className="flex justify-between items-center gap-3 w-full p-3 text-left text-sm font-semibold text-gray-800 dark:text-gray-200"
+              {faqOpen && (
+                <div className="mt-4 space-y-2">
+                  {service.faqs.map((faq) => {
+                    const open = openFaqId === faq.id;
+                    return (
+                      <div
+                        key={faq.id}
+                        className="border border-gray-100 dark:border-white/10 rounded-xl"
                       >
-                        {faq.question}
-                        <ChevronDown
-                          className={`w-4 h-4 shrink-0 text-gray-400 transition-transform ${open ? "rotate-180" : ""}`}
-                        />
-                      </button>
-                      {open && (
-                        <p className="px-3 pb-3 text-sm text-gray-600 dark:text-gray-400">
-                          {faq.answer}
-                        </p>
-                      )}
-                    </div>
-                  );
-                })}
+                        <button
+                          type="button"
+                          aria-expanded={open}
+                          onClick={() => setOpenFaqId(open ? null : faq.id)}
+                          className="flex justify-between items-center gap-3 w-full p-3 text-left text-sm font-semibold text-gray-800 dark:text-gray-200"
+                        >
+                          {faq.question}
+                          <ChevronDown
+                            className={`w-4 h-4 shrink-0 text-gray-400 transition-transform ${open ? "rotate-180" : ""}`}
+                          />
+                        </button>
+                        {open && (
+                          <p className="px-3 pb-3 text-sm text-gray-600 dark:text-gray-400">
+                            {faq.answer}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          ) : null}
+        </div>
+
+        {/* Desktop summary card */}
+        {hasPackages && (
+          <aside className="hidden lg:block lg:sticky lg:top-24 self-start">
+            <div className={`${card} p-5 shadow-sm space-y-4`}>
+              <div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Starting from
+                </p>
+                <p className="text-3xl font-bold tracking-tight">
+                  {format(minPrice)}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {service.packages.length}{" "}
+                  {service.packages.length === 1 ? "package" : "packages"}
+                  {service.extras?.length ? " + extras" : ""}
+                </p>
               </div>
-            )}
-          </div>
-        ) : null}
+              <button
+                type="button"
+                onClick={() => setPackagesOpen(true)}
+                className="w-full rounded-xl bg-orange-500 hover:bg-orange-600 text-white py-3 font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/40 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#262a31]"
+              >
+                Continue
+              </button>
+            </div>
+          </aside>
+        )}
       </div>
 
-      {/* Mobile sticky checkout bar */}
-      {selectedPackage && (
+      {/* Mobile sticky bar */}
+      {hasPackages && (
         <div className="lg:hidden fixed bottom-0 inset-x-0 z-30 border-t border-gray-100 dark:border-white/10 bg-white/90 dark:bg-[#1f2228]/90 backdrop-blur px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
           <div className="mx-auto max-w-7xl flex items-center gap-4">
             <div className="min-w-0 flex-1">
-              <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                {selectedPackage.type}
-                {selectedExtras.length > 0
-                  ? ` + ${selectedExtras.length} ${selectedExtras.length === 1 ? "extra" : "extras"}`
-                  : ""}
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                Starting from
               </div>
               <div className="text-lg font-bold leading-tight">
-                {format(totalPrice)}
+                {format(minPrice)}
               </div>
             </div>
             <button
               type="button"
-              onClick={goCheckout}
+              onClick={() => setPackagesOpen(true)}
               className="shrink-0 rounded-xl bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 text-sm font-semibold transition-colors"
             >
               Continue

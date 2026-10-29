@@ -14,7 +14,6 @@ interface Props {
   selectedExtras: string[];
   toggleExtra: (id: string) => void;
   total: number;
-  onContinue: () => void;
 }
 
 interface Stat {
@@ -31,7 +30,6 @@ export default function PackagePanel({
   selectedExtras,
   toggleExtra,
   total,
-  onContinue,
 }: Props) {
   const { format } = useLocalCurrency();
 
@@ -53,174 +51,140 @@ export default function PackagePanel({
     },
   ];
   if (pages > 0)
-    stats.push({
-      icon: FileText,
-      label: "Pages",
-      value: String(pages),
-    });
+    stats.push({ icon: FileText, label: "Pages", value: String(pages) });
   if (products > 0)
-    stats.push({
-      icon: Boxes,
-      label: "Products",
-      value: String(products),
-    });
+    stats.push({ icon: Boxes, label: "Products", value: String(products) });
 
   return (
-    <section
-      aria-label="Packages"
-      className="bg-white dark:bg-[#262a31] border border-gray-100 dark:border-white/10 rounded-2xl shadow-sm overflow-hidden"
-    >
-      <div className="p-4 sm:p-5 space-y-5">
-        {/* Package switcher */}
-        <div
-          role="tablist"
-          aria-label="Choose a package"
-          className="flex gap-1 p-1 rounded-xl bg-gray-100 dark:bg-white/5"
-        >
-          {packages.map((pkg) => {
-            const active = pkg.id === selected.id;
-            return (
-              <button
-                key={pkg.id}
-                type="button"
-                role="tab"
-                aria-selected={active}
-                onClick={() => onSelect(pkg)}
-                className={`flex-1 min-w-0 rounded-lg px-2 py-2 text-center transition-colors
-                  focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/40
-                  ${
-                    active
-                      ? "bg-white dark:bg-[#363b43] shadow-sm text-gray-900 dark:text-white"
-                      : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-                  }`}
-              >
-                <span className="block text-sm font-semibold truncate">
-                  {pkg.type}
-                </span>
-                <span
-                  className={`block text-xs truncate ${
-                    active
-                      ? "text-orange-600 dark:text-orange-400"
-                      : "text-gray-400 dark:text-gray-500"
-                  }`}
-                >
-                  {format(pkg.price)}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Price + title */}
-        <div className="space-y-2">
-          <div className="flex items-baseline gap-2 flex-wrap">
-            <span className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-              {format(total)}
-            </span>
-            {pickedExtras.length > 0 && (
-              <span className="text-xs text-gray-500 dark:text-gray-400">
-                incl. {pickedExtras.length}{" "}
-                {pickedExtras.length === 1 ? "extra" : "extras"}
+    <div className="space-y-5">
+      {/* Package switcher */}
+      <div
+        role="tablist"
+        aria-label="Choose a package"
+        className="flex gap-1 p-1 rounded-xl bg-gray-100 dark:bg-white/5"
+      >
+        {packages.map((pkg) => {
+          const active = pkg.id === selected.id;
+          return (
+            <button
+              key={pkg.id}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              onClick={() => onSelect(pkg)}
+              className={`flex-1 min-w-0 rounded-lg px-2 py-2 text-center transition-colors
+                focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/40
+                ${
+                  active
+                    ? "bg-white dark:bg-[#363b43] shadow-sm text-gray-900 dark:text-white"
+                    : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                }`}
+            >
+              <span className="block text-sm font-semibold truncate">
+                {pkg.type}
               </span>
-            )}
-          </div>
-          <h2 className="font-semibold text-gray-900 dark:text-white">
-            {selected.name}
-          </h2>
-          {selected.description && (
-            <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-              {selected.description}
-            </p>
-          )}
-        </div>
-
-        {/* Quick facts */}
-        <dl className="grid grid-cols-2 gap-2">
-          {stats.map(({ icon: Icon, label, value }) => (
-            <div
-              key={label}
-              className="flex items-center gap-2.5 rounded-xl border border-gray-100 dark:border-white/10 bg-gray-50/70 dark:bg-white/5 px-3 py-2.5"
-            >
-              <Icon className="h-4 w-4 shrink-0 text-gray-400 dark:text-gray-500" />
-              <div className="min-w-0">
-                <dt className="text-[11px] text-gray-500 dark:text-gray-400">
-                  {label}
-                </dt>
-                <dd className="text-sm font-semibold text-gray-900 dark:text-white truncate">
-                  {value}
-                </dd>
-              </div>
-            </div>
-          ))}
-        </dl>
-
-        {/* What's included */}
-        {!!selected.features?.length && (
-          <div className="border-t border-gray-100 dark:border-white/10 pt-4 space-y-2.5">
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
-              What’s included
-            </h3>
-            <ul className="space-y-2">
-              {selected.features.map((f, i) => (
-                <li
-                  key={i}
-                  className="flex items-start gap-2.5 text-sm text-gray-700 dark:text-gray-300"
-                >
-                  <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-green-50 dark:bg-green-900/30">
-                    <Check
-                      className="h-3 w-3 text-green-600 dark:text-green-400"
-                      strokeWidth={3}
-                    />
-                  </span>
-                  <span className="min-w-0">{f}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {/* Extras */}
-        {!!extras.length && (
-          <div className="border-t border-gray-100 dark:border-white/10 pt-4">
-            <ServiceExtras
-              extras={extras}
-              selectedExtras={selectedExtras}
-              toggleExtra={toggleExtra}
-            />
-          </div>
-        )}
-
-        {/* Order summary */}
-        <div className="border-t border-gray-100 dark:border-white/10 pt-4 space-y-1.5 text-sm">
-          <div className="flex justify-between gap-3 text-gray-600 dark:text-gray-400">
-            <span className="truncate">{selected.type} package</span>
-            <span className="shrink-0">{format(selected.price)}</span>
-          </div>
-          {pickedExtras.map((e) => (
-            <div
-              key={e.id}
-              className="flex justify-between gap-3 text-gray-600 dark:text-gray-400"
-            >
-              <span className="truncate">{e.title}</span>
-              <span className="shrink-0">{format(e.price)}</span>
-            </div>
-          ))}
-          <div className="flex justify-between gap-3 pt-2 font-semibold text-gray-900 dark:text-white">
-            <span>Total</span>
-            <span>{format(total)}</span>
-          </div>
-        </div>
-
-        {/* Desktop CTA (mobile uses the sticky bar) */}
-        <button
-          type="button"
-          onClick={onContinue}
-          className="hidden lg:block w-full rounded-xl bg-orange-500 hover:bg-orange-600 text-white py-3 font-semibold transition-colors
-            focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/40 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#262a31]"
-        >
-          Continue
-        </button>
+              <span
+                className={`block text-xs truncate ${
+                  active
+                    ? "text-orange-600 dark:text-orange-400"
+                    : "text-gray-400 dark:text-gray-500"
+                }`}
+              >
+                {format(pkg.price)}
+              </span>
+            </button>
+          );
+        })}
       </div>
-    </section>
+
+      {/* Package title + description */}
+      <div className="space-y-2">
+        <h3 className="font-semibold text-gray-900 dark:text-white">
+          {selected.name}
+        </h3>
+        {selected.description && (
+          <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+            {selected.description}
+          </p>
+        )}
+      </div>
+
+      {/* Quick facts */}
+      <dl className="grid grid-cols-2 gap-2">
+        {stats.map(({ icon: Icon, label, value }) => (
+          <div
+            key={label}
+            className="flex items-center gap-2.5 rounded-xl border border-gray-100 dark:border-white/10 bg-gray-50/70 dark:bg-white/5 px-3 py-2.5"
+          >
+            <Icon className="h-4 w-4 shrink-0 text-gray-400 dark:text-gray-500" />
+            <div className="min-w-0">
+              <dt className="text-[11px] text-gray-500 dark:text-gray-400">
+                {label}
+              </dt>
+              <dd className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                {value}
+              </dd>
+            </div>
+          </div>
+        ))}
+      </dl>
+
+      {/* What's included */}
+      {!!selected.features?.length && (
+        <div className="border-t border-gray-100 dark:border-white/10 pt-4 space-y-2.5">
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
+            What’s included
+          </h4>
+          <ul className="space-y-2">
+            {selected.features.map((f, i) => (
+              <li
+                key={i}
+                className="flex items-start gap-2.5 text-sm text-gray-700 dark:text-gray-300"
+              >
+                <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-green-50 dark:bg-green-900/30">
+                  <Check
+                    className="h-3 w-3 text-green-600 dark:text-green-400"
+                    strokeWidth={3}
+                  />
+                </span>
+                <span className="min-w-0">{f}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Extras */}
+      {!!extras.length && (
+        <div className="border-t border-gray-100 dark:border-white/10 pt-4">
+          <ServiceExtras
+            extras={extras}
+            selectedExtras={selectedExtras}
+            toggleExtra={toggleExtra}
+          />
+        </div>
+      )}
+
+      {/* Order summary */}
+      <div className="border-t border-gray-100 dark:border-white/10 pt-4 space-y-1.5 text-sm">
+        <div className="flex justify-between gap-3 text-gray-600 dark:text-gray-400">
+          <span className="truncate">{selected.type} package</span>
+          <span className="shrink-0">{format(selected.price)}</span>
+        </div>
+        {pickedExtras.map((e) => (
+          <div
+            key={e.id}
+            className="flex justify-between gap-3 text-gray-600 dark:text-gray-400"
+          >
+            <span className="truncate">{e.title}</span>
+            <span className="shrink-0">{format(e.price)}</span>
+          </div>
+        ))}
+        <div className="flex justify-between gap-3 pt-2 font-semibold text-gray-900 dark:text-white">
+          <span>Total</span>
+          <span>{format(total)}</span>
+        </div>
+      </div>
+    </div>
   );
 }
