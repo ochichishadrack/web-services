@@ -88,6 +88,7 @@ export default function HomeHero(): JSX.Element {
   const [index, setIndex] = useState(0);
   const [phase, setPhase] = useState<Phase>('in');
   const [paused, setPaused] = useState(false);
+  const [loaded, setLoaded] = useState<Record<number, boolean>>({});
   const timeouts = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   const goTo = useCallback((next: number) => {
@@ -101,12 +102,13 @@ export default function HomeHero(): JSX.Element {
     timeouts.current.push(t1);
   }, []);
 
-  // Auto-advance
+  // Auto-advance (waits until the next slide's image has loaded)
   useEffect(() => {
-    if (paused || phase !== 'in') return;
-    const timer = setTimeout(() => goTo((index + 1) % slides.length), INTERVAL_MS);
+    const next = (index + 1) % slides.length;
+    if (paused || phase !== 'in' || !loaded[next]) return;
+    const timer = setTimeout(() => goTo(next), INTERVAL_MS);
     return () => clearTimeout(timer);
-  }, [index, paused, phase, goTo]);
+  }, [index, paused, phase, loaded, goTo]);
 
   // Cleanup pending timeouts on unmount
   useEffect(() => {
@@ -153,14 +155,20 @@ export default function HomeHero(): JSX.Element {
           <div
             className={`relative aspect-square w-full max-w-[16rem] transition-all duration-500 ease-out motion-reduce:transition-none sm:max-w-sm lg:w-[min(28rem,60svh)] lg:max-w-none ${imageMotion}`}
           >
-            <Image
-              src={slide.image}
-              alt={slide.alt}
-              fill
-              priority={index === 0}
-              sizes="(min-width: 1024px) 28rem, (min-width: 640px) 24rem, 16rem"
-              className="object-contain"
-            />
+            {slides.map((s, i) => (
+              <Image
+                key={s.image}
+                src={s.image}
+                alt={i === index ? s.alt : ''}
+                aria-hidden={i !== index}
+                fill
+                priority={i === 0}
+                loading="eager"
+                onLoad={() => setLoaded((prev) => (prev[i] ? prev : { ...prev, [i]: true }))}
+                sizes="(min-width: 1024px) 28rem, (min-width: 640px) 24rem, 16rem"
+                className={`object-contain ${i === index ? 'opacity-100' : 'opacity-0'}`}
+              />
+            ))}
           </div>
         </div>
 
@@ -211,7 +219,7 @@ export default function HomeHero(): JSX.Element {
                 type="button"
                 aria-label={`Show slide ${i + 1}`}
                 aria-current={i === index}
-                onClick={() => i !== index && phase === 'in' && goTo(i)}
+                onClick={() => i !== index && phase === 'in' && loaded[i] && goTo(i)}
                 className={`h-2 rounded-full transition-all duration-300 ${
                   i === index
                     ? 'w-8 bg-orange-500'
