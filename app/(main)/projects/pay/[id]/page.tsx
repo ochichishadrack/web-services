@@ -185,7 +185,7 @@ export default function PaymentPage() {
       formData.append("payload_json", JSON.stringify(payload));
 
       const res = await axiosInstance.post<InitializeResponse>(
-        "/api/paystack_global/initialize",
+        "/api/paystack_global/initialize/service",
         formData,
         { headers: { "Content-Type": "multipart/form-data" } },
       );

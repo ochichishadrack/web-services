@@ -196,7 +196,7 @@ export default function PaymentComponent({
 
       formData.append('payload_json', JSON.stringify(payload));
 
-      const res = await axiosInstance.post('/api/paystack_global/initialize', formData);
+      const res = await axiosInstance.post('/api/paystack_global/initialize/service', formData);
 
       const { authorization_url, reference } = res.data;
 
