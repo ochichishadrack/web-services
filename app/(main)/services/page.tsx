@@ -1,335 +1,80 @@
-"use client";
+import type { Metadata } from "next";
+import JsonLd from "@/components/seo/JsonLd";
+import { SITE_NAME, SITE_URL } from "@/lib/seo";
+import { getActiveServices, getServicePrices } from "@/lib/services";
+import ServicesClient from "./ServicesClient";
 
-import { JSX, useEffect, useMemo, useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { axiosInstance } from "@/utils/axiosInstance";
-import TopNav from "@/components/navigation/TopNav";
-import Footer from "@/components/ui/Footer";
-import Reveal from "@/components/ui/Reveal";
-import { useLocalCurrency } from "@/hooks/useLocalCurrency";
-import { ChevronDown } from "lucide-react";
+// Re-generate this page at most every 5 minutes (ISR)
+export const revalidate = 300;
 
-/* ---------------- TYPES ---------------- */
+const TITLE = "Web & Software Development Services";
+const DESCRIPTION =
+  "Explore Maraspot's web design, web app and custom software development services. Compare packages, see starting prices and get a project started.";
 
-interface ServiceMedia {
-  image_url?: string | null;
-  video_url?: string | null;
-  is_cover?: boolean;
-}
+export const metadata: Metadata = {
+  title: TITLE, // becomes "Web & Software Development Services | Maraspot"
+  description: DESCRIPTION,
+  alternates: { canonical: "/services" },
+  openGraph: {
+    type: "website",
+    siteName: SITE_NAME,
+    url: "/services",
+    title: `${TITLE} | ${SITE_NAME}`,
+    description: DESCRIPTION,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${TITLE} | ${SITE_NAME}`,
+    description: DESCRIPTION,
+  },
+};
 
-interface Service {
-  id: string;
-  title: string;
-  slug: string;
-  category: string;
-  subcategory?: string;
-  description?: string;
-  is_featured?: boolean;
-  is_active?: boolean;
-  cover_image?: string | null;
-  media?: ServiceMedia[];
-}
+export default async function ServicesPage() {
+  // Fetched on the server so crawlers receive the full HTML list of services
+  const [services, prices] = await Promise.all([
+    getActiveServices(),
+    getServicePrices(),
+  ]);
 
-type PriceSort = "default" | "asc" | "desc";
-
-/* ---------------- SKELETON CARD ---------------- */
-
-function SkeletonCard(): JSX.Element {
-  return (
-    <div className="h-full bg-white dark:bg-[#262a31] border border-gray-100 dark:border-white/10 rounded-2xl overflow-hidden animate-pulse flex flex-col">
-      <div className="relative aspect-4/3 bg-gray-100 dark:bg-white/10 shrink-0" />
-      <div className="p-3 md:p-4 space-y-2 flex-1">
-        <div className="h-4 bg-gray-100 dark:bg-white/10 rounded w-4/5" />
-        <div className="h-3 bg-gray-100 dark:bg-white/10 rounded w-2/5" />
-        <div className="h-3 bg-gray-100 dark:bg-white/10 rounded w-1/4" />
-      </div>
-    </div>
-  );
-}
-
-/* ---------------- FILTER SELECT ---------------- */
-
-function FilterSelect({
-  label,
-  value,
-  onChange,
-  options,
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  options: { value: string; label: string }[];
-}): JSX.Element {
-  return (
-    <div className="relative">
-      <label className="sr-only">{label}</label>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="appearance-none pl-3.5 pr-9 py-2 text-sm font-medium
-          bg-white dark:bg-[#262a31]
-          border border-gray-200 dark:border-white/10
-          rounded-xl
-          text-gray-700 dark:text-gray-200
-          hover:border-gray-300 dark:hover:border-white/20
-          focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500
-          transition-colors cursor-pointer min-w-[9.5rem]"
-      >
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
-      <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
-    </div>
-  );
-}
-
-/* ---------------- COMPONENT ---------------- */
-
-const GRID_COLUMNS = 4; // matches lg:grid-cols-4, used to stagger each row
-const STAGGER_MS = 150;
-
-export default function ServicesPage(): JSX.Element {
-  const [services, setServices] = useState<Service[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [prices, setPrices] = useState<Record<string, any>>({});
-  const { format, loading: fxLoading } = useLocalCurrency();
-
-  const [categoryFilter, setCategoryFilter] = useState<string>("all");
-  const [priceSort, setPriceSort] = useState<PriceSort>("default");
-
-  useEffect(() => {
-    async function fetchServices(): Promise<void> {
-      try {
-        const res = await axiosInstance.get<Service[]>("/api/web-services");
-        const activeServices = (res.data || []).filter(
-          (s: Service) => s.is_active,
-        );
-        setServices(activeServices);
-      } catch (err) {
-        console.error("Failed to fetch services", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    void fetchServices();
-  }, []);
-
-  useEffect(() => {
-    async function fetchPrices() {
-      try {
-        const res = await axiosInstance.get("/api/web-services/prices");
-        setPrices(res.data || {});
-      } catch {
-        console.error("Failed to fetch prices");
-      }
-    }
-    fetchPrices();
-  }, []);
-
-  const categories = useMemo(() => {
-    const set = new Set(
-      services.map((s) => s.category).filter(Boolean) as string[],
-    );
-    return Array.from(set).sort((a, b) => a.localeCompare(b));
-  }, [services]);
-
-  const getPrice = (serviceId: string): number | null => {
-    const priceData = prices[serviceId];
-    if (!priceData) return null;
-    const value = priceData?.basic ?? priceData?.min ?? null;
-    return typeof value === "number" ? value : null;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "CollectionPage",
+        "@id": `${SITE_URL}/services#webpage`,
+        url: `${SITE_URL}/services`,
+        name: `${TITLE} | ${SITE_NAME}`,
+        description: DESCRIPTION,
+        isPartOf: { "@id": `${SITE_URL}/#website` },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Services",
+            item: `${SITE_URL}/services`,
+          },
+        ],
+      },
+      {
+        "@type": "ItemList",
+        itemListElement: services.map((service, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          url: `${SITE_URL}/services/${service.id}`,
+          name: service.title,
+        })),
+      },
+    ],
   };
 
-  const filteredServices = useMemo(() => {
-    let list = [...services];
-
-    if (categoryFilter !== "all") {
-      list = list.filter((s) => s.category === categoryFilter);
-    }
-
-    if (priceSort === "asc" || priceSort === "desc") {
-      list.sort((a, b) => {
-        const pa = getPrice(a.id);
-        const pb = getPrice(b.id);
-        // Push items without price to the end
-        if (pa == null && pb == null) return 0;
-        if (pa == null) return 1;
-        if (pb == null) return -1;
-        return priceSort === "asc" ? pa - pb : pb - pa;
-      });
-    }
-
-    return list;
-  }, [services, categoryFilter, priceSort, prices]);
-
-  const hasServices = useMemo(() => services.length > 0, [services]);
-  const hasFiltered = filteredServices.length > 0;
-
-  const categoryOptions = [
-    { value: "all", label: "All categories" },
-    ...categories.map((c) => ({ value: c, label: c })),
-  ];
-
-  const priceOptions = [
-    { value: "default", label: "Sort by price" },
-    { value: "asc", label: "Price: Low to High" },
-    { value: "desc", label: "Price: High to Low" },
-  ];
-
   return (
-    <div className="min-h-screen bg-white dark:bg-[#1f2228] transition-colors">
-      {/* Top Navigation */}
-      <TopNav activePage="services" />
-      {/* Services Grid */}
-      <main className="mx-auto max-w-11xl px-4 md:px-6 py-8 md:py-12">
-        {/* Filters — top right */}
-        {!loading && hasServices && (
-          <Reveal>
-            <div className="flex flex-wrap items-center justify-end gap-2.5 mb-6">
-              <FilterSelect
-                label="Filter by category"
-                value={categoryFilter}
-                onChange={setCategoryFilter}
-                options={categoryOptions}
-              />
-              <FilterSelect
-                label="Sort by price"
-                value={priceSort}
-                onChange={(v) => setPriceSort(v as PriceSort)}
-                options={priceOptions}
-              />
-            </div>
-          </Reveal>
-        )}
-
-        {/* Loading */}
-        {loading && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 items-stretch">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <SkeletonCard key={i} />
-            ))}
-          </div>
-        )}
-
-        {/* Empty — no services at all */}
-        {!loading && !hasServices && (
-          <div className="min-h-[40vh] flex items-center justify-center text-gray-500 dark:text-gray-400">
-            No services available.
-          </div>
-        )}
-
-        {/* Empty — filters match nothing */}
-        {!loading && hasServices && !hasFiltered && (
-          <div className="min-h-[30vh] flex flex-col items-center justify-center gap-3 text-gray-500 dark:text-gray-400">
-            <p>No services match your filters.</p>
-            <button
-              type="button"
-              onClick={() => {
-                setCategoryFilter("all");
-                setPriceSort("default");
-              }}
-              className="text-sm font-medium text-orange-600 dark:text-orange-400 hover:underline"
-            >
-              Clear filters
-            </button>
-          </div>
-        )}
-
-        {/* Data */}
-        {!loading && hasFiltered && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 items-stretch">
-            {filteredServices.map((service, i) => {
-              const coverMedia =
-                service.media?.find((m: ServiceMedia) => m.is_cover) || {};
-              const hasVideo = !!coverMedia.video_url;
-              const hasImage = !!coverMedia.image_url || !!service.cover_image;
-              const price = getPrice(service.id);
-
-              return (
-                <Reveal
-                  key={service.id}
-                  delay={(i % GRID_COLUMNS) * STAGGER_MS}
-                  className="h-full"
-                >
-                  <Link
-                    href={`/services/${service.id}`}
-                    className="group block h-full"
-                  >
-                    <div className="h-full flex flex-col bg-white dark:bg-[#262a31] border border-gray-100 dark:border-white/10 rounded-2xl overflow-hidden transition hover:shadow-md hover:border-gray-200 dark:hover:border-white/20">
-                      {/* MEDIA */}
-                      <div className="relative w-full aspect-4/3 bg-gray-100 dark:bg-white/5 overflow-hidden shrink-0">
-                        {hasVideo ? (
-                          <video
-                            src={coverMedia.video_url ?? undefined}
-                            className="object-cover w-full h-full"
-                            muted
-                            loop
-                            playsInline
-                          />
-                        ) : hasImage ? (
-                          <Image
-                            src={coverMedia.image_url || service.cover_image!}
-                            alt={service.title}
-                            fill
-                            sizes="(max-width:768px) 100vw, (max-width:1024px) 33vw, 25vw"
-                            className="object-cover group-hover:scale-[1.02] transition duration-300"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
-                            No preview
-                          </div>
-                        )}
-                      </div>
-
-                      {/* CONTENT */}
-                      <div className="p-4 flex flex-col flex-1 space-y-2">
-                        <h2 className="text-sm md:text-base font-semibold text-gray-900 dark:text-white line-clamp-2 leading-snug">
-                          {service.title}
-                        </h2>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {service.category}
-                          {service.subcategory
-                            ? ` / ${service.subcategory}`
-                            : ""}
-                        </p>
-
-                        <div className="flex items-center justify-between pt-1 mt-auto">
-                          {service.is_featured ? (
-                            <span className="text-[11px] font-medium bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2.5 py-1 rounded-md">
-                              Featured
-                            </span>
-                          ) : (
-                            <span />
-                          )}
-                          {price != null && (
-                            <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                              {fxLoading ? (
-                                "..."
-                              ) : (
-                                <>
-                                  <span className="font-normal text-gray-500 dark:text-gray-400 text-xs">
-                                    From{" "}
-                                  </span>
-                                  {format(price)}
-                                </>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                </Reveal>
-              );
-            })}
-          </div>
-        )}
-      </main>
-      <Footer />
-    </div>
+    <>
+      <JsonLd data={jsonLd} />
+      <ServicesClient initialServices={services} initialPrices={prices} />
+    </>
   );
 }
