@@ -1,7 +1,7 @@
 {
-  "name": "Maraspot Services",
-  "short_name": "Maraspot Dev",
-  "description": "Professional web development services",
+  "name": "Maraspot Developers",
+  "short_name": "Developer.MS",
+  "description": "Web & Software Development Company",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
