@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback, useTransition } from 'react';
 import Link from 'next/link';
 import { MoreVertical, LogIn, LogOut } from 'lucide-react';
 import { useCustomerAuth } from '@/context/CustomerAuthContext';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import CountrySelector from '@/components/ui/CountrySelector';
 
 interface MobileNavProps {
@@ -21,6 +21,15 @@ const PAGE_TITLES: Record<string, string> = {
   checkout: 'Checkout',
 };
 
+const NAV_ITEMS = [
+  { key: 'home', label: 'Home', href: '/' },
+  { key: 'services', label: 'Services', href: '/services' },
+  { key: 'portfolios', label: 'Our Portfolio', href: '/portfolios' },
+  { key: 'projects', label: 'Projects', href: '/projects' },
+] as const;
+
+const ACCOUNT_HREF = '/account';
+
 function resolveTitle(pathname: string, activePage: string): string {
   // Explicit activePage mapping first
   if (PAGE_TITLES[activePage]) return PAGE_TITLES[activePage];
@@ -36,40 +45,84 @@ function resolveTitle(pathname: string, activePage: string): string {
   return 'MARASPOT';
 }
 
+/** True for Ctrl/Cmd/Shift/Alt-click or non-left click, so the browser can handle it (new tab, etc.) */
+function isModifiedEvent(e: React.MouseEvent) {
+  return e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0;
+}
+
 export default function MobileNav({ activePage }: MobileNavProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [pendingHref, setPendingHref] = useState<string | null>(null);
+  const [, startTransition] = useTransition();
+
   const { isAuthenticated, loading: authLoading, customer, logout } = useCustomerAuth();
   const pathname = usePathname();
+  const router = useRouter();
   const menuRef = useRef<HTMLDivElement>(null);
 
   const title = useMemo(() => resolveTitle(pathname, activePage), [pathname, activePage]);
-
-  const navItems = [
-    { key: 'home', label: 'Home', href: '/' },
-    { key: 'services', label: 'Services', href: '/services' },
-    { key: 'portfolios', label: 'Our Portfolio', href: '/portfolios' },
-    { key: 'projects', label: 'Projects', href: '/projects' },
-  ];
-
   const loginHref = `/login?callbackUrl=${encodeURIComponent(pathname)}`;
 
-  // Close menu when route changes
+  /* ---------- prefetch routes so taps feel instant ---------- */
+  const prefetch = useCallback(
+    (href: string) => {
+      try {
+        router.prefetch(href);
+      } catch {
+        /* prefetch is best-effort */
+      }
+    },
+    [router]
+  );
+
+  // Menu items are not mounted while closed, so Link can't prefetch them. Do it here.
+  useEffect(() => {
+    NAV_ITEMS.forEach((item) => prefetch(item.href));
+  }, [prefetch]);
+
+  useEffect(() => {
+    if (authLoading) return;
+    prefetch(isAuthenticated ? ACCOUNT_HREF : '/login');
+  }, [authLoading, isAuthenticated, prefetch]);
+
+  /* ---------- navigation ---------- */
+  const navigate = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+      // Let the browser handle new-tab / new-window clicks
+      if (isModifiedEvent(e)) return;
+
+      e.preventDefault();
+      setMenuOpen(false);
+
+      // Already on this page → just close the menu
+      const target = href.split('?')[0];
+      if (target === pathname) return;
+
+      setPendingHref(href);
+      startTransition(() => {
+        router.push(href);
+      });
+    },
+    [pathname, router]
+  );
+
+  /* ---------- menu behaviour ---------- */
+  // Clear optimistic state once the route actually changes
   useEffect(() => {
     setMenuOpen(false);
+    setPendingHref(null);
   }, [pathname]);
 
-  // Close on outside click
+  // Close on outside press (pointerdown covers mouse + touch)
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
+    if (!menuOpen) return;
+    const handlePointerDown = (e: PointerEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setMenuOpen(false);
       }
     };
-
-    if (menuOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('pointerdown', handlePointerDown);
+    return () => document.removeEventListener('pointerdown', handlePointerDown);
   }, [menuOpen]);
 
   // Close on Escape
@@ -92,11 +145,19 @@ export default function MobileNav({ activePage }: MobileNavProps) {
   const itemActive = 'bg-gray-50 dark:bg-white/5 font-medium text-gray-900 dark:text-white';
   const itemIdle = 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5';
 
+  // Optimistic: the tapped item counts as active immediately
+  const isItemActive = (key: string, href: string) =>
+    pendingHref ? pendingHref === href : activePage === key;
+
+  const accountActive = pendingHref ? pendingHref === ACCOUNT_HREF : activePage === 'account';
+
   return (
     <div className="relative flex w-full items-center md:hidden" ref={menuRef}>
       {/* Dynamic title based on current page */}
       <Link
         href="/"
+        prefetch
+        onClick={(e) => navigate(e, '/')}
         className="text-lg font-semibold tracking-tight text-gray-900 dark:text-white truncate max-w-[60%]"
       >
         {title}
@@ -136,14 +197,17 @@ export default function MobileNav({ activePage }: MobileNavProps) {
           "
         >
           <nav className="py-1.5">
-            {navItems.map((item) => {
-              const isActive = activePage === item.key;
+            {NAV_ITEMS.map((item) => {
+              const isActive = isItemActive(item.key, item.href);
 
               return (
                 <Link
                   key={item.key}
                   href={item.href}
-                  onClick={() => setMenuOpen(false)}
+                  prefetch
+                  onClick={(e) => navigate(e, item.href)}
+                  onTouchStart={() => prefetch(item.href)}
+                  onMouseEnter={() => prefetch(item.href)}
                   aria-current={isActive ? 'page' : undefined}
                   className={`${itemBase} ${isActive ? itemActive : itemIdle}`}
                 >
@@ -155,10 +219,13 @@ export default function MobileNav({ activePage }: MobileNavProps) {
             {/* Profile link when logged in */}
             {!authLoading && isAuthenticated && (
               <Link
-                href="/account"
-                onClick={() => setMenuOpen(false)}
-                aria-current={activePage === 'account' ? 'page' : undefined}
-                className={`${itemBase} ${activePage === 'account' ? itemActive : itemIdle}`}
+                href={ACCOUNT_HREF}
+                prefetch
+                onClick={(e) => navigate(e, ACCOUNT_HREF)}
+                onTouchStart={() => prefetch(ACCOUNT_HREF)}
+                onMouseEnter={() => prefetch(ACCOUNT_HREF)}
+                aria-current={accountActive ? 'page' : undefined}
+                className={`${itemBase} ${accountActive ? itemActive : itemIdle}`}
               >
                 Profile
               </Link>
@@ -180,7 +247,9 @@ export default function MobileNav({ activePage }: MobileNavProps) {
               ) : (
                 <Link
                   href={loginHref}
-                  onClick={() => setMenuOpen(false)}
+                  prefetch
+                  onClick={(e) => navigate(e, loginHref)}
+                  onTouchStart={() => prefetch(loginHref)}
                   className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-900 transition-colors hover:bg-gray-50 focus:outline-none focus-visible:bg-gray-50 dark:text-white dark:hover:bg-white/5 dark:focus-visible:bg-white/5"
                 >
                   <LogIn className="h-4 w-4 shrink-0 text-gray-400" />
